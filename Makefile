@@ -40,7 +40,7 @@ CFLAGS_LIB = $(CFLAGS)
 CFLAGS_TEST = $(CFLAGS)
 endif
 
-LIBRARY_MODULE_OBJECTS = convert.o decompress-bc.o decompress-bptc.o decompress-etc.o \
+LIBRARY_MODULE_OBJECTS = clamp.o convert.o decompress-bc.o decompress-bptc.o decompress-etc.o \
 	decompress-eac.o decompress-rgtc.o texture.o
 LIBRARY_HEADER_FILES = detex.h
 TEST_PROGRAMS = validate

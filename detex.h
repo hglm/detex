@@ -312,6 +312,7 @@ bool detexDecompressBlockBPTC_SIGNED_FLOAT(const uint8_t *bitstring,
 uint32_t detexGetModeETC1(const uint8_t *bitstring);
 uint32_t detexGetModeETC2(const uint8_t *bitstring);
 uint32_t detexGetModeETC2_PUNCHTHROUGH(const uint8_t *bitstring);
+uint32_t detexGetModeETC2_EAC(const uint8_t *bitstring);
 
 /*
  * Set mode functions. The set mode function modifies a compressed texture block
@@ -411,6 +412,13 @@ static DETEX_INLINE_ONLY int detexGetBlockSize(uint32_t pixel_format) {
 /* Return the number of components of pixel format. */
 static DETEX_INLINE_ONLY int detexGetNumberOfComponents(uint32_t pixel_format) {
 	return 1 + ((pixel_format & 0x30) >> 4);
+}
+
+extern const uint8_t detex_clamp0to255_table[767];
+
+/* Clamp a value in the range -255 to 511 to the the range 0 to 255. */
+static DETEX_INLINE_ONLY uint8_t detexClamp0To255(int x) {
+	return detex_clamp0to255_table[x + 255];
 }
 
 /*

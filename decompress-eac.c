@@ -18,12 +18,74 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "detex.h"
 
+static const int8_t eac_modifier_table[16][8] = {
+	{ -3, -6, -9, -15, 2, 5, 8, 14 },
+	{ -3, -7, -10, -13, 2, 6, 9, 12 },
+	{ -2, -5, -8, -13, 1, 4, 7, 12 },
+	{ -2, -4, -6, -13, 1, 3, 5, 12 },
+	{ -3, -6, -8, -12, 2, 5, 7, 11 },
+	{ -3, -7, -9, -11, 2, 6, 8, 10 },
+	{ -4, -7, -8, -11, 3, 6, 7, 10 },
+	{ -3, -5, -8, -11, 2, 4, 7, 10 },
+	{ -2, -6, -8, -10, 1, 5, 7, 9 },
+	{ -2, -5, -8, -10, 1, 4, 7, 9 },
+	{ -2, -4, -8, -10, 1, 3, 7, 9 },
+	{ -2, -5, -7, -10, 1, 4, 6, 9 },
+	{ -3, -4, -7, -10, 2, 3, 6, 9 },
+	{ -1, -2, -3, -10, 0, 1, 2, 9 },
+	{ -4, -6, -8, -9, 3, 5, 7, 8 },
+	{ -3, -5, -7, -9, 2, 4, 6, 8 }
+};
+
+static DETEX_INLINE_ONLY int modifier_times_multiplier(int modifier, int multiplier) {
+	return modifier * multiplier;
+}
+
+static DETEX_INLINE_ONLY void ProcessPixelEAC(uint8_t i, uint64_t pixels,
+const int8_t *modifier_table, int base_codeword, int multiplier, uint8_t *pixel_buffer) {
+	int modifier = modifier_table[(pixels >> (45 - i * 3)) & 7];
+	pixel_buffer[((i & 3) * 4 + ((i & 12) >> 2)) * 4 + DETEX_PIXEL32_ALPHA_BYTE_OFFSET] =
+		detexClamp0To255(base_codeword + modifier_times_multiplier(modifier, multiplier));
+}
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the ETC2_EAC */
 /* format. */
 bool detexDecompressBlockETC2_EAC(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
-	return false;
+	bool r = detexDecompressBlockETC2(&bitstring[8], mode_mask, flags, pixel_buffer);
+	if (!r)
+		return false;
+	// Decode the alpha part.
+	int base_codeword = bitstring[0];
+	const int8_t *modifier_table = eac_modifier_table[(bitstring[1] & 0x0F)];
+	int multiplier = (bitstring[1] & 0xF0) >> 4;
+	if (multiplier == 0 && (flags & DETEX_DECOMPRESS_FLAG_ENCODE))
+		// Not allowed in encoding. Decoder should handle it.
+		return false;
+	uint64_t pixels = ((uint64_t)bitstring[2] << 40) | ((uint64_t)bitstring[3] << 32) | ((uint64_t)bitstring[4] << 24)
+		| ((uint64_t)bitstring[5] << 16) | ((uint64_t)bitstring[6] << 8) | bitstring[7];
+	ProcessPixelEAC(0, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(1, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(2, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(3, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(4, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(5, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(6, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(7, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(8, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(9, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(10, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(11, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(12, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(13, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(14, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	ProcessPixelEAC(15, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
+	return true;
+}
+
+/* Return the internal mode of a ETC2_EAC block. */
+uint32_t detexGetModeETC2_EAC(const uint8_t *bitstring) {
+	return detexGetModeETC2(&bitstring[8]);
 }
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
