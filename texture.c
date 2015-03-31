@@ -152,3 +152,8 @@ uint32_t pixel_format) {
 	return result;
 }
 
+/* Return size of compressed block in bytes given the texture format. */
+uint32_t detexGetCompressedBlockSize(uint32_t texture_format) {
+	return compressed_block_size[texture_format];
+}
+

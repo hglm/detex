@@ -135,10 +135,21 @@ static void LoadCompressedTexture(int i) {
 		exit(1);
 	}
 	// Read the KTX header (skip it).
-	fread(compressed_data[i], 1, 68, f);
+	int n = fread(compressed_data[i], 1, 68, f);
+	if (n != 68) {
+		printf("Error reading texture file %s.\n", texture_file[i]);
+		exit(1);
+	}
 	// Read the compressed texture. */
-	fread(compressed_data[i], 1, 16 * (TEXTURE_WIDTH / 4) *
-		(TEXTURE_HEIGHT / 4), f);
+	uint32_t compressed_block_size = detexGetCompressedBlockSize(
+		texture_format[i]);
+	n = fread(compressed_data[i], 1, compressed_block_size *
+		(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4), f);
+	if (n != compressed_block_size * (TEXTURE_WIDTH / 4) *
+	(TEXTURE_HEIGHT / 4)) {
+		printf("Error reading texture file %s.\n", texture_file[i]);
+		exit(1);
+	}
 	fclose(f);
 }
 
