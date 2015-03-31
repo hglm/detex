@@ -34,6 +34,8 @@ __BEGIN_DECLS
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DETEX_INLINE_ONLY __attribute__((always_inline)) inline
+
 /* Maximum uncompressed block size in bytes. */
 #define DETEX_MAX_BLOCK_SIZE 128
 
@@ -392,17 +394,17 @@ bool detexConvertPixels(uint8_t *pixel_buffer, uint32_t nu_pixels,
 	uint32_t source_pixel_format, uint32_t target_pixel_format);
 
 /* Return pixel size in bytes for pixel format. */
-static inline int detexGetPixelSize(uint32_t pixel_format) {
+static DETEX_INLINE_ONLY int detexGetPixelSize(uint32_t pixel_format) {
 	return 1 << (((pixel_format & 0x700) >> 8) - 1);
 }
 
 /* Return size of block in bytes for particular pixel format. */
-static inline int detexGetBlockSize(uint32_t pixel_format) {
+static DETEX_INLINE_ONLY int detexGetBlockSize(uint32_t pixel_format) {
 	return 16 * detexGetPixelSize(pixel_format);
 }
 
 /* Return the number of components of pixel format. */
-static inline int detexGetNumberOfComponents(uint32_t pixel_format) {
+static DETEX_INLINE_ONLY int detexGetNumberOfComponents(uint32_t pixel_format) {
 	return 1 + ((pixel_format & 0x30) >> 4);
 }
 
@@ -429,120 +431,120 @@ static inline int detexGetNumberOfComponents(uint32_t pixel_format) {
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ || !defined(__BYTE_ORDER__)
 
-static inline uint32_t detexPack32RGBA8(int r, int g, int b, int a) {
+static DETEX_INLINE_ONLY uint32_t detexPack32RGBA8(int r, int g, int b, int a) {
 	return (uint32_t)r | ((uint32_t)g << 8) | ((uint32_t)b << 16) |
 		((uint32_t)a << 24);
 }
 
-static inline uint32_t detexPack32RGB8Alpha0xFF(int r, int g, int b) {
+static DETEX_INLINE_ONLY uint32_t detexPack32RGB8Alpha0xFF(int r, int g, int b) {
 	return detexPack32RGBA8(r, g, b, 0xFF);
 }
 
-static inline uint32_t detexPack32R8(int r) {
+static DETEX_INLINE_ONLY uint32_t detexPack32R8(int r) {
 	return (uint32_t)r;
 }
 
-static inline uint32_t detexPack32G8(int g) {
+static DETEX_INLINE_ONLY uint32_t detexPack32G8(int g) {
 	return (uint32_t)g << 8;
 }
 
-static inline uint32_t detexPack32B8(int b) {
+static DETEX_INLINE_ONLY uint32_t detexPack32B8(int b) {
 	return (uint32_t)b << 16;
 }
 
-static inline uint32_t detexPack32A8(int a) {
+static DETEX_INLINE_ONLY uint32_t detexPack32A8(int a) {
 	return (uint32_t)a << 24;
 }
 
-static inline uint32_t detexPack32R16(uint32_t r16) {
+static DETEX_INLINE_ONLY uint32_t detexPack32R16(uint32_t r16) {
 	return r16;
 }
 
-static inline uint32_t detexPack32G16(uint32_t g16) {
+static DETEX_INLINE_ONLY uint32_t detexPack32G16(uint32_t g16) {
 	return g16 << 16;
 }
 
-static inline uint32_t detexPack32RG16(uint32_t r16, uint32_t g16) {
+static DETEX_INLINE_ONLY uint32_t detexPack32RG16(uint32_t r16, uint32_t g16) {
 	return r16 | (g16 << 16);
 }
 
-static inline uint64_t detexPack64R16(uint32_t r16) {
+static DETEX_INLINE_ONLY uint64_t detexPack64R16(uint32_t r16) {
 	return r16;
 }
 
-static inline uint64_t detexPack64G16(uint32_t g16) {
+static DETEX_INLINE_ONLY uint64_t detexPack64G16(uint32_t g16) {
 	return g16 << 16;
 }
 
-static inline uint64_t detexPack64B16(uint32_t b16) {
+static DETEX_INLINE_ONLY uint64_t detexPack64B16(uint32_t b16) {
 	return (uint64_t)b16 << 32;
 }
 
-static inline uint64_t detexPack64A16(uint32_t a16) {
+static DETEX_INLINE_ONLY uint64_t detexPack64A16(uint32_t a16) {
 	return (uint64_t)a16 << 48;
 }
 
-static inline uint64_t detexPack64RGB16(uint16_t r16, uint16_t g16, uint16_t b16) {
+static DETEX_INLINE_ONLY uint64_t detexPack64RGB16(uint16_t r16, uint16_t g16, uint16_t b16) {
 	return (uint64_t)r16 | ((uint64_t)g16 << 16) | ((uint64_t)b16 << 32);
 }
 
-static inline uint64_t detexPack64RGBA16(uint16_t r16, uint16_t g16, uint16_t b16, uint16_t a16) {
+static DETEX_INLINE_ONLY uint64_t detexPack64RGBA16(uint16_t r16, uint16_t g16, uint16_t b16, uint16_t a16) {
 	return (uint64_t)r16 | ((uint64_t)g16 << 16) | ((uint64_t)b16 << 32) | ((uint64_t)a16 << 48);
 }
 
-static inline uint32_t detexPixel32GetR8(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetR8(uint32_t pixel) {
 	return pixel & 0xFF;
 }
 
-static inline uint32_t detexPixel32GetG8(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetG8(uint32_t pixel) {
 	return (pixel & 0xFF00) >> 8;
 }
 
-static inline uint32_t detexPixel32GetB8(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetB8(uint32_t pixel) {
 	return (pixel & 0xFF0000) >> 16;
 }
 
-static inline uint32_t detexPixel32GetA8(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetA8(uint32_t pixel) {
 	return (pixel & 0xFF000000) >> 24;
 }
 
-static inline int detexPixel32GetSignedR8(uint32_t pixel) {
+static DETEX_INLINE_ONLY int detexPixel32GetSignedR8(uint32_t pixel) {
 	return (int8_t)(pixel & 0xFF);
 }
 
-static inline int detexPixel32GetSignedG8(uint32_t pixel) {
+static DETEX_INLINE_ONLY int detexPixel32GetSignedG8(uint32_t pixel) {
 	return (int8_t)((pixel & 0xFF00) >> 8);
 }
 
-static inline uint32_t detexPixel32GetR16(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetR16(uint32_t pixel) {
 	return pixel & 0x0000FFFF;
 }
 
-static inline uint32_t detexPixel32GetG16(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetG16(uint32_t pixel) {
 	return (pixel & 0xFFFF0000) >> 16;
 }
 
-static inline uint32_t detexPixel32GetSignedR16(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetSignedR16(uint32_t pixel) {
 	return (int16_t)(pixel & 0x0000FFFF);
 }
 
-static inline uint32_t detexPixel32GetSignedG16(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetSignedG16(uint32_t pixel) {
 	return (int16_t)((pixel & 0xFFFF0000) >> 16);
 }
 
-static inline uint64_t detexPixel64GetR16(uint64_t pixel) {
+static DETEX_INLINE_ONLY uint64_t detexPixel64GetR16(uint64_t pixel) {
 	return pixel & 0xFFFF;
 }
 
-static inline uint64_t detexPixel64GetG16(uint64_t pixel) {
+static DETEX_INLINE_ONLY uint64_t detexPixel64GetG16(uint64_t pixel) {
 	return (pixel & 0xFFFF0000) >> 16;
 }
 
-static inline uint64_t detexPixel64GetB16(uint64_t pixel) {
+static DETEX_INLINE_ONLY uint64_t detexPixel64GetB16(uint64_t pixel) {
 	return (pixel & 0xFFFF00000000) >> 32;
 }
 
-static inline uint64_t detexPixel64GetA16(uint64_t pixel) {
+static DETEX_INLINE_ONLY uint64_t detexPixel64GetA16(uint64_t pixel) {
 	return (pixel & 0xFFFF000000000000) >> 48;
 }
 
@@ -552,55 +554,55 @@ static inline uint64_t detexPixel64GetA16(uint64_t pixel) {
 
 #error Big-endian byte order not supported.
 
-static inline uint32_t detexPack32RGBA8(int r, int g, int b, int a) {
+static DETEX_INLINE_ONLY uint32_t detexPack32RGBA8(int r, int g, int b, int a) {
 	return a | ((uint32_t)b << 8) | ((uint32_t)g << 16) | ((uint32_t)r << 24);
 }
 
-static inline uint32_t detexPack32RGB8Alpha0xFF(int r, int g, int b) {
+static DETEX_INLINE_ONLY uint32_t detexPack32RGB8Alpha0xFF(int r, int g, int b) {
 	return pack_rgba(r, g, b, 0xFF);
 }
 
-static inline uint32_t detexPack32R8(int r) {
+static DETEX_INLINE_ONLY uint32_t detexPack32R8(int r) {
 	return (uint32_t)r << 24;
 }
 
-static inline uint32_t detexPack32G8(int g) {
+static DETEX_INLINE_ONLY uint32_t detexPack32G8(int g) {
 	return (uint32_t)g << 16;
 }
 
-static inline uint32_t detexPack32B8(int b) {
+static DETEX_INLINE_ONLY uint32_t detexPack32B8(int b) {
 	return (uint32_t)b << 8;
 }
 
-static inline uint32_t detexPack32A8(int a) {
+static DETEX_INLINE_ONLY uint32_t detexPack32A8(int a) {
 	return a;
 }
 
-static inline uint32_t detexPack32RG16(uint32_t r16, uint32_t g16) {
+static DETEX_INLINE_ONLY uint32_t detexPack32RG16(uint32_t r16, uint32_t g16) {
 	return g16 | (r16 << 16);
 }
 
-static inline int detexPixel32GetR8(uint32_t pixel) {
+static DETEX_INLINE_ONLY int detexPixel32GetR8(uint32_t pixel) {
 	return (pixel & 0xFF000000) >> 24;
 }
 
-static inline int detexPixel32GetG8(uint32_t pixel) {
+static DETEX_INLINE_ONLY int detexPixel32GetG8(uint32_t pixel) {
 	return (pixel & 0xFF0000) >> 16;
 }
 
-static inline int detexPixel32GetB8(uint32_t pixel) {
+static DETEX_INLINE_ONLY int detexPixel32GetB8(uint32_t pixel) {
 	return (pixel & 0xFF00) >> 8;
 }
 
-static inline int detexPixel32GetA8(uint32_t pixel) {
+static DETEX_INLINE_ONLY int detexPixel32GetA8(uint32_t pixel) {
 	return pixel & 0xFF;
 }
 
-static inline uint32_t detexPixel32GetR16(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetR16(uint32_t pixel) {
 	return ((pixel & 0xFF000000) >> 24) | ((pixel & 0x00FF0000) >> 8);
 }
 
-static inline uint32_t detexPixel32GetG16(uint32_t pixel) {
+static DETEX_INLINE_ONLY uint32_t detexPixel32GetG16(uint32_t pixel) {
 	return ((pixel & 0x0000FF00) >> 8) | ((pixel & 0x000000FF) << 8);
 }
 
