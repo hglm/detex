@@ -30,3 +30,7 @@
 
 # Debug files
 *.dSYM/
+
+# Misc.
+.depend
+validate
