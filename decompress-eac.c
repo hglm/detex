@@ -21,35 +21,35 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the ETC2_EAC */
 /* format. */
-bool detexDecompressBlockETC2_EAC(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockETC2_EAC(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* EAC_R11 format. */
-bool detexDecompressBlockEAC_R11(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockEAC_R11(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* EAC_SIGNED_R11 format. */
-bool detexDecompressBlockEAC_SIGNED_R11(uint8_t *bitstring,
+bool detexDecompressBlockEAC_SIGNED_R11(const uint8_t *bitstring,
 uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* EAC_RG11 format. */
-bool detexDecompressBlockEAC_RG11(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockEAC_RG11(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* EAC_SIGNED_RG11 format. */
-bool detexDecompressBlockEAC_SIGNED_RG11(uint8_t *bitstring,
+bool detexDecompressBlockEAC_SIGNED_RG11(const uint8_t *bitstring,
 uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }

@@ -205,41 +205,41 @@ enum {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the ETC1 */
 /* format. */
-bool detexDecompressBlockETC1(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockETC1(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the ETC2 */
 /* format. */
-bool detexDecompressBlockETC2(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockETC2(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* ETC2_PUNCHTROUGH format. */
-bool detexDecompressBlockETC2_PUNCHTHROUGH(uint8_t *bitstring,
+bool detexDecompressBlockETC2_PUNCHTHROUGH(const uint8_t *bitstring,
 	uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the ETC2_EAC */
 /* format. */
-bool detexDecompressBlockETC2_EAC(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockETC2_EAC(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC1 */
 /* format. */
-bool detexDecompressBlockBC1(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockBC1(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC1A */
 /* format. */
-bool detexDecompressBlockBC1A(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockBC1A(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC2 */
 /* format. */
-bool detexDecompressBlockBC2(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockBC2(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC3 */
 /* format. */
-bool detexDecompressBlockBC3(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockBC3(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the BPTC */
 /* (BC7) format. */
-bool detexDecompressBlockBPTC(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockBPTC(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 
 /*
@@ -249,11 +249,11 @@ bool detexDecompressBlockBPTC(uint8_t *bitstring, uint32_t mode_mask,
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* unsigned RGTC1 (BC4) format. */
-bool detexDecompressBlockRGTC1(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockRGTC1(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* unsigned RGTC2 (BC5) format. */
-bool detexDecompressBlockRGTC2(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockRGTC2(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 
 /*
@@ -264,27 +264,27 @@ bool detexDecompressBlockRGTC2(uint8_t *bitstring, uint32_t mode_mask,
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* signed RGTC1 (signed BC4) format. */
-bool detexDecompressBlockSIGNED_RGTC1(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockSIGNED_RGTC1(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* signed RGTC2 (signed BC5) format. */
-bool detexDecompressBlockSIGNED_RGTC2(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockSIGNED_RGTC2(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* ETC2_R11_EAC format. */
-bool detexDecompressBlockEAC_R11(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockEAC_R11(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* ETC2_SIGNED_R11_EAC format. */
-bool detexDecompressBlockEAC_SIGNED_R11(uint8_t *bitstring,
+bool detexDecompressBlockEAC_SIGNED_R11(const uint8_t *bitstring,
 	uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* ETC2_RG11_EAC format. */
-bool detexDecompressBlockEAC_RG11(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockEAC_RG11(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* ETC2_SIGNED_RG11_EAC format. */
-bool detexDecompressBlockEAC_SIGNED_RG11(uint8_t *bitstring,
+bool detexDecompressBlockEAC_SIGNED_RG11(const uint8_t *bitstring,
 	uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer);
 
 /*
@@ -295,12 +295,12 @@ bool detexDecompressBlockEAC_SIGNED_RG11(uint8_t *bitstring,
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* BPTC_FLOAT (BC6H) format. The output format is */
 /* DETEX_PIXEL_FORMAT_FLOAT_RGBX16. */
-bool detexDecompressBlockBPTC_FLOAT(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockBPTC_FLOAT(const uint8_t *bitstring, uint32_t mode_mask,
 	uint32_t flags, uint8_t *pixel_buffer);
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* BPTC_FLOAT (BC6H_FLOAT) format. The output format is */
 /* DETEX_PIXEL_FORMAT_SIGNED_FLOAT_RGBX16. */
-bool detexDecompressBlockBPTC_SIGNED_FLOAT(uint8_t *bitstring,
+bool detexDecompressBlockBPTC_SIGNED_FLOAT(const uint8_t *bitstring,
 	uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer);
 
 
@@ -363,7 +363,7 @@ enum {
  * General block decompression function. Block is decompressed using the given
  * compressed format, and stored in the given pixel format.
  */
-bool detexDecompressBlock(uint8_t *bitstring, uint32_t texture_format,
+bool detexDecompressBlock(const uint8_t *bitstring, uint32_t texture_format,
 	uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer,
 	uint32_t pixel_format);
 
@@ -372,7 +372,7 @@ bool detexDecompressBlock(uint8_t *bitstring, uint32_t texture_format,
  * array of image buffer tiles (corresponding to compressed blocks), converting
  * into the given pixel format.
  */
-bool detexDecompressTextureTiled(uint8_t *bitstring, uint32_t texture_format,
+bool detexDecompressTextureTiled(const uint8_t *bitstring, uint32_t texture_format,
 	uint32_t width_in_blocks, uint32_t height_in_blocks, uint8_t *pixel_buffer,
 	uint32_t pixel_format);
 
@@ -381,7 +381,7 @@ bool detexDecompressTextureTiled(uint8_t *bitstring, uint32_t texture_format,
  * image buffer, with pixels stored row-by-row, converting into the given pixel
  * format.
  */
-bool detexDecompressTextureLinear(uint8_t *bitstring, uint32_t texture_format,
+bool detexDecompressTextureLinear(const uint8_t *bitstring, uint32_t texture_format,
 	uint32_t width_in_blocks, uint32_t height_in_blocks, uint8_t *pixel_buffer,
 	uint32_t pixel_format);
 

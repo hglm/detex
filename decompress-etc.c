@@ -141,7 +141,7 @@ uint32_t table_codeword, int *base_color_subblock, uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the ETC1 */
 /* format. */
-bool detexDecompressBlockETC1(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockETC1(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	int differential_mode = bitstring[3] & 2;
 	if (differential_mode) {
@@ -246,7 +246,7 @@ uint32_t detexGetModeETC1(const uint8_t *bitstring) {
 
 static const int etc2_distance_table[8] = { 3, 6, 11, 16, 23, 32, 41, 64 };
 
-static void ProcessBlockETC2TOrHMode(const unsigned char *bitstring, int mode, uint8_t *pixel_buffer) {
+static void ProcessBlockETC2TOrHMode(const uint8_t *bitstring, int mode, uint8_t *pixel_buffer) {
 	int base_color1_R, base_color1_G, base_color1_B;
 	int base_color2_R, base_color2_G, base_color2_B;
 	int paint_color_R[4], paint_color_G[4], paint_color_B[4];
@@ -330,7 +330,7 @@ static void ProcessBlockETC2TOrHMode(const unsigned char *bitstring, int mode, u
 	}
 }
 
-static void ProcessBlockETC2PlanarMode(const unsigned char *bitstring, uint8_t *pixel_buffer) {
+static void ProcessBlockETC2PlanarMode(const uint8_t *bitstring, uint8_t *pixel_buffer) {
 	// Each color O, H and V is in 6-7-6 format.
 	int RO = (bitstring[0] & 0x7E) >> 1;
 	int GO = ((bitstring[0] & 0x1) << 6) | ((bitstring[1] & 0x7E) >> 1);
@@ -363,7 +363,7 @@ static void ProcessBlockETC2PlanarMode(const unsigned char *bitstring, uint8_t *
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the ETC2 */
 /* format. */
-bool detexDecompressBlockETC2(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockETC2(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	// Figure out the mode.
 	if ((bitstring[3] & 2) == 0) {
@@ -469,7 +469,7 @@ uint32_t table_codeword, int *base_color_subblock, uint8_t *pixel_buffer) {
 }
 
 
-void ProcessBlockETC2PunchthroughDifferentialMode(const unsigned char *bitstring,
+void ProcessBlockETC2PunchthroughDifferentialMode(const uint8_t *bitstring,
 uint8_t *pixel_buffer) {
 	int flipbit = bitstring[3] & 1;
 	int base_color_subblock1[3];
@@ -531,7 +531,7 @@ uint8_t *pixel_buffer) {
 	}
 }
 
-static void ProcessBlockETC2PunchthroughTOrHMode(const unsigned char *bitstring,
+static void ProcessBlockETC2PunchthroughTOrHMode(const uint8_t *bitstring,
 int mode, uint8_t *pixel_buffer) {
 	int base_color1_R, base_color1_G, base_color1_B;
 	int base_color2_R, base_color2_G, base_color2_B;
@@ -619,7 +619,7 @@ int mode, uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* ETC2_PUNCHTROUGH format. */
-bool detexDecompressBlockETC2_PUNCHTHROUGH(uint8_t *bitstring,
+bool detexDecompressBlockETC2_PUNCHTHROUGH(const uint8_t *bitstring,
 uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer) {
 	int R = (bitstring[0] & 0xF8);
 	R += complement3bitshifted(bitstring[0] & 7);

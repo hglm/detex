@@ -21,28 +21,28 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* unsigned RGTC1 (BC4) format. */
-bool detexDecompressBlockRGTC1(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockRGTC1(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* unsigned RGTC2 (BC5) format. */
-bool detexDecompressBlockRGTC2(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockRGTC2(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* signed RGTC1 (signed BC4) format. */
-bool detexDecompressBlockSIGNED_RGTC1(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockSIGNED_RGTC1(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* signed RGTC2 (signed BC5) format. */
-bool detexDecompressBlockSIGNED_RGTC2(uint8_t *bitstring, uint32_t mode_mask,
+bool detexDecompressBlockSIGNED_RGTC2(const uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
 	return false;
 }
