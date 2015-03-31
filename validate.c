@@ -37,6 +37,10 @@ static const uint32_t texture_format[] = {
 	DETEX_TEXTURE_FORMAT_ETC2,
 	DETEX_TEXTURE_FORMAT_ETC2_PUNCHTHROUGH,
 	DETEX_TEXTURE_FORMAT_ETC2_EAC,
+	DETEX_TEXTURE_FORMAT_EAC_R11,
+	DETEX_TEXTURE_FORMAT_EAC_RG11,
+	DETEX_TEXTURE_FORMAT_EAC_SIGNED_R11,
+//	DETEX_TEXTURE_FORMAT_EAC_SIGNED_RG11
 };
 
 static const char *texture_file[] = {
@@ -49,6 +53,10 @@ static const char *texture_file[] = {
 	"test-texture-ETC2.ktx",
 	"test-texture-ETC2_PUNCHTHROUGH.ktx",
 	"test-texture-ETC2_EAC.ktx",
+	"test-texture-EAC_R11.ktx",
+	"test-texture-EAC_RG11.ktx",
+	"test-texture-EAC_SIGNED_R11.ktx",
+//	"test-texture-EAC_SIGNED_RG11.ktx",
 };
 
 static const uint32_t pixel_format[] = {
@@ -61,6 +69,10 @@ static const uint32_t pixel_format[] = {
 	DETEX_PIXEL_FORMAT_BGRX8,
 	DETEX_PIXEL_FORMAT_BGRA8,
 	DETEX_PIXEL_FORMAT_BGRA8,
+	DETEX_PIXEL_FORMAT_R16,
+	DETEX_PIXEL_FORMAT_RG16,
+	DETEX_PIXEL_FORMAT_SIGNED_R16,
+//	DETEX_PIXEL_FORMAT_SIGNED_RG16
 };
 
 #define NU_TEXTURE_FORMATS (sizeof(texture_format) / sizeof(texture_format[0]))
