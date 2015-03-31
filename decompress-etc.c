@@ -123,7 +123,7 @@ static DETEX_INLINE_ONLY int complement3bit(int x) {
 	return x;
 }
 
-// Define some macros to speed up ETC1 decoding.
+// Define inline function to speed up ETC1 decoding.
 
 static DETEX_INLINE_ONLY void ProcessPixelETC1(uint8_t i, uint32_t pixel_index_word,
 uint32_t table_codeword, int *base_color_subblock, uint8_t *pixel_buffer) {
@@ -235,11 +235,169 @@ uint32_t flags, uint8_t *pixel_buffer) {
 	return true;
 }
 
+static const int etc2_distance_table[8] = { 3, 6, 11, 16, 23, 32, 41, 64 };
+
+static void ProcessBlockETC2TOrHMode(const unsigned char *bitstring, int mode, uint8_t *pixel_buffer) {
+	int base_color1_R, base_color1_G, base_color1_B;
+	int base_color2_R, base_color2_G, base_color2_B;
+	int paint_color_R[4], paint_color_G[4], paint_color_B[4];
+	int distance;
+	if (mode == 0) {
+		// T mode.
+		base_color1_R = ((bitstring[0] & 0x18) >> 1) | (bitstring[0] & 0x3);
+		base_color1_R |= base_color1_R << 4;
+		base_color1_G = bitstring[1] & 0xF0;
+		base_color1_G |= base_color1_G >> 4;
+		base_color1_B = bitstring[1] & 0x0F;
+		base_color1_B |= base_color1_B << 4;
+		base_color2_R = bitstring[2] & 0xF0;
+		base_color2_R |= base_color2_R >> 4;
+		base_color2_G = bitstring[2] & 0x0F;
+		base_color2_G |= base_color2_G << 4;
+		base_color2_B = bitstring[3] & 0xF0;
+		base_color2_B |= base_color2_B >> 4;
+		// index = (da << 1) | db
+		distance = etc2_distance_table[((bitstring[3] & 0x0C) >> 1) | (bitstring[3] & 0x1)];
+		paint_color_R[0] = base_color1_R;
+		paint_color_G[0] = base_color1_G;
+		paint_color_B[0] = base_color1_B;
+		paint_color_R[2] = base_color2_R;
+		paint_color_G[2] = base_color2_G;
+		paint_color_B[2] = base_color2_B;
+		paint_color_R[1] = clamp(base_color2_R + distance);
+		paint_color_G[1] = clamp(base_color2_G + distance);
+		paint_color_B[1] = clamp(base_color2_B + distance);
+		paint_color_R[3] = clamp(base_color2_R - distance);
+		paint_color_G[3] = clamp(base_color2_G - distance);
+		paint_color_B[3] = clamp(base_color2_B - distance);
+	}
+	else {
+		// H mode.
+		base_color1_R = (bitstring[0] & 0x78) >> 3;
+		base_color1_R |= base_color1_R << 4;
+		base_color1_G = ((bitstring[0] & 0x07) << 1) | ((bitstring[1] & 0x10) >> 4);
+		base_color1_G |= base_color1_G << 4;
+		base_color1_B = (bitstring[1] & 0x08) | ((bitstring[1] & 0x03) << 1) | ((bitstring[2] & 0x80) >> 7);
+		base_color1_B |= base_color1_B << 4;
+		base_color2_R = (bitstring[2] & 0x78) >> 3;
+		base_color2_R |= base_color2_R << 4;
+		base_color2_G = ((bitstring[2] & 0x07) << 1) | ((bitstring[3] & 0x80) >> 7);
+		base_color2_G |= base_color2_G << 4;
+		base_color2_B = (bitstring[3] & 0x78) >> 3;
+		base_color2_B |= base_color2_B << 4;
+		// da is most significant bit, db is middle bit, least significant bit is
+		// (base_color1 value >= base_color2 value).
+		int base_color1_value = (base_color1_R << 16) + (base_color1_G << 8) + base_color1_B;
+		int base_color2_value = (base_color2_R << 16) + (base_color2_G << 8) + base_color2_B;
+		int bit;
+		if (base_color1_value >= base_color2_value)
+			bit = 1;
+		else
+			bit = 0;
+		distance = etc2_distance_table[(bitstring[3] & 0x04) | ((bitstring[3] & 0x01) << 1) | bit];
+		paint_color_R[0] = clamp(base_color1_R + distance);
+		paint_color_G[0] = clamp(base_color1_G + distance);
+		paint_color_B[0] = clamp(base_color1_B + distance);
+		paint_color_R[1] = clamp(base_color1_R - distance);
+		paint_color_G[1] = clamp(base_color1_G - distance);
+		paint_color_B[1] = clamp(base_color1_B - distance);
+		paint_color_R[2] = clamp(base_color2_R + distance);
+		paint_color_G[2] = clamp(base_color2_G + distance);
+		paint_color_B[2] = clamp(base_color2_B + distance);
+		paint_color_R[3] = clamp(base_color2_R - distance);
+		paint_color_G[3] = clamp(base_color2_G - distance);
+		paint_color_B[3] = clamp(base_color2_B - distance);
+	}
+	uint32_t pixel_index_word = ((uint32_t)bitstring[4] << 24) | ((uint32_t)bitstring[5] << 16) |
+		((uint32_t)bitstring[6] << 8) | bitstring[7];
+	uint32_t *buffer = (uint32_t *)pixel_buffer;
+	for (int i = 0; i < 16; i++) {
+		int pixel_index = ((pixel_index_word & (1 << i)) >> i)			// Least significant bit.
+			| ((pixel_index_word & (0x10000 << i)) >> (16 + i - 1));	// Most significant bit.
+		int r = paint_color_R[pixel_index];
+		int g = paint_color_G[pixel_index];
+		int b = paint_color_B[pixel_index];
+		buffer[(i & 3) * 4 + ((i & 12) >> 2)] = detexPack32RGB8Alpha0xFF(r, g, b);
+	}
+}
+
+static void ProcessBlockETC2PlanarMode(const unsigned char *bitstring, uint8_t *pixel_buffer) {
+	// Each color O, H and V is in 6-7-6 format.
+	int RO = (bitstring[0] & 0x7E) >> 1;
+	int GO = ((bitstring[0] & 0x1) << 6) | ((bitstring[1] & 0x7E) >> 1);
+	int BO = ((bitstring[1] & 0x1) << 5) | (bitstring[2] & 0x18) | ((bitstring[2] & 0x03) << 1) |
+		((bitstring[3] & 0x80) >> 7);
+	int RH = ((bitstring[3] & 0x7B) >> 1) | (bitstring[3] & 0x1);
+	int GH = (bitstring[4] & 0xFE) >> 1;
+	int BH = ((bitstring[4] & 0x1) << 5) | ((bitstring[5] & 0xF8) >> 3);
+	int RV = ((bitstring[5] & 0x7) << 3) | ((bitstring[6] & 0xE0) >> 5);
+	int GV = ((bitstring[6] & 0x1F) << 2) | ((bitstring[7] & 0xC0) >> 6);
+	int BV = bitstring[7] & 0x3F;
+	RO = (RO << 2) | ((RO & 0x30) >> 4);	// Replicate bits.
+	GO = (GO << 1) | ((GO & 0x40) >> 6);
+	BO = (BO << 2) | ((BO & 0x30) >> 4);
+	RH = (RH << 2) | ((RH & 0x30) >> 4);
+	GH = (GH << 1) | ((GH & 0x40) >> 6);
+	BH = (BH << 2) | ((BH & 0x30) >> 4);
+	RV = (RV << 2) | ((RV & 0x30) >> 4);
+	GV = (GV << 1) | ((GV & 0x40) >> 6);
+	BV = (BV << 2) | ((BV & 0x30) >> 4);
+	uint32_t *buffer = (uint32_t *)pixel_buffer;
+	for (int y = 0; y < 4; y++)
+		for (int x = 0; x < 4; x++) {
+			int r = clamp((x * (RH - RO) + y * (RV - RO) + 4 * RO + 2) >> 2);
+			int g = clamp((x * (GH - GO) + y * (GV - GO) + 4 * GO + 2) >> 2);
+			int b = clamp((x * (BH - BO) + y * (BV - BO) + 4 * BO + 2) >> 2);
+			buffer[y * 4 + x] = detexPack32RGB8Alpha0xFF(r, g, b);
+		}
+}
+
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the ETC2 */
 /* format. */
 bool detexDecompressBlockETC2(uint8_t *bitstring, uint32_t mode_mask,
 uint32_t flags, uint8_t *pixel_buffer) {
-	return false;
+	// Figure out the mode.
+	if ((bitstring[3] & 2) == 0) {
+		// Individual mode.
+		return detexDecompressBlockETC1(bitstring, mode_mask, flags,
+			pixel_buffer);
+	}
+	if ((mode_mask & (~DETEX_MODE_MASK_ETC_INDIVIDUAL)) == 0)
+		return false;
+	int R = (bitstring[0] & 0xF8);
+	R += complement3bitshifted(bitstring[0] & 7);
+	int G = (bitstring[1] & 0xF8);
+	G += complement3bitshifted(bitstring[1] & 7);
+	int B = (bitstring[2] & 0xF8);
+	B += complement3bitshifted(bitstring[2] & 7);
+	if (R & 0xFF07) {
+		// T mode.
+		if ((mode_mask & DETEX_MODE_MASK_ETC_T) == 0)
+			return false;
+		ProcessBlockETC2TOrHMode(bitstring, 0, pixel_buffer);
+		return true;
+	}
+	else
+	if (G & 0xFF07) {
+		// H mode.
+		if ((mode_mask & DETEX_MODE_MASK_ETC_H) == 0)
+			return false;
+		ProcessBlockETC2TOrHMode(bitstring, 1, pixel_buffer);
+		return true;
+	}
+	else
+	if (B & 0xFF07) {
+		// Planar mode.
+		if ((mode_mask & DETEX_MODE_MASK_ETC_PLANAR) == 0)
+			return false;
+		ProcessBlockETC2PlanarMode(bitstring, pixel_buffer);
+		return true;
+	}
+	else {
+		// Differential mode.
+		return detexDecompressBlockETC1(bitstring, mode_mask, flags,
+			pixel_buffer);
+	}
 }
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
