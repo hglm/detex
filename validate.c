@@ -19,6 +19,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 /* Test/validation program. */
 
 #include <stdlib.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include <cairo/cairo.h>
 
@@ -32,6 +33,10 @@ static const uint32_t texture_format[] = {
 	DETEX_TEXTURE_FORMAT_BC1A,
 	DETEX_TEXTURE_FORMAT_BC2,
 	DETEX_TEXTURE_FORMAT_BC3,
+	DETEX_TEXTURE_FORMAT_RGTC1,
+	DETEX_TEXTURE_FORMAT_RGTC2,
+	DETEX_TEXTURE_FORMAT_SIGNED_RGTC1,
+	DETEX_TEXTURE_FORMAT_SIGNED_RGTC2,
 	DETEX_TEXTURE_FORMAT_BPTC,
 	DETEX_TEXTURE_FORMAT_ETC1,
 	DETEX_TEXTURE_FORMAT_ETC2,
@@ -48,6 +53,10 @@ static const char *texture_file[] = {
 	"test-texture-BC1A.ktx",
 	"test-texture-BC2.ktx",
 	"test-texture-BC3.ktx",
+	"test-texture-RGTC1.ktx",
+	"test-texture-RGTC2.ktx",
+	"test-texture-SIGNED_RGTC1.ktx",
+	"test-texture-SIGNED_RGTC2.ktx",
 	"test-texture-BPTC.ktx",
 	"test-texture-ETC1.ktx",
 	"test-texture-ETC2.ktx",
@@ -64,6 +73,12 @@ static const uint32_t pixel_format[] = {
 	DETEX_PIXEL_FORMAT_BGRA8,
 	DETEX_PIXEL_FORMAT_BGRA8,
 	DETEX_PIXEL_FORMAT_BGRA8,
+	DETEX_PIXEL_FORMAT_BGRX8,
+	DETEX_PIXEL_FORMAT_BGRX8,
+	// Convert from signed R16 to BGRX8.
+	DETEX_PIXEL_FORMAT_BGRX8,
+	// Convert from signed RG16 to BGRX8.
+	DETEX_PIXEL_FORMAT_BGRX8,
 	DETEX_PIXEL_FORMAT_BGRA8,
 	DETEX_PIXEL_FORMAT_BGRX8,
 	DETEX_PIXEL_FORMAT_BGRX8,
@@ -142,19 +157,19 @@ static void DrawTexture(int i) {
 	cairo_surface_destroy(image_surface);
 }
 
-static void LoadCompressedTexture(int i) {
+static bool LoadCompressedTexture(int i) {
 	compressed_data[i] = (uint8_t *)malloc(16 *
 		(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
 	FILE *f = fopen(texture_file[i], "rb");
 	if (f == NULL) {
 		printf("Error opening texture file %s.\n", texture_file[i]);
-		exit(1);
+		return false;
 	}
 	// Read the KTX header (skip it).
 	int n = fread(compressed_data[i], 1, 68, f);
 	if (n != 68) {
 		printf("Error reading texture file %s.\n", texture_file[i]);
-		exit(1);
+		return false;
 	}
 	// Read the compressed texture. */
 	uint32_t compressed_block_size = detexGetCompressedBlockSize(
@@ -164,9 +179,10 @@ static void LoadCompressedTexture(int i) {
 	if (n != compressed_block_size * (TEXTURE_WIDTH / 4) *
 	(TEXTURE_HEIGHT / 4)) {
 		printf("Error reading texture file %s.\n", texture_file[i]);
-		exit(1);
+		return false;
 	}
 	fclose(f);
+	return true;
 }
 
 int main(int argc, char **argv) {
@@ -175,8 +191,13 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < NU_TEXTURE_FORMATS; i++) {
 		pixel_buffer[i] = (uint8_t *)malloc(16 * 8 *
 			(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
-		LoadCompressedTexture(i);
-		bool r = detexDecompressTextureLinear(compressed_data[i],
+		bool r = LoadCompressedTexture(i);
+		if (!r) {
+			memset(pixel_buffer[i], 0, 16 * 8 *
+				(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
+			continue;
+		}
+		r = detexDecompressTextureLinear(compressed_data[i],
 			texture_format[i], TEXTURE_WIDTH / 4,
 			TEXTURE_HEIGHT / 4, pixel_buffer[i],
 			pixel_format[i]);
