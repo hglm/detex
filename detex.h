@@ -440,11 +440,11 @@ static DETEX_INLINE_ONLY uint8_t detexClamp0To255(int x) {
  *	detexPack32RGBA8, detexPack32A8, detexPixel32GetA8
  * DETEX_PIXEL_FORMAT_RG16, DETEX_PIXEL_FORMAT_SIGNED_RG16,
  * DETEX_PIXEL_FORMAT_FLOAT_RG16
- *	detexPack32_rg16, detexPack32_r16, detexPack32_g16, detexPack32_rg16, detexPixel32Get_r16,
- *	detexPixel32Get_g16
+ *	detexPack32RG16, detexPack32R16, detexPack32G16, detexPack32RG16,
+ *	detexPixel32GetR16, detexPixel32GetG16
  * DETEX_PIXEL_FORMAT_FLOAT_RGBX16, DETEX_PIXEL_FORMAT_SIGNED_FLOAT_RGBX16
- *	detexPack64_rgb16, detexPack64_r16, detexPack64_g16, detexPack64_b16, detexPixel64Get_r16,
- *	detexPixel64Get_g16, detexPixel64Get_b16
+ *	detexPack64RGB16, detexPack64R16, detexPack64G16, detexPack64B16,
+ *	detexPixel64GetR16, detexPixel64GetG16, detexPixel64GetB16
  */
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ || !defined(__BYTE_ORDER__)
