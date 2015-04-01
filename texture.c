@@ -78,15 +78,14 @@ static uint32_t decompress_pixel_format[] = {
 bool detexDecompressBlock(const uint8_t *bitstring, uint32_t texture_format,
 uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer,
 uint32_t pixel_format) {
+	uint8_t block_buffer[DETEX_MAX_BLOCK_SIZE];
 	bool r = decompress_function[texture_format](bitstring, mode_mask, flags,
-            pixel_buffer);
+            block_buffer);
 	if (!r)
 		return false;
-	if (pixel_format == decompress_pixel_format[texture_format])
-		return true;
 	/* Convert into desired pixel format. */
-	return detexConvertPixels(pixel_buffer, 16,
-		decompress_pixel_format[texture_format], pixel_format); 
+	return detexConvertPixels(block_buffer, 16,
+		decompress_pixel_format[texture_format], pixel_buffer, pixel_format); 
 }
 
 uint32_t detexDecompressedTextureSize(uint32_t width_in_blocks,

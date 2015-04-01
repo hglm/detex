@@ -394,10 +394,15 @@ bool detexDecompressTextureLinear(const uint8_t *bitstring, uint32_t texture_for
 /* Return size of compressed block in bytes given the texture format. */
 uint32_t detexGetCompressedBlockSize(uint32_t texture_format);
 
-/* Convert pixels between different formats in place. Only valid for conversions
- * that do not change the precision or pixel size. Returns true if succesful. */
-bool detexConvertPixels(uint8_t *pixel_buffer, uint32_t nu_pixels,
-	uint32_t source_pixel_format, uint32_t target_pixel_format);
+/*
+ * Convert pixels between different formats. Only valid for conversions
+ * that do not change the precision or pixel size. The target pixel buffer must
+ * be allocated with sufficient size to the hold the result. Returns true if
+ * succesful.
+ */
+bool detexConvertPixels(uint8_t *source_pixel_buffer, uint32_t nu_pixels,
+	uint32_t source_pixel_format, uint8_t *target_pixel_buffer,
+	uint32_t target_pixel_format);
 
 /* Return pixel size in bytes for pixel format. */
 static DETEX_INLINE_ONLY int detexGetPixelSize(uint32_t pixel_format) {
@@ -537,11 +542,11 @@ static DETEX_INLINE_ONLY uint32_t detexPixel32GetG16(uint32_t pixel) {
 	return (pixel & 0xFFFF0000) >> 16;
 }
 
-static DETEX_INLINE_ONLY uint32_t detexPixel32GetSignedR16(uint32_t pixel) {
+static DETEX_INLINE_ONLY int detexPixel32GetSignedR16(uint32_t pixel) {
 	return (int16_t)(pixel & 0x0000FFFF);
 }
 
-static DETEX_INLINE_ONLY uint32_t detexPixel32GetSignedG16(uint32_t pixel) {
+static DETEX_INLINE_ONLY int detexPixel32GetSignedG16(uint32_t pixel) {
 	return (int16_t)((pixel & 0xFFFF0000) >> 16);
 }
 

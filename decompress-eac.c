@@ -187,7 +187,7 @@ uint8_t *pixel_buffer) {
 		int modifier = modifier_table[pixel_index];
 		int value = ClampMinus1023To1023(base_codeword_times_8 +
 			modifier * multiplier_times_8);
-		unsigned int bits = ReplicateSigned11BitsTo16Bits(value);
+		uint32_t bits = ReplicateSigned11BitsTo16Bits(value);
 		buffer[(((i & 3) * 4 + ((i & 12) >> 2)) << shift) + offset] = bits;
 	}
 	return true;
