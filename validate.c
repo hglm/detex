@@ -38,6 +38,8 @@ static const uint32_t texture_format[] = {
 	DETEX_TEXTURE_FORMAT_SIGNED_RGTC1,
 	DETEX_TEXTURE_FORMAT_SIGNED_RGTC2,
 	DETEX_TEXTURE_FORMAT_BPTC,
+	DETEX_TEXTURE_FORMAT_BPTC_FLOAT,
+	DETEX_TEXTURE_FORMAT_BPTC_SIGNED_FLOAT,
 	DETEX_TEXTURE_FORMAT_ETC1,
 	DETEX_TEXTURE_FORMAT_ETC2,
 	DETEX_TEXTURE_FORMAT_ETC2_PUNCHTHROUGH,
@@ -58,6 +60,8 @@ static const char *texture_file[] = {
 	"test-texture-SIGNED_RGTC1.ktx",
 	"test-texture-SIGNED_RGTC2.ktx",
 	"test-texture-BPTC.ktx",
+	"test-texture-BPTC_FLOAT.ktx",
+	"test-texture-BPTC_SIGNED_FLOAT.ktx",
 	"test-texture-ETC1.ktx",
 	"test-texture-ETC2.ktx",
 	"test-texture-ETC2_PUNCHTHROUGH.ktx",
@@ -80,6 +84,10 @@ static const uint32_t pixel_format[] = {
 	// Convert from signed RG16 to BGRX8.
 	DETEX_PIXEL_FORMAT_BGRX8,
 	DETEX_PIXEL_FORMAT_BGRA8,
+	// Convert from half-float RGB16 to BGRX8.
+	DETEX_PIXEL_FORMAT_BGRX8,
+	// Convert from signed half-float RGB16 to BGRX8.
+	DETEX_PIXEL_FORMAT_BGRX8,
 	DETEX_PIXEL_FORMAT_BGRX8,
 	DETEX_PIXEL_FORMAT_BGRX8,
 	DETEX_PIXEL_FORMAT_BGRA8,
