@@ -315,6 +315,8 @@ uint32_t detexGetModeETC2(const uint8_t *bitstring);
 uint32_t detexGetModeETC2_PUNCHTHROUGH(const uint8_t *bitstring);
 uint32_t detexGetModeETC2_EAC(const uint8_t *bitstring);
 uint32_t detexGetModeBPTC(const uint8_t *bitstring);
+uint32_t detexGetModeBPTC_FLOAT(const uint8_t *bitstring);
+uint32_t detexGetModeBPTC_SIGNED_FLOAT(const uint8_t *bitstring);
 
 /*
  * Set mode functions. The set mode function modifies a compressed texture block

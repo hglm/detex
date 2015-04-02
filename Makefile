@@ -15,7 +15,7 @@ OPTCFLAGS += -ggdb
 else
 OPTCFLAGS += -Ofast -ffast-math
 endif
-CFLAGS = -std=c99 -Wall -pipe -I. $(OPTCFLAGS)
+CFLAGS = -std=c99 -Wall -Wno-maybe-uninitialized -pipe -I. $(OPTCFLAGS)
 
 ifeq ($(LIBRARY_CONFIGURATION), SHARED)
 # Shared library.
@@ -40,7 +40,7 @@ CFLAGS_LIB = $(CFLAGS)
 CFLAGS_TEST = $(CFLAGS)
 endif
 
-LIBRARY_MODULE_OBJECTS = bits.o clamp.o convert.o decompress-bc.o decompress-bptc.o \
+LIBRARY_MODULE_OBJECTS = bptc-tables.o bits.o clamp.o convert.o decompress-bc.o decompress-bptc.o \
 	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o texture.o
 LIBRARY_HEADER_FILES = detex.h
 TEST_PROGRAMS = validate
