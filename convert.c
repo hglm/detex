@@ -20,8 +20,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "detex.h"
 
-static void ConvertPixel32SwapRAndB(uint8_t *source_pixel_buffer, int nu_pixels,
-uint8_t *target_pixel_buffer) {
+static void ConvertPixel32SwapRAndB(uint8_t * DETEX_RESTRICT source_pixel_buffer, int nu_pixels,
+uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint32_t *source_pixel32_buffer = (uint32_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -39,8 +39,8 @@ uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel64SwapRAndB(uint8_t *source_pixel_buffer, int nu_pixels,
-uint8_t *target_pixel_buffer) {
+static void ConvertPixel64SwapRAndB(uint8_t * DETEX_RESTRICT source_pixel_buffer, int nu_pixels,
+uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint64_t *source_pixel64_buffer = (uint64_t *)source_pixel_buffer;
 	uint64_t *target_pixel64_buffer = (uint64_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -58,8 +58,8 @@ uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel32RG16ToRGBX8(uint8_t *source_pixel_buffer,
-int nu_pixels, uint8_t *target_pixel_buffer) {
+static void ConvertPixel32RG16ToRGBX8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint32_t *source_pixel32_buffer = (uint32_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -73,8 +73,8 @@ int nu_pixels, uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel32RG16ToBGRX8(uint8_t *source_pixel_buffer, int nu_pixels,
-uint8_t *target_pixel_buffer) {
+static void ConvertPixel32RG16ToBGRX8(uint8_t * DETEX_RESTRICT source_pixel_buffer, int nu_pixels,
+uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint32_t *source_pixel32_buffer = (uint32_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -88,8 +88,8 @@ uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel32SignedRG16ToRGBX8(uint8_t *source_pixel_buffer,
-int nu_pixels, uint8_t *target_pixel_buffer) {
+static void ConvertPixel32SignedRG16ToRGBX8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint32_t *source_pixel32_buffer = (uint32_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -103,8 +103,8 @@ int nu_pixels, uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel32SignedRG16ToBGRX8(uint8_t *source_pixel_buffer,
-int nu_pixels, uint8_t *target_pixel_buffer) {
+static void ConvertPixel32SignedRG16ToBGRX8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint32_t *source_pixel32_buffer = (uint32_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -118,8 +118,8 @@ int nu_pixels, uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel16R16ToRGBX8(uint8_t *source_pixel_buffer,
-int nu_pixels, uint8_t *target_pixel_buffer) {
+static void ConvertPixel16R16ToRGBX8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -131,8 +131,8 @@ int nu_pixels, uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel16R16ToBGRX8(uint8_t *source_pixel_buffer,
-int nu_pixels, uint8_t *target_pixel_buffer) {
+static void ConvertPixel16R16ToBGRX8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -144,8 +144,8 @@ int nu_pixels, uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel16SignedR16ToRGBX8(uint8_t *source_pixel_buffer,
-int nu_pixels, uint8_t *target_pixel_buffer) {
+static void ConvertPixel16SignedR16ToRGBX8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -157,8 +157,8 @@ int nu_pixels, uint8_t *target_pixel_buffer) {
 	}
 }
 
-static void ConvertPixel16SignedR16ToBGRX8(uint8_t *source_pixel_buffer,
-int nu_pixels, uint8_t *target_pixel_buffer) {
+static void ConvertPixel16SignedR16ToBGRX8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
 	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
@@ -172,8 +172,8 @@ int nu_pixels, uint8_t *target_pixel_buffer) {
 
 /* Convert pixels between different formats. Return true if succesful. */
 
-bool detexConvertPixels(uint8_t *source_pixel_buffer, uint32_t nu_pixels,
-uint32_t source_pixel_format, uint8_t *target_pixel_buffer,
+bool detexConvertPixels(uint8_t * DETEX_RESTRICT source_pixel_buffer, uint32_t nu_pixels,
+uint32_t source_pixel_format, uint8_t * DETEX_RESTRICT target_pixel_buffer,
 uint32_t target_pixel_format) {
 	if (source_pixel_format == target_pixel_format) {
 		memcpy(target_pixel_buffer, source_pixel_buffer,

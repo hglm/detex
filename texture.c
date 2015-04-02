@@ -75,8 +75,8 @@ static uint32_t decompress_pixel_format[] = {
  * compressed format, and stored in the given pixel format. Returns true if
  * succesful.
  */
-bool detexDecompressBlock(const uint8_t *bitstring, uint32_t texture_format,
-uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer,
+bool detexDecompressBlock(const uint8_t * DETEX_RESTRICT bitstring, uint32_t texture_format,
+uint32_t mode_mask, uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer,
 uint32_t pixel_format) {
 	uint8_t block_buffer[DETEX_MAX_BLOCK_SIZE];
 	bool r = decompress_function[texture_format](bitstring, mode_mask, flags,
@@ -98,9 +98,9 @@ uint32_t height_in_blocks, uint32_t pixel_format) {
  * array of image buffer tiles (corresponding to compressed blocks), converting
  * into the given pixel format.
  */
-bool detexDecompressTextureTiled(const uint8_t *bitstring, uint32_t texture_format,
-uint32_t width_in_blocks, uint32_t height_in_blocks, uint8_t *pixel_buffer,
-uint32_t pixel_format) {
+bool detexDecompressTextureTiled(const uint8_t * DETEX_RESTRICT bitstring,
+uint32_t texture_format, uint32_t width_in_blocks, uint32_t height_in_blocks,
+uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
 	bool result = true;
 	for (int y = 0; y < height_in_blocks; y++)
 		for (int x = 0; x < width_in_blocks; x++) {
@@ -122,9 +122,9 @@ uint32_t pixel_format) {
  * image buffer, with pixels stored row-by-row, converting into the given pixel
  * format.
  */
-bool detexDecompressTextureLinear(const uint8_t *bitstring, uint32_t texture_format,
-uint32_t width_in_blocks, uint32_t height_in_blocks, uint8_t *pixel_buffer,
-uint32_t pixel_format) {
+bool detexDecompressTextureLinear(const uint8_t * DETEX_RESTRICT bitstring,
+uint32_t texture_format, uint32_t width_in_blocks, uint32_t height_in_blocks,
+uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
 	uint8_t block_buffer[DETEX_MAX_BLOCK_SIZE];
 	int pixel_size = detexGetPixelSize(pixel_format);
 	bool result = true;

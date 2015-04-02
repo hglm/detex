@@ -23,8 +23,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // If shift is one, store each value in consecutive 16-bit words in pixel_buffer; if offset
 // is zero, store it in the first 8 bits, if offset is one store it in the last 8 bits of each
 // 16-bit word.
-static DETEX_INLINE_ONLY void DecodeBlockRGTC(const uint8_t *bitstring, int shift,
-int offset, uint8_t *pixel_buffer) {
+static DETEX_INLINE_ONLY void DecodeBlockRGTC(const uint8_t * DETEX_RESTRICT bitstring, int shift,
+int offset, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	// LSBFirst byte order only.
 	uint64_t bits = (*(uint64_t *)&bitstring[0]) >> 16;
 	int lum0 = bitstring[0];
@@ -61,16 +61,16 @@ int offset, uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* unsigned RGTC1 (BC4) format. */
-bool detexDecompressBlockRGTC1(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockRGTC1(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	DecodeBlockRGTC(bitstring, 0, 0, pixel_buffer);
 	return true;
 }
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* unsigned RGTC2 (BC5) format. */
-bool detexDecompressBlockRGTC2(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockRGTC2(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	DecodeBlockRGTC(bitstring, 1, 0, pixel_buffer);
 	DecodeBlockRGTC(&bitstring[8], 1, 1, pixel_buffer);
 	return true;
@@ -81,8 +81,8 @@ uint32_t flags, uint8_t *pixel_buffer) {
 // If shift is one, store each value in consecutive 32-bit words in pixel_buffer; if offset
 // is zero, store it in the first 16 bits, if offset is one store it in the last 16 bits of each
 // 32-bit word. Returns true if the compressed block is valid.
-static DETEX_INLINE_ONLY bool DecodeBlockSignedRGTC(const uint8_t *bitstring, int shift,
-int offset, uint8_t *pixel_buffer) {
+static DETEX_INLINE_ONLY bool DecodeBlockSignedRGTC(const uint8_t * DETEX_RESTRICT bitstring, int shift,
+int offset, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	// LSBFirst byte order only.
 	uint64_t bits = (*(uint64_t *)&bitstring[0]) >> 16;
 	int lum0 = (int8_t)bitstring[0];
@@ -131,15 +131,15 @@ int offset, uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* signed RGTC1 (signed BC4) format. */
-bool detexDecompressBlockSIGNED_RGTC1(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockSIGNED_RGTC1(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	return DecodeBlockSignedRGTC(bitstring, 0, 0, pixel_buffer);
 }
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* signed RGTC2 (signed BC5) format. */
-bool detexDecompressBlockSIGNED_RGTC2(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockSIGNED_RGTC2(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	bool r = DecodeBlockSignedRGTC(bitstring, 1, 0, pixel_buffer);
 	if (!r)
 		return false;

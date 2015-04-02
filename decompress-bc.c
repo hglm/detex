@@ -20,8 +20,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC1 */
 /* format. */
-bool detexDecompressBlockBC1(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockBC1(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ || !defined(__BYTE_ORDER__)
 	uint32_t colors = *(uint32_t *)&bitstring[0];
 #else
@@ -62,8 +62,8 @@ uint32_t flags, uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC1A */
 /* format. */
-bool detexDecompressBlockBC1A(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockBC1A(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ || !defined(__BYTE_ORDER__)
 	uint32_t colors = *(uint32_t *)&bitstring[0];
 #else
@@ -111,8 +111,8 @@ uint32_t flags, uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC2 */
 /* format. */
-bool detexDecompressBlockBC2(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockBC2(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ || !defined(__BYTE_ORDER__)
 	uint32_t colors = *(uint32_t *)&bitstring[8];
 #else
@@ -150,8 +150,8 @@ uint32_t flags, uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC3 */
 /* format. */
-bool detexDecompressBlockBC3(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockBC3(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	int alpha0 = bitstring[0];
 	int alpha1 = bitstring[1];
 	if (alpha0 > alpha1 && (flags & DETEX_DECOMPRESS_FLAG_OPAQUE_ONLY))

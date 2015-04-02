@@ -42,7 +42,8 @@ static DETEX_INLINE_ONLY int modifier_times_multiplier(int modifier, int multipl
 }
 
 static DETEX_INLINE_ONLY void ProcessPixelEAC(uint8_t i, uint64_t pixels,
-const int8_t *modifier_table, int base_codeword, int multiplier, uint8_t *pixel_buffer) {
+const int8_t * DETEX_RESTRICT modifier_table, int base_codeword, int multiplier,
+uint8_t * DETEX_RESTRICT pixel_buffer) {
 	int modifier = modifier_table[(pixels >> (45 - i * 3)) & 7];
 	pixel_buffer[((i & 3) * 4 + ((i & 12) >> 2)) * 4 + DETEX_PIXEL32_ALPHA_BYTE_OFFSET] =
 		detexClamp0To255(base_codeword + modifier_times_multiplier(modifier, multiplier));
@@ -50,8 +51,8 @@ const int8_t *modifier_table, int base_codeword, int multiplier, uint8_t *pixel_
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the ETC2_EAC */
 /* format. */
-bool detexDecompressBlockETC2_EAC(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockETC2_EAC(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	bool r = detexDecompressBlockETC2(&bitstring[8], mode_mask, flags, pixel_buffer);
 	if (!r)
 		return false;
@@ -62,7 +63,8 @@ uint32_t flags, uint8_t *pixel_buffer) {
 	if (multiplier == 0 && (flags & DETEX_DECOMPRESS_FLAG_ENCODE))
 		// Not allowed in encoding. Decoder should handle it.
 		return false;
-	uint64_t pixels = ((uint64_t)bitstring[2] << 40) | ((uint64_t)bitstring[3] << 32) | ((uint64_t)bitstring[4] << 24)
+	uint64_t pixels = ((uint64_t)bitstring[2] << 40) | ((uint64_t)bitstring[3] << 32) |
+		((uint64_t)bitstring[4] << 24)
 		| ((uint64_t)bitstring[5] << 16) | ((uint64_t)bitstring[6] << 8) | bitstring[7];
 	ProcessPixelEAC(0, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
 	ProcessPixelEAC(1, pixels, modifier_table, base_codeword, multiplier, pixel_buffer);
@@ -102,7 +104,7 @@ static DETEX_INLINE_ONLY int Clamp0To2047(int x) {
 // is zero, store it in the first 16 bits, if offset is one store it in the last 16 bits of each
 // 32-bit word.
 static DETEX_INLINE_ONLY void DecodeBlockEAC11Bit(uint64_t qword, int shift, int offset,
-uint8_t *pixel_buffer) {
+uint8_t * DETEX_RESTRICT pixel_buffer) {
 	int base_codeword_times_8_plus_4 = ((qword & 0xFF00000000000000) >> (56 - 3)) | 0x4;
 	int modifier_index = (qword & 0x000F000000000000) >> 48;
 	const int8_t *modifier_table = eac_modifier_table[modifier_index];
@@ -122,9 +124,10 @@ uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* EAC_R11 format. */
-bool detexDecompressBlockEAC_R11(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
-	uint64_t qword = ((uint64_t)bitstring[0] << 56) | ((uint64_t)bitstring[1] << 48) | ((uint64_t)bitstring[2] << 40) |
+bool detexDecompressBlockEAC_R11(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
+	uint64_t qword = ((uint64_t)bitstring[0] << 56) | ((uint64_t)bitstring[1] << 48) |
+		((uint64_t)bitstring[2] << 40) |
 		((uint64_t)bitstring[3] << 32) | ((uint64_t)bitstring[4] << 24) |
 		((uint64_t)bitstring[5] << 16) | ((uint64_t)bitstring[6] << 8) | bitstring[7];
 	DecodeBlockEAC11Bit(qword, 0, 0, pixel_buffer);
@@ -133,8 +136,8 @@ uint32_t flags, uint8_t *pixel_buffer) {
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* EAC_RG11 format. */
-bool detexDecompressBlockEAC_RG11(const uint8_t *bitstring, uint32_t mode_mask,
-uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockEAC_RG11(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
+uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	uint64_t red_qword = ((uint64_t)bitstring[0] << 56) | ((uint64_t)bitstring[1] << 48) |
 		((uint64_t)bitstring[2] << 40) |
 		((uint64_t)bitstring[3] << 32) | ((uint64_t)bitstring[4] << 24) |
@@ -195,9 +198,10 @@ uint8_t *pixel_buffer) {
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the */
 /* EAC_SIGNED_R11 format. */
-bool detexDecompressBlockEAC_SIGNED_R11(const uint8_t *bitstring,
-uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer) {
-	uint64_t qword = ((uint64_t)bitstring[0] << 56) | ((uint64_t)bitstring[1] << 48) | ((uint64_t)bitstring[2] << 40) |
+bool detexDecompressBlockEAC_SIGNED_R11(const uint8_t * DETEX_RESTRICT bitstring,
+uint32_t mode_mask, uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
+	uint64_t qword = ((uint64_t)bitstring[0] << 56) | ((uint64_t)bitstring[1] << 48) |
+		((uint64_t)bitstring[2] << 40) |
 		((uint64_t)bitstring[3] << 32) | ((uint64_t)bitstring[4] << 24) |
 		((uint64_t)bitstring[5] << 16) | ((uint64_t)bitstring[6] << 8) | bitstring[7];
 	return DecodeBlockEACSigned11Bit(qword, 0, 0, pixel_buffer);
@@ -205,8 +209,8 @@ uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer) {
 
 /* Decompress a 128-bit 4x4 pixel texture block compressed using the */
 /* EAC_SIGNED_RG11 format. */
-bool detexDecompressBlockEAC_SIGNED_RG11(const uint8_t *bitstring,
-uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer) {
+bool detexDecompressBlockEAC_SIGNED_RG11(const uint8_t * DETEX_RESTRICT bitstring,
+uint32_t mode_mask, uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	uint64_t red_qword = ((uint64_t)bitstring[0] << 56) | ((uint64_t)bitstring[1] << 48) |
 		((uint64_t)bitstring[2] << 40) |
 		((uint64_t)bitstring[3] << 32) | ((uint64_t)bitstring[4] << 24) |

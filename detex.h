@@ -35,6 +35,7 @@ __BEGIN_DECLS
 #include <stdbool.h>
 
 #define DETEX_INLINE_ONLY __attribute__((always_inline)) inline
+#define DETEX_RESTRICT __restrict
 
 /* Maximum uncompressed block size in bytes. */
 #define DETEX_MAX_BLOCK_SIZE 128
