@@ -312,10 +312,10 @@ detexConversionType detex_conversion_table[] = {
 
 #define NU_CONVERSION_TYPES (sizeof(detex_conversion_table) / sizeof(detex_conversion_table[0]))
 
-static uint32_t cached_source_format = -1;
-static uint32_t cached_target_format = -1;
-static int cached_nu_conversions = - 1;
-static uint32_t cached_conversion[4];
+static __thread uint32_t cached_source_format = -1;
+static __thread uint32_t cached_target_format = -1;
+static __thread int cached_nu_conversions = - 1;
+static __thread uint32_t cached_conversion[4];
 
 static void CacheResult(uint32_t source_format, uint32_t target_format, int n, uint32_t *conversion) {
 	cached_source_format = source_format;
