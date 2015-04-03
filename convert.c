@@ -117,7 +117,7 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
 		int32_t red = *source_pixel16_buffer;
-		red -= 128;
+		red -= 32768;
 		*(int16_t *)source_pixel_buffer = (int16_t)red;
 		source_pixel16_buffer++;
 	}
@@ -217,7 +217,7 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
 		uint32_t pixel = *source_pixel16_buffer;
-		*target_pixel_buffer = detexPixel32GetR16(pixel) * 255 / 65535;
+		*target_pixel_buffer = (detexPixel32GetR16(pixel) + 127) * 255 / 65535;
 		source_pixel16_buffer++;
 		target_pixel_buffer++;
 	}
@@ -230,8 +230,8 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	for (int i = 0; i < nu_pixels; i++) {
 		uint32_t pixel = *source_pixel32_buffer;
 		*target_pixel16_buffer = (uint16_t)detexPack32RG8(
-			detexPixel32GetR16(pixel) * 255 / 65535,
-			detexPixel32GetG16(pixel) * 255 / 65535	
+			(detexPixel32GetR16(pixel) + 127) * 255 / 65535,
+			(detexPixel32GetG16(pixel) + 127) * 255 / 65535	
 			);
 		source_pixel32_buffer++;
 		target_pixel16_buffer++;
