@@ -24,18 +24,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "half-float.h"
 #include "hdr.h"
 
-// Gamma/HDR parameters.
-
-static __thread float detex_gamma = 1.0f;
-static __thread float detex_gamma_range_min = 0.0f;
-static __thread float detex_gamma_range_max = 1.0f;
-
-void detexSetHDRParameters(float gamma, float range_min, float range_max) {
-	detex_gamma = gamma;
-	detex_gamma_range_min = range_min;
-	detex_gamma_range_max = range_max;
-}
-
 // Conversion functions. For conversions where the pixel size is unchanged,
 // the conversion is performed in-place and target_pixel_buffer will be NULL.
 
@@ -393,115 +381,61 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	}
 }
 
-// Conversion from half-float to 16-bit integer (in-place).
+// Conversion from normalized half-float to 16-bit integer (in-place).
 
 static void ConvertPixel16FloatR16ToPixel16R16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	detexConvertHDRHalfFloatToUInt16Gamma1((uint16_t *)source_pixel_buffer, nu_pixels, 0.0f, 1.0f);
+	detexConvertNormalizedHalfFloatToUInt16((uint16_t *)source_pixel_buffer, nu_pixels);
 }
 
 static void ConvertPixel32FloatRG16ToPixel32RG16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	detexConvertHDRHalfFloatToUInt16Gamma1((uint16_t *)source_pixel_buffer, nu_pixels * 2, 0.0f, 1.0f);
+	detexConvertNormalizedHalfFloatToUInt16((uint16_t *)source_pixel_buffer, nu_pixels * 2);
 }
 
 static void ConvertPixel64FloatRGBX16ToPixel64RGBX16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	detexConvertHDRHalfFloatToUInt16Gamma1((uint16_t *)source_pixel_buffer, nu_pixels * 4, 0.0f, 1.0f);
+	detexConvertNormalizedHalfFloatToUInt16((uint16_t *)source_pixel_buffer, nu_pixels * 4);
 }
 
 // Conversion from HDR half-float to 16-bit integer (in-place). Depends on gamma parameters.
 
 static void ConvertPixel16FloatR16HDRToPixel16R16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	float gamma = detex_gamma;
-	float gamma_range_min = detex_gamma_range_min;
-	float gamma_range_max = detex_gamma_range_max;
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
-	if (gamma == 1.0f) {
-		detexConvertHDRHalfFloatToUInt16Gamma1(source_pixel16_buffer, nu_pixels, gamma_range_min,
-			gamma_range_max);
-		return;
-	}
-	detexConvertHDRHalfFloatToUInt16SpecialGamma(source_pixel16_buffer, nu_pixels, gamma,
-		gamma_range_min, gamma_range_max);
+	detexConvertHDRHalfFloatToUInt16(source_pixel16_buffer, nu_pixels);
 }
 
 static void ConvertPixel32FloatRG16HDRToPixel32RG16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	float gamma = detex_gamma;
-	float gamma_range_min = detex_gamma_range_min;
-	float gamma_range_max = detex_gamma_range_max;
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
-	if (gamma == 1.0f) {
-		detexConvertHDRHalfFloatToUInt16Gamma1(source_pixel16_buffer, nu_pixels * 2, gamma_range_min,
-			gamma_range_max);
-		return;
-	}
-	detexConvertHDRHalfFloatToUInt16SpecialGamma(source_pixel16_buffer, nu_pixels * 2, gamma,
-		gamma_range_min, gamma_range_max);
+	detexConvertHDRHalfFloatToUInt16(source_pixel16_buffer, nu_pixels * 2);
 }
 
 static void ConvertPixel64FloatRGBX16HDRToPixel64RGBX16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	float gamma = detex_gamma;
-	float gamma_range_min = detex_gamma_range_min;
-	float gamma_range_max = detex_gamma_range_max;
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
-	if (gamma == 1.0f) {
-		detexConvertHDRHalfFloatToUInt16Gamma1(source_pixel16_buffer, nu_pixels * 4, gamma_range_min,
-			gamma_range_max);
-		return;
-	}
-	detexConvertHDRHalfFloatToUInt16SpecialGamma(source_pixel16_buffer, nu_pixels * 4, gamma,
-		gamma_range_min, gamma_range_max);
+	detexConvertHDRHalfFloatToUInt16(source_pixel16_buffer, nu_pixels * 4);
 }
 
 // Conversion HDR float to float (in_place).
 
 static void ConvertPixel32FloatR32HDRToPixel32FloatR32(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	float gamma = detex_gamma;
-	float gamma_range_min = detex_gamma_range_min;
-	float gamma_range_max = detex_gamma_range_max;
 	float *source_pixelf_buffer = (float *)source_pixel_buffer;
-	if (gamma == 1.0f) {
-		detexConvertHDRFloatToFloatGamma1(source_pixelf_buffer, nu_pixels, gamma_range_min,
-			gamma_range_max);
-		return;
-	}
-	detexConvertHDRFloatToFloatSpecialGamma(source_pixelf_buffer, nu_pixels, gamma,
-		gamma_range_min, gamma_range_max);
+	detexConvertHDRFloatToFloat(source_pixelf_buffer, nu_pixels);
 }
 
 static void ConvertPixel64FloatRG32HDRToPixel64FloatRG32(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	float gamma = detex_gamma;
-	float gamma_range_min = detex_gamma_range_min;
-	float gamma_range_max = detex_gamma_range_max;
 	float *source_pixelf_buffer = (float *)source_pixel_buffer;
-	if (gamma == 1.0f) {
-		detexConvertHDRFloatToFloatGamma1(source_pixelf_buffer, nu_pixels * 2, gamma_range_min,
-			gamma_range_max);
-		return;
-	}
-	detexConvertHDRFloatToFloatSpecialGamma(source_pixelf_buffer, nu_pixels * 2, gamma,
-		gamma_range_min, gamma_range_max);
+	detexConvertHDRFloatToFloat(source_pixelf_buffer, nu_pixels * 2);
 }
 
 static void ConvertPixel128FloatRGBX32HDRToPixel128FloatRGBX32(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
-	float gamma = detex_gamma;
-	float gamma_range_min = detex_gamma_range_min;
-	float gamma_range_max = detex_gamma_range_max;
 	float *source_pixelf_buffer = (float *)source_pixel_buffer;
-	if (gamma == 1.0f) {
-		detexConvertHDRFloatToFloatGamma1(source_pixelf_buffer, nu_pixels * 4, gamma_range_min,
-			gamma_range_max);
-		return;
-	}
-	detexConvertHDRFloatToFloatSpecialGamma(source_pixelf_buffer, nu_pixels * 4, gamma,
-		gamma_range_min, gamma_range_max);
+	detexConvertHDRFloatToFloat(source_pixelf_buffer, nu_pixels * 4);
 }
 
 typedef void (*detexConversionFunc)(uint8_t *source_pixel_buffer, int nu_pixels,
@@ -553,13 +487,13 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_RG16, DETEX_PIXEL_FORMAT_FLOAT_RG16, ConvertPixel32RG16ToPixel32FloatRG16 },
 	{ DETEX_PIXEL_FORMAT_RGBX16, DETEX_PIXEL_FORMAT_FLOAT_RGBX16, ConvertPixel64RGBX16ToPixel64FloatRGBX16 },
 	// Half-float to integer conversion (in-place).
-//	{ DETEX_PIXEL_FORMAT_FLOAT_R16, DETEX_PIXEL_FORMAT_R16, ConvertPixel16FloatR16ToPixel16R16 },
-//	{ DETEX_PIXEL_FORMAT_FLOAT_RG16, DETEX_PIXEL_FORMAT_RG16, ConvertPixel32FloatRG16ToPixel32RG16 },
-//	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel64FloatRGBX16ToPixel64RGBX16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_R16, DETEX_PIXEL_FORMAT_R16, ConvertPixel16FloatR16ToPixel16R16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RG16, DETEX_PIXEL_FORMAT_RG16, ConvertPixel32FloatRG16ToPixel32RG16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel64FloatRGBX16ToPixel64RGBX16 },
 	// HDR half-float to integer conversion (in-place).
-//	{ DETEX_PIXEL_FORMAT_FLOAT_R16_HDR, DETEX_PIXEL_FORMAT_R16, ConvertPixel16FloatR16HDRToPixel16R16 },
-//	{ DETEX_PIXEL_FORMAT_FLOAT_RG16_HDR, DETEX_PIXEL_FORMAT_RG16, ConvertPixel32FloatRG16HDRToPixel32RG16 },
-//	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16_HDR, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel64FloatRGBX16HDRToPixel64RGBX16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_R16_HDR, DETEX_PIXEL_FORMAT_R16, ConvertPixel16FloatR16HDRToPixel16R16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RG16_HDR, DETEX_PIXEL_FORMAT_RG16, ConvertPixel32FloatRG16HDRToPixel32RG16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16_HDR, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel64FloatRGBX16HDRToPixel64RGBX16 },
 	// Float to half-float conversion.
 	{ DETEX_PIXEL_FORMAT_FLOAT_R32, DETEX_PIXEL_FORMAT_FLOAT_R16, ConvertPixel32FloatR32ToPixel16FloatR16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG32, DETEX_PIXEL_FORMAT_FLOAT_RG16, ConvertPixel64FloatRG32ToPixel32FloatRG16 },
@@ -569,11 +503,10 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG32, DETEX_PIXEL_FORMAT_FLOAT_RG32, ConvertPixel32FloatRG16ToPixel64FloatRG32 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32, DETEX_PIXEL_FORMAT_FLOAT_RGBX32, ConvertPixel64FloatRGBX16ToPixel128FloatRGBX32 },
 	// HDR Float to float conversion.
-//	{ DETEX_PIXEL_FORMAT_FLOAT_R32_HDR, DETEX_PIXEL_FORMAT_FLOAT_R32, ConvertPixel32FloatR32HDRToPixel32FloatR32 },
-//	{ DETEX_PIXEL_FORMAT_FLOAT_RG32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RG32, ConvertPixel64FloatRG32HDRToPixel64FloatRG32 },
-//	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGBX32,
-//		ConvertPixel128FloatRGBX32HDRToPixel128FloatRGBX32 },
-
+	{ DETEX_PIXEL_FORMAT_FLOAT_R32_HDR, DETEX_PIXEL_FORMAT_FLOAT_R32, ConvertPixel32FloatR32HDRToPixel32FloatR32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RG32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RG32, ConvertPixel64FloatRG32HDRToPixel64FloatRG32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGBX32,
+		ConvertPixel128FloatRGBX32HDRToPixel128FloatRGBX32 },
 };
 
 #define NU_CONVERSION_TYPES (sizeof(detex_conversion_table) / sizeof(detex_conversion_table[0]))

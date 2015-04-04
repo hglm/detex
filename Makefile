@@ -39,6 +39,7 @@ TEST_PROGRAM_LFLAGS = $(LIBRARY_OBJECT)
 CFLAGS_LIB = $(CFLAGS)
 CFLAGS_TEST = $(CFLAGS)
 endif
+LIBRARY_LIBS = -lm
 
 LIBRARY_MODULE_OBJECTS = bptc-tables.o bits.o clamp.o convert.o decompress-bc.o decompress-bptc.o \
 	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o half-float.o \
@@ -80,7 +81,7 @@ install_static : $(LIBRARY_OBJECT)
 	install -m 0644 $(LIBRARY_OBJECT) $(STATIC_LIB_DIR)/$(LIBRARY_OBJECT)
 
 validate : validate.o $(LIBRARY_OBJECT)
-	gcc validate.o -o validate $(LIBRARY_OBJECT) `pkg-config --libs gtk+-3.0`
+	gcc validate.o -o validate $(LIBRARY_OBJECT) $(LIBRARY_LIBS) `pkg-config --libs gtk+-3.0`
 
 clean :
 	rm -f $(LIBRARY_MODULE_OBJECTS)

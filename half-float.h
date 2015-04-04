@@ -20,3 +20,11 @@ void detexConvertHalfFloatToFloat(uint16_t *source_buffer, int n, float *target_
 
 void detexConvertFloatToHalfFloat(float *source_buffer, int n, uint16_t *target_buffer);
 
+void detexConvertNormalizedHalfFloatToUInt16(uint16_t *buffer, int n);
+
+extern float *detex_half_float_table;
+
+static DETEX_INLINE_ONLY float detexGetFloatFromHalfFloat(uint16_t hf) {
+	return detex_half_float_table[hf];
+}
+

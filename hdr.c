@@ -17,12 +17,47 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include <stdlib.h>
+#include <math.h>
 #include <float.h>
+#include <fenv.h>
 
 #include "detex.h"
+#include "half-float.h"
+#include "hdr.h"
 
-static DETEX_INLINE_ONLY void CalculateRangeHalfFloat(uint16_t *buffer, int n,
-float *range_min_out, float *range_max_out) {
+// Gamma/HDR parameters.
+
+__thread float detex_gamma = 1.0f;
+__thread float detex_gamma_range_min = 0.0f;
+__thread float detex_gamma_range_max = 1.0f;
+__thread float *detex_gamma_corrected_half_float_table = NULL;
+__thread float detex_corrected_half_float_table_gamma;
+
+void detexSetHDRParameters(float gamma, float range_min, float range_max) {
+	detex_gamma = gamma;
+	detex_gamma_range_min = range_min;
+	detex_gamma_range_max = range_max;
+	detex_gamma_corrected_half_float_table = NULL;
+}
+
+// Update gamma-corrected half-float table when required.
+static void ValidateGammaCorrectedHalfFloatTable(float gamma) {
+	if (detex_gamma_corrected_half_float_table != NULL &&
+	detex_corrected_half_float_table_gamma == gamma)
+		return;
+	if (detex_gamma_corrected_half_float_table == NULL)
+		detex_gamma_corrected_half_float_table = malloc(65536 * sizeof(float));
+	float *float_table = detex_gamma_corrected_half_float_table;
+	uint16_t *hf_buffer = (uint16_t *)malloc(65536 * sizeof(uint16_t));
+	for (int i = 0; i <= 0xFFFF; i++)
+		hf_buffer[i] = i;
+	detexConvertHalfFloatToFloat(hf_buffer, 65536, float_table);
+	for (int i = 0; i <= 0xFFFF; i++)
+		if (float_table[i] >= 0.0f)
+			float_table[i] = powf(float_table[i], 1.0f / gamma);
+		else
+			float_table[i] = - powf(- float_table[i], 1.0f / gamma);
+	free(hf_buffer);
 }
 
 static DETEX_INLINE_ONLY void CalculateRangeFloat(float *buffer, int n,
@@ -37,7 +72,22 @@ float *range_min_out, float *range_max_out) {
 			range_max = f;
 	}
 	*range_min_out = range_min;
-	*range_max_out = range_max;	
+	*range_max_out = range_max;
+}
+
+static DETEX_INLINE_ONLY void CalculateRangeHalfFloat(uint16_t *buffer, int n,
+float *range_min_out, float *range_max_out) {
+	float range_min = FLT_MAX;
+	float range_max = - FLT_MAX;
+	for (int i = 0; i < n; i ++) {
+		float f = detexGetFloatFromHalfFloat(buffer[i]);
+		if (f < range_min)
+			range_min = f;
+		if (f > range_max)
+			range_max = f;
+	}
+	*range_min_out = range_min;
+	*range_max_out = range_max;
 }
 
 
@@ -61,19 +111,99 @@ float *range_min_out, float *range_max_out) {
 		return false;
 }
 
-void detexConvertHDRHalfFloatToUInt16Gamma1(uint16_t *buffer, int n, float range_min,
-float range_max) {
+// Convert half floats to unsigned 16-bit integers in place with gamma value of 1.
+static DETEX_INLINE_ONLY void detexConvertHDRHalfFloatToUInt16Gamma1(uint16_t *buffer, int n) {
+	float range_min = detex_gamma_range_min;
+	float range_max = detex_gamma_range_max;
+	fesetround(FE_DOWNWARD);
+	if (range_min == 0.0f && range_max == 1.0f) {
+		for (int i = 0; i < n; i++) {
+			float f = detexGetFloatFromHalfFloat(buffer[i]);
+			int u = lrintf(detexClamp0To1(f) * 65535.0f + 0.5f);
+			buffer[i] = (uint16_t)u;
+		}
+		return;
+	}
+	float factor = 1.0f / (range_max - range_min);
+	for (int i = 0; i < n; i++) {
+		float f = detexGetFloatFromHalfFloat(buffer[i]);
+		int u = lrintf(detexClamp0To1((f - range_min) * factor * 65535.0f + 0.5f));
+		buffer[i] = (uint16_t)u;
+	}
 }
 
-void detexConvertHDRHalfFloatToUInt16SpecialGamma(uint16_t *buffer, int n, float gamma,
-float range_min, float range_max) {
+static DETEX_INLINE_ONLY void detexConvertHDRHalfFloatToUInt16SpecialGamma(uint16_t *buffer, int n) {
+	float gamma = detex_gamma;
+	float range_min = detex_gamma_range_min;
+	float range_max = detex_gamma_range_max;
+	ValidateGammaCorrectedHalfFloatTable(gamma);
+	float *corrected_half_float_table = detex_gamma_corrected_half_float_table;
+	float corrected_range_min, corrected_range_max;
+	if (range_min >= 0.0f)
+		corrected_range_min = powf(range_min, 1.0f / gamma);
+	else
+		corrected_range_min = - powf(- range_min, 1.0f / gamma);
+	if (range_max >= 0.0f)
+		corrected_range_max = powf(range_max, 1.0f / gamma);
+	else
+		corrected_range_max = - powf(- range_max, 1.0f / gamma);
+	float factor = 1.0f / (corrected_range_max - corrected_range_min);
+	for (int i = 0; i < n; i++) {
+		float f = corrected_half_float_table[buffer[i]];
+		int u = lrintf(detexClamp0To1((f - corrected_range_min) * factor * 65535.0f + 0.5f));
+		buffer[i] = (uint16_t)u;
+	}
 }
 
-void detexConvertHDRFloatToFloatGamma1(float *buffer, int n, float range_min,
-float range_max) {
+void detexConvertHDRHalfFloatToUInt16(uint16_t *buffer, int n) {
+	if (detex_gamma == 1.0f)
+		detexConvertHDRHalfFloatToUInt16Gamma1(buffer, n);
+	else
+		detexConvertHDRHalfFloatToUInt16SpecialGamma(buffer, n);
 }
 
-void detexConvertHDRFloatToFloatSpecialGamma(float *buffer, int n, float gamma,
-float range_min, float range_max) {
+static DETEX_INLINE_ONLY void detexConvertHDRFloatToFloatGamma1(float *buffer, int n) {
+	float range_min = detex_gamma_range_min;
+	float range_max = detex_gamma_range_max;
+	fesetround(FE_DOWNWARD);
+	if (range_min == 0.0f && range_max == 1.0f) {
+		for (int i = 0; i < n; i++) {
+			float f = buffer[i];
+			buffer[i] = detexClamp0To1(f);
+		}
+		return;
+	}
+	float factor = 1.0f / (range_max - range_min);
+	for (int i = 0; i < n; i++) {
+		float f = buffer[i];
+		buffer[i] = detexClamp0To1(f - range_min) * factor;
+	}
+}
+
+static DETEX_INLINE_ONLY void detexConvertHDRFloatToFloatSpecialGamma(float *buffer, int n) {
+	float gamma = detex_gamma;
+	float range_min = detex_gamma_range_min;
+	float range_max = detex_gamma_range_max;
+	float corrected_range_min, corrected_range_max;
+	if (range_min >= 0.0f)
+		corrected_range_min = powf(range_min, 1.0f / gamma);
+	else
+		corrected_range_min = - powf(- range_min, 1.0f / gamma);
+	if (range_max >= 0.0f)
+		corrected_range_max = powf(range_max, 1.0f / gamma);
+	else
+		corrected_range_max = - powf(- range_max, 1.0f / gamma);
+	float factor = 1.0f / (corrected_range_max - corrected_range_min);
+	for (int i = 0; i < n; i++) {
+		float f = buffer[i];
+		buffer[i] = detexClamp0To1((f - corrected_range_min) * factor);
+	}
+}
+
+void detexConvertHDRFloatToFloat(float *buffer, int n) {
+	if (detex_gamma == 1.0f)
+		detexConvertHDRFloatToFloatGamma1(buffer, n);
+	else
+		detexConvertHDRFloatToFloatSpecialGamma(buffer, n);
 }
 

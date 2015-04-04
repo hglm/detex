@@ -533,6 +533,11 @@ DETEX_API bool detexDecompressTextureLinear(const uint8_t *bitstring, uint32_t t
  * Miscellaneous functions.
  */
 
+/* Initialize the detex library. This function precalculates a table for fast conversion from */
+/* half-float format. It has to be called before any other library function calls and before any */
+/* extra threads using the library are created. */
+DETEX_API void detexInitialize();
+
 /* Return size of compressed block in bytes given the texture format. */
 DETEX_API uint32_t detexGetCompressedBlockSize(uint32_t texture_format);
 
@@ -577,10 +582,21 @@ static DETEX_INLINE_ONLY int detexGetNumberOfComponents(uint32_t pixel_format) {
 
 DETEX_API extern const uint8_t detex_clamp0to255_table[767];
 
-/* Clamp a value in the range -255 to 511 to the the range 0 to 255. */
+/* Clamp an integer value in the range -255 to 511 to the the range 0 to 255. */
 static DETEX_INLINE_ONLY uint8_t detexClamp0To255(int x) {
 	return detex_clamp0to255_table[x + 255];
 }
+
+/* Clamp a float point value to the range 0.0 to 1.0f. */
+static DETEX_INLINE_ONLY float detexClamp0To1(float f) {
+	if (f < 0.0f)
+		return 0.0f;
+	else if (f > 1.0f)
+		return 1.0f;
+	else
+		return f;
+}
+
 
 /*
  * Define some short functions for pixel packing/unpacking. The compiler will

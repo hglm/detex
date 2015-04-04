@@ -19,15 +19,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 bool detexCalculateDynamicRange(uint8_t *pixel_buffer, int nu_pixels, uint32_t pixel_format,
 	float *range_min_out, float *range_max_out);
 
-void detexConvertHDRHalfFloatToUInt16Gamma1(uint16_t *buffer, int n, float range_min,
-	float range_max);
+void detexConvertHDRHalfFloatToUInt16(uint16_t *buffer, int n);
 
-void detexConvertHDRHalfFloatToUInt16SpecialGamma(uint16_t *buffer, int n, float gamma,
-	float range_min, float range_max);
-
-void detexConvertHDRFloatToFloatGamma1(float *buffer, int n, float range_min,
-	float range_max);
-
-void detexConvertHDRFloatToFloatSpecialGamma(float *buffer, int n, float gamma,
-	float range_min, float range_max);
+void detexConvertHDRFloatToFloat(float *buffer, int n);
 
