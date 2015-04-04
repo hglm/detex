@@ -322,9 +322,9 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	for (int i = 0; i < nu_pixels; i += 64) {
 		float *target_pixelf_buffer = (float *)float_buffer;
 		int nu_stage_pixels = 64;
-		if (i + 64 >= nu_pixels)
+		if (i + 64 > nu_pixels)
 			nu_stage_pixels = nu_pixels - i;
-		for (int j = i; j < i + nu_stage_pixels; j++) {
+		for (int j = 0; j < nu_stage_pixels; j++) {
 			int16_t red = *source_pixel16_buffer;
 			float redf = red * (1.0f / 65535.0f);
 			*target_pixelf_buffer = redf;
@@ -345,9 +345,9 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	for (int i = 0; i < nu_pixels; i += 64) {
 		float *target_pixelf_buffer = (float *)float_buffer;
 		int nu_stage_pixels = 64;
-		if (i + 64 >= nu_pixels)
+		if (i + 64 > nu_pixels)
 			nu_stage_pixels = nu_pixels - i;
-		for (int j = i; j < i + nu_stage_pixels; j++) {
+		for (int j = 0; j < nu_stage_pixels; j++) {
 			int16_t red = source_pixel16_buffer[0];
 			int16_t green = source_pixel16_buffer[1];
 			float redf = red * (1.0f / 65535.0f);
@@ -371,9 +371,9 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	for (int i = 0; i < nu_pixels; i += 32) {
 		float *target_pixelf_buffer = (float *)float_buffer;
 		int nu_stage_pixels = 32;
-		if (i + 32 >= nu_pixels)
+		if (i + 32 > nu_pixels)
 			nu_stage_pixels = nu_pixels - i;
-		for (int j = i; j < i + nu_stage_pixels; j++) {
+		for (int j = 0; j < nu_stage_pixels; j++) {
 			int16_t red = source_pixel16_buffer[0];
 			int16_t green = source_pixel16_buffer[1];
 			int16_t blue = source_pixel16_buffer[2];
@@ -716,8 +716,8 @@ uint32_t *conversion) {
 	return - 1;
 }
 
-/* Convert pixels between different formats. Return true if successful. */
-// It may be a better strategy to start with the source format instead of the target format.
+// Convert pixels between different formats. Return true if successful.
+// In its current form, it may modify the source buffer.
 
 bool detexConvertPixels(uint8_t * DETEX_RESTRICT source_pixel_buffer, uint32_t nu_pixels,
 uint32_t source_pixel_format, uint8_t * DETEX_RESTRICT target_pixel_buffer,

@@ -537,10 +537,10 @@ DETEX_API bool detexDecompressTextureLinear(const uint8_t *bitstring, uint32_t t
 DETEX_API uint32_t detexGetCompressedBlockSize(uint32_t texture_format);
 
 /*
- * Convert pixels between different formats. Only valid for conversions
- * that do not change the precision or pixel size. The target pixel buffer must
+ * Convert pixels between different formats. The target pixel buffer must
  * be allocated with sufficient size to the hold the result. Returns true if
  * succesful.
+ * Warning: This function may modify the source buffer.
  */
 DETEX_API bool detexConvertPixels(uint8_t *source_pixel_buffer, uint32_t nu_pixels,
 	uint32_t source_pixel_format, uint8_t *target_pixel_buffer,
@@ -558,6 +558,7 @@ DETEX_API void detexSetHDRParameters(float gamma, float range_min, float range_m
 /* Returns true if successful. */
 DETEX_API bool detexCalculateDynamicRange(uint8_t *pixel_buffer, int nu_pixels, uint32_t pixel_format,
 	float *range_min_out, float *range_max_out);
+
 
 /* Return pixel size in bytes for pixel format. */
 static DETEX_INLINE_ONLY int detexGetPixelSize(uint32_t pixel_format) {
