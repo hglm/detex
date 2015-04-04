@@ -41,7 +41,8 @@ CFLAGS_TEST = $(CFLAGS)
 endif
 
 LIBRARY_MODULE_OBJECTS = bptc-tables.o bits.o clamp.o convert.o decompress-bc.o decompress-bptc.o \
-	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o texture.o
+	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o half-float.o \
+	hdr.o texture.o
 LIBRARY_HEADER_FILES = detex.h
 TEST_PROGRAMS = validate
 
