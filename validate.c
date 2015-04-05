@@ -107,7 +107,7 @@ static const uint32_t pixel_format[] = {
 static GtkWidget *gtk_window;
 cairo_surface_t *surface[NU_TEXTURE_FORMATS];
 uint8_t *pixel_buffer[NU_TEXTURE_FORMATS];
-uint8_t *compressed_data[NU_TEXTURE_FORMATS];
+detexTexture *texture[NU_TEXTURE_FORMATS];
 
 static gboolean delete_event_cb(GtkWidget *widget, GdkEvent *event, gpointer data) {
     return FALSE;
@@ -166,31 +166,7 @@ static void DrawTexture(int i) {
 }
 
 static bool LoadCompressedTexture(int i) {
-	compressed_data[i] = (uint8_t *)malloc(16 *
-		(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
-	FILE *f = fopen(texture_file[i], "rb");
-	if (f == NULL) {
-		printf("Error opening texture file %s.\n", texture_file[i]);
-		return false;
-	}
-	// Read the KTX header (skip it).
-	int n = fread(compressed_data[i], 1, 68, f);
-	if (n != 68) {
-		printf("Error reading texture file %s.\n", texture_file[i]);
-		return false;
-	}
-	// Read the compressed texture. */
-	uint32_t compressed_block_size = detexGetCompressedBlockSize(
-		texture_format[i]);
-	n = fread(compressed_data[i], 1, compressed_block_size *
-		(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4), f);
-	if (n != compressed_block_size * (TEXTURE_WIDTH / 4) *
-	(TEXTURE_HEIGHT / 4)) {
-		printf("Error reading texture file %s.\n", texture_file[i]);
-		return false;
-	}
-	fclose(f);
-	return true;
+	return detexLoadKTXFile(texture_file[i], &texture[i]);
 }
 
 int main(int argc, char **argv) {
@@ -201,13 +177,12 @@ int main(int argc, char **argv) {
 			(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
 		bool r = LoadCompressedTexture(i);
 		if (!r) {
+			printf("Error reading texture file %s.\n", texture_file[i]);
 			memset(pixel_buffer[i], 0, 16 * 8 *
 				(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
 			continue;
 		}
-		r = detexDecompressTextureLinear(compressed_data[i],
-			texture_format[i], TEXTURE_WIDTH / 4,
-			TEXTURE_HEIGHT / 4, pixel_buffer[i],
+		r = detexDecompressTextureLinear(texture[i], pixel_buffer[i],
 			pixel_format[i]);
 		if (!r) {
 			printf("Decompression of %s returned error.\n",

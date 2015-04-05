@@ -24,6 +24,8 @@ void detexConvertNormalizedHalfFloatToUInt16(uint16_t *buffer, int n);
 
 extern float *detex_half_float_table;
 
+void detexCalculateHalfFloatTable();
+
 static DETEX_INLINE_ONLY float detexGetFloatFromHalfFloat(uint16_t hf) {
 	return detex_half_float_table[hf];
 }

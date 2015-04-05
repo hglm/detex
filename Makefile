@@ -42,8 +42,8 @@ endif
 LIBRARY_LIBS = -lm
 
 LIBRARY_MODULE_OBJECTS = bptc-tables.o bits.o clamp.o convert.o decompress-bc.o decompress-bptc.o \
-	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o half-float.o \
-	hdr.o texture.o
+	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o file-info.o \
+	half-float.o hdr.o misc.o ktx.o texture.o
 LIBRARY_HEADER_FILES = detex.h
 TEST_PROGRAMS = validate
 

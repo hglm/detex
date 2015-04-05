@@ -69,20 +69,20 @@ uint32_t pixel_format) {
  * array of image buffer tiles (corresponding to compressed blocks), converting
  * into the given pixel format.
  */
-bool detexDecompressTextureTiled(const uint8_t * DETEX_RESTRICT bitstring,
-uint32_t texture_format, uint32_t width_in_blocks, uint32_t height_in_blocks,
+bool detexDecompressTextureTiled(const detexTexture *texture,
 uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
+	const uint8_t *data = texture->data;
 	bool result = true;
-	for (int y = 0; y < height_in_blocks; y++)
-		for (int x = 0; x < width_in_blocks; x++) {
-			bool r = detexDecompressBlock(bitstring, texture_format,
+	for (int y = 0; y < texture->height_in_blocks; y++)
+		for (int x = 0; x < texture->width_in_blocks; x++) {
+			bool r = detexDecompressBlock(data, texture->format,
 				DETEX_MODE_MASK_ALL, 0, pixel_buffer, pixel_format);
 			uint32_t block_size = detexGetPixelSize(pixel_format) * 16;
 			if (!r) {
 				result = false;
 				memset(pixel_buffer, 0, block_size);
 			}
-			bitstring += detexGetCompressedBlockSize(texture_format);
+			data += detexGetCompressedBlockSize(texture->format);
 			pixel_buffer += block_size;
 		}
 	return result;
@@ -93,15 +93,20 @@ uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
  * image buffer, with pixels stored row-by-row, converting into the given pixel
  * format.
  */
-bool detexDecompressTextureLinear(const uint8_t * DETEX_RESTRICT bitstring,
-uint32_t texture_format, uint32_t width_in_blocks, uint32_t height_in_blocks,
+bool detexDecompressTextureLinear(const detexTexture *texture,
 uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
 	uint8_t block_buffer[DETEX_MAX_BLOCK_SIZE];
+	const uint8_t *data = texture->data;
 	int pixel_size = detexGetPixelSize(pixel_format);
 	bool result = true;
-	for (int y = 0; y < height_in_blocks; y++)
-		for (int x = 0; x < width_in_blocks; x++) {
-			bool r = detexDecompressBlock(bitstring, texture_format,
+	for (int y = 0; y < texture->height_in_blocks; y++) {
+		int nu_rows;
+		if (y * 4 + 3 >= texture->height)
+			nu_rows = texture->height - y * 4;
+		else
+			nu_rows = 4;
+		for (int x = 0; x < texture->width_in_blocks; x++) {
+			bool r = detexDecompressBlock(data, texture->format,
 				DETEX_MODE_MASK_ALL, 0, block_buffer, pixel_format);
 			uint32_t block_size = detexGetPixelSize(pixel_format) * 16;
 			if (!r) {
@@ -109,16 +114,20 @@ uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
 				memset(block_buffer, 0, block_size);
 			}
 			uint8_t *pixelp = pixel_buffer +
-				y * (4 * width_in_blocks * 4 *
-					pixel_size)
+				y * 4 * texture->width * pixel_size +
 				+ x * 4 * pixel_size;
-			for (int row = 0; row < 4; row++)
-				memcpy(pixelp + row * 4 * width_in_blocks *
-					pixel_size,
+			int nu_columns;
+			if (x * 4 + 3  >= texture->width)
+				nu_columns = texture->width - x * 4;
+			else
+				nu_columns = 4;
+			for (int row = 0; row < nu_rows; row++)
+				memcpy(pixelp + row * texture->width * pixel_size,
 					block_buffer + row * 4 * pixel_size,
-					4 * pixel_size);
-			bitstring += detexGetCompressedBlockSize(texture_format);
+					nu_columns * pixel_size);
+			data += detexGetCompressedBlockSize(texture->format);
 		}
+	}
 	return result;
 }
 

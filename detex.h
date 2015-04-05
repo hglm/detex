@@ -232,6 +232,13 @@ enum {
 		DETEX_PIXEL_FORMAT_FLOAT_BIT |
 		DETEX_PIXEL_FORMAT_HDR_BIT
 		),
+	DETEX_PIXEL_FORMAT_FLOAT_RGBA16 = (
+		DETEX_PIXEL_FORMAT_16BIT_COMPONENT_BIT |
+		DETEX_PIXEL_FORMAT_ALPHA_COMPONENT_BIT |
+		DETEX_PIXEL_FORMAT_FOUR_COMPONENTS_BIT |
+		DETEX_PIXEL_FORMAT_64BIT_PIXEL_BITS |
+		DETEX_PIXEL_FORMAT_FLOAT_BIT
+		),
 	DETEX_PIXEL_FORMAT_FLOAT_RGB16 = (
 		DETEX_PIXEL_FORMAT_16BIT_COMPONENT_BIT |
 		DETEX_PIXEL_FORMAT_THREE_COMPONENTS_BIT |
@@ -648,6 +655,15 @@ enum {
 		),
 };
 
+typedef struct {
+	uint32_t format;
+	uint8_t *data;
+	int width;
+	int height;
+	int width_in_blocks;
+	int height_in_blocks;
+} detexTexture;
+
 /*
  * General texture decompression functions (tiled or linear) with specifie
  * compression format.
@@ -666,8 +682,7 @@ DETEX_API bool detexDecompressBlock(const uint8_t *bitstring, uint32_t texture_f
  * array of image buffer tiles (corresponding to compressed blocks), converting
  * into the given pixel format.
  */
-DETEX_API bool detexDecompressTextureTiled(const uint8_t *bitstring, uint32_t texture_format,
-	uint32_t width_in_blocks, uint32_t height_in_blocks, uint8_t *pixel_buffer,
+DETEX_API bool detexDecompressTextureTiled(const detexTexture *texture, uint8_t *pixel_buffer,
 	uint32_t pixel_format);
 
 /*
@@ -675,8 +690,7 @@ DETEX_API bool detexDecompressTextureTiled(const uint8_t *bitstring, uint32_t te
  * image buffer, with pixels stored row-by-row, converting into the given pixel
  * format.
  */
-DETEX_API bool detexDecompressTextureLinear(const uint8_t *bitstring, uint32_t texture_format,
-	uint32_t width_in_blocks, uint32_t height_in_blocks, uint8_t *pixel_buffer,
+DETEX_API bool detexDecompressTextureLinear(const detexTexture *texture, uint8_t *pixel_buffer,
 	uint32_t pixel_format);
 
 
@@ -703,6 +717,12 @@ DETEX_API bool detexConvertPixels(uint8_t *source_pixel_buffer, uint32_t nu_pixe
 DETEX_API bool detexConvertPixelsInPlace(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 	uint32_t nu_pixels, uint32_t source_pixel_format, uint32_t target_pixel_format);
 
+/* Return the component bitfield masks for a pixel format (pixel size must be at most 64 bits). */
+/* Return true if succesful. */
+DETEX_API bool detexGetComponentMasks(uint32_t texture_format, uint64_t *red_mask, uint64_t *green_mask,
+	uint64_t *blue_mask, uint64_t *alpha_mask);
+
+
 /*
  * HDR-related functions.
  */
@@ -716,16 +736,40 @@ DETEX_API bool detexCalculateDynamicRange(uint8_t *pixel_buffer, int nu_pixels, 
 	float *range_min_out, float *range_max_out);
 
 
-/* Return pixel size in bytes for pixel format. */
+/*
+ * Texture file loading.
+ */
+
+// Load texture from KTX file with mip-maps. Returns true if successful.
+// nu_levels is a return parameter that returns the number of mipmap levels found.
+// textures_out is a return parameter for an array of detexTexture pointers that is allocated,
+// free with free(). textures_out[i] are allocated textures corresponding to each level, free
+// with free();
+bool detexLoadKTXFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
+	int *nu_levels_out);
+
+// Load texture from KTX file (first mip-map only). Returns true if successful.
+// The texture is allocated, free with free().
+bool detexLoadKTXFile(const char *filename, detexTexture **texture_out);
+
+
+
+/* Return pixel size in bytes for pixel format or texture format (decompressed). */
 static DETEX_INLINE_ONLY int detexGetPixelSize(uint32_t pixel_format) {
 	return 1 + ((pixel_format & 0xF00) >> 8);
 }
 
-/* Return the number of components of pixel format. */
+/* Return the number of components of a pixel format or texture format. */
 static DETEX_INLINE_ONLY int detexGetNumberOfComponents(uint32_t pixel_format) {
 	return 1 + ((pixel_format & 0x30) >> 4);
 }
 
+/* Return the component size in bytes of a pixel format or texture format. */
+static DETEX_INLINE_ONLY int detexGetComponentSize(uint32_t pixel_format) {
+	return 1 << (pixel_format & 0x3);
+}
+
+/* Return the total size of a compressed texture. */
 static DETEX_INLINE_ONLY uint32_t detexTextureSize(uint32_t width_in_blocks,
 uint32_t height_in_blocks, uint32_t pixel_format) {
 	return width_in_blocks * height_in_blocks * detexGetPixelSize(pixel_format) * 16;
@@ -744,7 +788,7 @@ static DETEX_INLINE_ONLY uint32_t detexGetCompressedBlockSize(uint32_t texture_f
 
 /* Return whether a texture format is compressed. */
 static DETEX_INLINE_ONLY uint32_t detexIsCompressed(uint32_t texture_format) {
-	return detexGetCompressedFormat(texture_format) == DETEX_COMPRESSED_TEXTURE_FORMAT_INDEX_UNCOMPRESSED;
+	return detexGetCompressedFormat(texture_format) != DETEX_COMPRESSED_TEXTURE_FORMAT_INDEX_UNCOMPRESSED;
 }
 
 /* Return the pixel format of a texture format. */

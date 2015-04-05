@@ -273,17 +273,13 @@ void detexConvertFloatToHalfFloat(float *source_buffer, int n, uint16_t *target_
 
 float *detex_half_float_table = NULL;
 
-static void detexCalculateHalfFloatTable() {
+void detexCalculateHalfFloatTable() {
 	detex_half_float_table = (float *)malloc(65536 * sizeof(float));
 	uint16_t *hf_buffer = (uint16_t *)malloc(65536 * sizeof(uint16_t));
 	for (int i = 0; i <= 0xFFFF; i++)
 		hf_buffer[i] = i;
 	halfp2singles(detex_half_float_table, hf_buffer, 65536);
 	free(hf_buffer);
-}
-
-void detexInitialize() {
-	detexCalculateHalfFloatTable();
 }
 
 // Convert normalized half floats to unsigned 16-bit integers in place.
