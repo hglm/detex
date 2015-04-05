@@ -649,7 +649,37 @@ uint32_t *conversion) {
 	return - 1;
 }
 
+// Temporary pixel buffer management for conversion function.
+
+#define DETEX_MAX_TEMP_PIXEL_BUFFERS 3
+
+typedef struct {
+	uint8_t *pixel_buffer[DETEX_MAX_TEMP_PIXEL_BUFFERS];
+	uint32_t size[DETEX_MAX_TEMP_PIXEL_BUFFERS];
+	int nu_buffers;
+} TempPixelBufferInfo;
+
+static void InitTemporaryPixelBuffers(TempPixelBufferInfo *info) {
+	info->nu_buffers = 0;
+}
+
+static uint8_t *AllocateTemporaryPixelBuffer(TempPixelBufferInfo *info, uint32_t size) {
+	if (info->nu_buffers == DETEX_MAX_TEMP_PIXEL_BUFFERS)
+		return NULL;
+	uint8_t *buffer = (uint8_t *)malloc(size);
+	info->pixel_buffer[info->nu_buffers] = buffer;
+	info->nu_buffers++;
+	return buffer;
+}
+
+static void FreeTemporaryPixelBuffers(TempPixelBufferInfo *info) {
+	for (int i = 0; i < info->nu_buffers; i++)
+		free(info->pixel_buffer[i]);
+}
+
 // Convert pixels between different formats. Return true if successful.
+// If target_pixel_format is NULL, the conversion will be attempted in-place, without
+// allocating any temporary buffer.
 // In its current form, it may modify the source buffer.
 
 bool detexConvertPixels(uint8_t * DETEX_RESTRICT source_pixel_buffer, uint32_t nu_pixels,
@@ -659,16 +689,32 @@ uint32_t target_pixel_format) {
 	int nu_conversions = detexMatchConversion(source_pixel_format, target_pixel_format, conversion);
 	if (nu_conversions < 0)
 		return false;
-	// Perform conversions.
+	// Count in place/non-place steps.
 	int nu_non_in_place_conversions = 0;
 	int last_non_in_place_conversion = - 1;
+	int first_non_in_place_conversion = - 1;
 	for (int i = 0; i < nu_conversions; i++)
 		if (detexGetPixelSize(detex_conversion_table[conversion[i]].source_format)
 		!= detexGetPixelSize(detex_conversion_table[conversion[i]].target_format)) {
 			nu_non_in_place_conversions++;
 			last_non_in_place_conversion = i;
+			if (first_non_in_place_conversion < 0)
+				first_non_in_place_conversion = i;
 		}
-	uint8_t *temp_pixel_buffer = NULL;
+	if (target_pixel_buffer == NULL && nu_non_in_place_conversions > 0)
+		return false;
+	// Perform conversions.
+	TempPixelBufferInfo temp_pixel_buffer_info;
+	InitTemporaryPixelBuffers(&temp_pixel_buffer_info);
+	if (first_non_in_place_conversion > 0) {
+		// When doing a non-place conversion and the first conversion step is place,
+		// allocate a temporary buffer to avoid corrupting the source buffer.
+		uint8_t *temp_pixel_buffer = AllocateTemporaryPixelBuffer(&temp_pixel_buffer_info,
+			detexGetPixelSize(source_pixel_format) * nu_pixels);
+		memcpy(temp_pixel_buffer, source_pixel_buffer,
+			detexGetPixelSize(source_pixel_format) * nu_pixels);
+		source_pixel_buffer = temp_pixel_buffer;
+	}
 	for (int i = 0; i < nu_conversions; i++) {
 		if (detexGetPixelSize(detex_conversion_table[conversion[i]].source_format)
 		== detexGetPixelSize(detex_conversion_table[conversion[i]].target_format)) {
@@ -683,14 +729,15 @@ uint32_t target_pixel_format) {
 				source_pixel_buffer = target_pixel_buffer;
 			}
 			else {
-				if (temp_pixel_buffer != NULL) {
-					// Error: too many temporary buffers needed.
+				uint8_t *temp_pixel_buffer = AllocateTemporaryPixelBuffer(&temp_pixel_buffer_info,
+					nu_pixels * detexGetPixelSize(
+						detex_conversion_table[conversion[i]].target_format));
+				if (temp_pixel_buffer == NULL) {
+					// Error: Too many temporary buffers needed.
 					printf("Too many temporary buffers needed.\n");
-					free(temp_pixel_buffer);
+					FreeTemporaryPixelBuffers(&temp_pixel_buffer_info);
 					return false;
 				}
-				temp_pixel_buffer = malloc(nu_pixels * detexGetPixelSize(
-					detex_conversion_table[conversion[i]].target_format));
 				detex_conversion_table[conversion[i]].conversion_func(
 					source_pixel_buffer, nu_pixels, temp_pixel_buffer);
 				source_pixel_buffer = temp_pixel_buffer;
@@ -698,12 +745,16 @@ uint32_t target_pixel_format) {
 		}
 	
 	}
-	if (temp_pixel_buffer != NULL)
-		free(temp_pixel_buffer);
+	FreeTemporaryPixelBuffers(&temp_pixel_buffer_info);
 	if (nu_non_in_place_conversions == 0) {
 		memcpy(target_pixel_buffer, source_pixel_buffer,
 			detexGetPixelSize(target_pixel_format) * 16);
 	}
 	return true;
+}
+
+bool detexConvertPixelsInPlace(uint8_t * DETEX_RESTRICT source_pixel_buffer, uint32_t nu_pixels,
+uint32_t source_pixel_format, uint32_t target_pixel_format) {
+	return detexConvertPixels(source_pixel_buffer, nu_pixels, source_pixel_format, NULL, target_pixel_format);
 }
 

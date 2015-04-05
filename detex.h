@@ -75,7 +75,7 @@ __BEGIN_DECLS
 #define DETEX_RESTRICT __restrict
 
 /* Maximum uncompressed block size in bytes. */
-#define DETEX_MAX_BLOCK_SIZE 128
+#define DETEX_MAX_BLOCK_SIZE 256
 
 /* Detex library pixel formats. */
 
@@ -667,12 +667,15 @@ DETEX_API void detexInitialize();
  * Convert pixels between different formats. The target pixel buffer must
  * be allocated with sufficient size to the hold the result. Returns true if
  * succesful.
- * Warning: This function may modify the source buffer.
  */
 DETEX_API bool detexConvertPixels(uint8_t *source_pixel_buffer, uint32_t nu_pixels,
 	uint32_t source_pixel_format, uint8_t *target_pixel_buffer,
 	uint32_t target_pixel_format);
 
+/* Convert in-place, modifying the source pixel buffer only. If any conversion step changes the */
+/* pixel size, the function will not be succesful and return false. */
+DETEX_API bool detexConvertPixelsInPlace(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+	uint32_t nu_pixels, uint32_t source_pixel_format, uint32_t target_pixel_format);
 
 /*
  * HDR-related functions.
