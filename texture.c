@@ -23,6 +23,7 @@ typedef bool (*detexDecompressBlockFuncType)(const uint8_t *bitstring,
 	uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer);
 
 static detexDecompressBlockFuncType decompress_function[] = {
+	NULL,
 	detexDecompressBlockBC1,
 	detexDecompressBlockBC1A,
 	detexDecompressBlockBC2,
@@ -44,32 +45,6 @@ static detexDecompressBlockFuncType decompress_function[] = {
 	detexDecompressBlockEAC_SIGNED_RG11,
 };
 
-static int compressed_block_size[] = {
-	8, 8, 16, 16, 8, 8, 16, 16, 16, 16, 16, 8, 8, 8, 16, 8, 8, 16, 16,
-};
-
-static uint32_t decompress_pixel_format[] = {
-	DETEX_PIXEL_FORMAT_RGBX8,	/* BC1 */
-	DETEX_PIXEL_FORMAT_RGBA8,	/* BC1A */
-	DETEX_PIXEL_FORMAT_RGBA8,	/* BC2 */
-	DETEX_PIXEL_FORMAT_RGBA8,	/* BC3 */
-	DETEX_PIXEL_FORMAT_R8,		/* RGTC1 (BC4) */
-	DETEX_PIXEL_FORMAT_SIGNED_R16,	/* SIGNED_RGTC1 */
-	DETEX_PIXEL_FORMAT_RG8,		/* RGTC2 (BC5) */
-	DETEX_PIXEL_FORMAT_SIGNED_RG16,	/* SIGNED_RGTC2 */
-	DETEX_PIXEL_FORMAT_FLOAT_RGBX16, /* BPTC_FLOAT (BC6H) */
-	DETEX_PIXEL_FORMAT_SIGNED_FLOAT_RGBX16, /* BPTC_SIGNED_FLOAT */
-	DETEX_PIXEL_FORMAT_RGBA8,	/* BPTC (BC7) */
-	DETEX_PIXEL_FORMAT_RGBX8,	/* ETC1 */
-	DETEX_PIXEL_FORMAT_RGBX8,	/* ETC2 */
-	DETEX_PIXEL_FORMAT_RGBA8,	/* ETC2_PUNCHTHROUGH */
-	DETEX_PIXEL_FORMAT_RGBA8,	/* ETC2_EAC */
-	DETEX_PIXEL_FORMAT_R16,		/* ETC2_R11 */
-	DETEX_PIXEL_FORMAT_SIGNED_R16,	/* ETC2_SIGNED_R11 */
-	DETEX_PIXEL_FORMAT_RG16,	/* ETC2_RG11 */
-	DETEX_PIXEL_FORMAT_SIGNED_RG16,	/* ETC2_SIGNED_RG11 */
-};
-
 /*
  * General block decompression function. Block is decompressed using the given
  * compressed format, and stored in the given pixel format. Returns true if
@@ -79,18 +54,14 @@ bool detexDecompressBlock(const uint8_t * DETEX_RESTRICT bitstring, uint32_t tex
 uint32_t mode_mask, uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer,
 uint32_t pixel_format) {
 	uint8_t block_buffer[DETEX_MAX_BLOCK_SIZE];
-	bool r = decompress_function[texture_format](bitstring, mode_mask, flags,
+	uint32_t compressed_format = detexGetCompressedFormat(texture_format);
+	bool r = decompress_function[compressed_format](bitstring, mode_mask, flags,
             block_buffer);
 	if (!r)
 		return false;
 	/* Convert into desired pixel format. */
 	return detexConvertPixels(block_buffer, 16,
-		decompress_pixel_format[texture_format], pixel_buffer, pixel_format); 
-}
-
-uint32_t detexDecompressedTextureSize(uint32_t width_in_blocks,
-uint32_t height_in_blocks, uint32_t pixel_format) {
-	return width_in_blocks * height_in_blocks * detexGetBlockSize(pixel_format);
+		detexGetPixelFormat(texture_format), pixel_buffer, pixel_format); 
 }
 
 /*
@@ -106,12 +77,12 @@ uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
 		for (int x = 0; x < width_in_blocks; x++) {
 			bool r = detexDecompressBlock(bitstring, texture_format,
 				DETEX_MODE_MASK_ALL, 0, pixel_buffer, pixel_format);
-			uint32_t block_size = detexGetBlockSize(pixel_format);
+			uint32_t block_size = detexGetPixelSize(pixel_format) * 16;
 			if (!r) {
 				result = false;
 				memset(pixel_buffer, 0, block_size);
 			}
-			bitstring += compressed_block_size[texture_format];
+			bitstring += detexGetCompressedBlockSize(texture_format);
 			pixel_buffer += block_size;
 		}
 	return result;
@@ -132,7 +103,7 @@ uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
 		for (int x = 0; x < width_in_blocks; x++) {
 			bool r = detexDecompressBlock(bitstring, texture_format,
 				DETEX_MODE_MASK_ALL, 0, block_buffer, pixel_format);
-			uint32_t block_size = detexGetBlockSize(pixel_format);
+			uint32_t block_size = detexGetPixelSize(pixel_format) * 16;
 			if (!r) {
 				result = false;
 				memset(block_buffer, 0, block_size);
@@ -146,13 +117,8 @@ uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
 					pixel_size,
 					block_buffer + row * 4 * pixel_size,
 					4 * pixel_size);
-			bitstring += compressed_block_size[texture_format];
+			bitstring += detexGetCompressedBlockSize(texture_format);
 		}
 	return result;
-}
-
-/* Return size of compressed block in bytes given the texture format. */
-uint32_t detexGetCompressedBlockSize(uint32_t texture_format) {
-	return compressed_block_size[texture_format];
 }
 

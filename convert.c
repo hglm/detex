@@ -702,7 +702,7 @@ uint32_t target_pixel_format) {
 		free(temp_pixel_buffer);
 	if (nu_non_in_place_conversions == 0) {
 		memcpy(target_pixel_buffer, source_pixel_buffer,
-			detexGetBlockSize(target_pixel_format));
+			detexGetPixelSize(target_pixel_format) * 16);
 	}
 	return true;
 }

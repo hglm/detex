@@ -16,9 +16,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 */
 
-bool detexCalculateDynamicRange(uint8_t *pixel_buffer, int nu_pixels, uint32_t pixel_format,
-	float *range_min_out, float *range_max_out);
-
 void detexConvertHDRHalfFloatToUInt16(uint16_t *buffer, int n);
 
 void detexConvertHDRFloatToFloat(float *buffer, int n);
