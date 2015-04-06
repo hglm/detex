@@ -855,7 +855,7 @@ uint32_t target_pixel_format) {
 	TempPixelBufferInfo temp_pixel_buffer_info;
 	InitTemporaryPixelBuffers(&temp_pixel_buffer_info);
 	if (first_non_in_place_conversion > 0) {
-		// When doing a non-place conversion and the first conversion step is place,
+		// When doing a non-place conversion and the first conversion step is in-place,
 		// allocate a temporary buffer to avoid corrupting the source buffer.
 		uint8_t *temp_pixel_buffer = AllocateTemporaryPixelBuffer(&temp_pixel_buffer_info,
 			detexGetPixelSize(source_pixel_format) * nu_pixels);
@@ -863,10 +863,17 @@ uint32_t target_pixel_format) {
 			detexGetPixelSize(source_pixel_format) * nu_pixels);
 		source_pixel_buffer = temp_pixel_buffer;
 	}
+	if (target_pixel_buffer != NULL && nu_non_in_place_conversions == 0) {
+		// When doing a non-in-place conversion with only in-place conversion steps,
+		// start by copying the source buffer to the target buffer.
+		memcpy(target_pixel_buffer, source_pixel_buffer,
+			detexGetPixelSize(source_pixel_format) * nu_pixels);
+		source_pixel_buffer = target_pixel_buffer;
+	}
 	for (int i = 0; i < nu_conversions; i++) {
 		if (detexGetPixelSize(detex_conversion_table[conversion[i]].source_format)
 		== detexGetPixelSize(detex_conversion_table[conversion[i]].target_format)) {
-			// In-place conversion.
+			// In-place conversion step.
 			detex_conversion_table[conversion[i]].conversion_func(
 				source_pixel_buffer, nu_pixels, NULL);
 		}
@@ -894,10 +901,6 @@ uint32_t target_pixel_format) {
 	
 	}
 	FreeTemporaryPixelBuffers(&temp_pixel_buffer_info);
-	if (nu_non_in_place_conversions == 0) {
-		memcpy(target_pixel_buffer, source_pixel_buffer,
-			detexGetPixelSize(target_pixel_format) * 16);
-	}
 	return true;
 }
 
