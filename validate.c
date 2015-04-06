@@ -107,7 +107,7 @@ static gboolean area_draw_cb(GtkWidget *widget, cairo_t *cr, cairo_surface_t *su
 static void CreateWindowLayout() {
 	gtk_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(gtk_window),
-		"detex library validation program");
+		"Detex Library Validation Program");
 	g_signal_connect(G_OBJECT(gtk_window), "delete_event",
 		G_CALLBACK(delete_event_cb), NULL);
 	g_signal_connect(G_OBJECT(gtk_window), "destroy",
