@@ -47,7 +47,12 @@ static const uint32_t texture_format[] = {
 	DETEX_TEXTURE_FORMAT_EAC_R11,
 	DETEX_TEXTURE_FORMAT_EAC_RG11,
 	DETEX_TEXTURE_FORMAT_EAC_SIGNED_R11,
-	DETEX_TEXTURE_FORMAT_EAC_SIGNED_RG11
+	DETEX_TEXTURE_FORMAT_EAC_SIGNED_RG11,
+	// Uncompressed formats.
+	DETEX_PIXEL_FORMAT_RGB8,
+	DETEX_PIXEL_FORMAT_RGBA8,
+	DETEX_PIXEL_FORMAT_FLOAT_RGB16,
+	DETEX_PIXEL_FORMAT_FLOAT_RGBA16,
 };
 
 static const char *texture_file[] = {
@@ -70,42 +75,17 @@ static const char *texture_file[] = {
 	"test-texture-EAC_RG11.ktx",
 	"test-texture-EAC_SIGNED_R11.ktx",
 	"test-texture-EAC_SIGNED_RG11.ktx",
-};
-
-static const uint32_t pixel_format[] = {
-	DETEX_PIXEL_FORMAT_BGRX8,
-	DETEX_PIXEL_FORMAT_BGRA8,
-	DETEX_PIXEL_FORMAT_BGRA8,
-	DETEX_PIXEL_FORMAT_BGRA8,
-	DETEX_PIXEL_FORMAT_BGRX8,
-	DETEX_PIXEL_FORMAT_BGRX8,
-	// Convert from signed R16 to BGRX8.
-	DETEX_PIXEL_FORMAT_BGRX8,
-	// Convert from signed RG16 to BGRX8.
-	DETEX_PIXEL_FORMAT_BGRX8,
-	DETEX_PIXEL_FORMAT_BGRA8,
-	// Convert from half-float RGB16 to BGRX8.
-	DETEX_PIXEL_FORMAT_BGRX8,
-	// Convert from signed half-float RGB16 to BGRX8.
-	DETEX_PIXEL_FORMAT_BGRX8,
-	DETEX_PIXEL_FORMAT_BGRX8,
-	DETEX_PIXEL_FORMAT_BGRX8,
-	DETEX_PIXEL_FORMAT_BGRA8,
-	DETEX_PIXEL_FORMAT_BGRA8,
-	// Convert from R16 to BGRX8.
-	DETEX_PIXEL_FORMAT_BGRX8,
-	// Convert from RG16 to BGRX8.
-	DETEX_PIXEL_FORMAT_BGRX8,
-	// Convert from signed R16 to BGRX8.
-	DETEX_PIXEL_FORMAT_BGRX8,
-	// Convert from signed RG16 to BGRX8.
-	DETEX_PIXEL_FORMAT_BGRX8
+	"test-texture-RGB8.ktx",
+	"test-texture-RGBA8.ktx",
+	"test-texture-FLOAT_RGB16.ktx",
+	"test-texture-FLOAT_RGBA16.ktx"
 };
 
 #define NU_TEXTURE_FORMATS (sizeof(texture_format) / sizeof(texture_format[0]))
 
 static GtkWidget *gtk_window;
 cairo_surface_t *surface[NU_TEXTURE_FORMATS];
+GtkWidget *texture_label[NU_TEXTURE_FORMATS];
 uint8_t *pixel_buffer[NU_TEXTURE_FORMATS];
 detexTexture *texture[NU_TEXTURE_FORMATS];
 
@@ -134,14 +114,24 @@ static void CreateWindowLayout() {
 		G_CALLBACK(destroy_cb), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(gtk_window), 0);
 
-	GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_container_add(GTK_CONTAINER(gtk_window), hbox);
+	GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	gtk_container_add(GTK_CONTAINER(gtk_window), vbox);
+	GtkWidget *hbox;
 	for (int i = 0; i < NU_TEXTURE_FORMATS; i++) {
+		if (i % 8 == 0) {
+			hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+			gtk_container_add(GTK_CONTAINER(vbox), hbox);
+		}
 		GtkWidget *image_drawing_area = gtk_drawing_area_new();
 		gtk_widget_set_size_request(image_drawing_area,
 			TEXTURE_WIDTH, TEXTURE_HEIGHT);
-		gtk_box_pack_start(GTK_BOX(hbox), image_drawing_area, TRUE,
-			TRUE, 0);
+		// Create a vbox for texture image and label.
+		GtkWidget *texture_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+		gtk_box_pack_start(GTK_BOX(texture_vbox), image_drawing_area, TRUE, TRUE, 0);
+		texture_label[i] = gtk_label_new("Unknown");
+		gtk_box_pack_start(GTK_BOX(texture_vbox), texture_label[i], TRUE, TRUE, 0);
+		// Add the texture vbox to the lay-out.
+		gtk_box_pack_start(GTK_BOX(hbox), texture_vbox, TRUE, FALSE, 8);
 		surface[i] = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
 			TEXTURE_WIDTH, TEXTURE_HEIGHT);
 		g_signal_connect(image_drawing_area, "draw",
@@ -171,6 +161,7 @@ static bool LoadCompressedTexture(int i) {
 
 int main(int argc, char **argv) {
 	gtk_init(&argc, &argv);
+	detexInitialize();
 	CreateWindowLayout();
 	for (int i = 0; i < NU_TEXTURE_FORMATS; i++) {
 		pixel_buffer[i] = (uint8_t *)malloc(16 * 8 *
@@ -182,11 +173,19 @@ int main(int argc, char **argv) {
 				(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
 			continue;
 		}
+		gtk_label_set_text(GTK_LABEL(texture_label[i]), detexGetTextureFormatText(texture[i]->format));
+		uint32_t pixel_format;
+		// Convert to a format suitable for Cairo.
+		if (detexFormatHasAlpha(texture[i]->format))
+			pixel_format = DETEX_PIXEL_FORMAT_BGRA8;
+		else
+			pixel_format = DETEX_PIXEL_FORMAT_BGRX8;
 		r = detexDecompressTextureLinear(texture[i], pixel_buffer[i],
-			pixel_format[i]);
+			pixel_format);
 		if (!r) {
 			printf("Decompression of %s returned error.\n",
 				texture_file[i]);
+			continue;
 		}
 	}
 	for (int i = 0; i < NU_TEXTURE_FORMATS; i++)

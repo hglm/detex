@@ -79,12 +79,12 @@ static const detexTextureFileInfo texture_info[] = {
 	{ DETEX_TEXTURE_FORMAT_BPTC,		1, 1,	"BPTC", "BC7",			4, 4,	0x8E8C, 0,	0,		"DX10",	98 },
 	{ DETEX_TEXTURE_FORMAT_ETC1,		1, 0,	"ETC1", "",			4, 4,	0x8D64, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_ETC2,		1, 0,	"ETC2", "ETC2_RGB8",		4, 4,	0x9274, 0,	0,		"", 0 },
-	{ DETEX_TEXTURE_FORMAT_ETC2_PUNCHTHROUGH, 1, 0,	"ETC2_punchthrough", "",	4, 4,	0x9275, 0,	0,		"", 0 },
+	{ DETEX_TEXTURE_FORMAT_ETC2_PUNCHTHROUGH, 1, 0,	"ETC2_PUNCHTHROUGH", "",	4, 4,	0x9275, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_ETC2_EAC,	1, 0,	"ETC2_EAC", "EAC",		4, 4,	0x9278, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_EAC_R11,		1, 0, 	"EAC_R11", "",			4, 4,	0x9270, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_EAC_SIGNED_R11,	1, 0,	"EAC_SIGNED_R11", "",		4, 4,	0x9271, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_EAC_RG11,	1, 0,	"EAC_RG11", "",			4, 4,	0x9272, 0,	0,		"", 0 },
-	{ DETEX_TEXTURE_FORMAT_EAC_SIGNED_RG11,	1, 0,	"EAC_SIGNED_RG11_eac", "",	4, 4,	0x9273, 0,	0,		"", 0 },
+	{ DETEX_TEXTURE_FORMAT_EAC_SIGNED_RG11,	1, 0,	"EAC_SIGNED_RG11", "",		4, 4,	0x9273, 0,	0,		"", 0 },
 //	{ DETEX_TEXTURE_FORMAT_ETC2_SRGB8,	1, 0,	"SRGB_ETC2", "",		4, 4,	0x9275, 0,	0,		"", 0 },
 //	{ DETEX_TEXTURE_FORMAT_ETC2_SRGB_EAC,	1, 0,	"SRGB_ETC2_EAC", "",		4, 4,	0x9279, 0,	0,		"", 0 },
 //	{ DETEX_TEXTURE_FORMAT_ETC2_SRGB_PUNCHTHROUGH, 1, 0, "SRGB_ETC2_PUNCHTHROUGH, "", 4, 4,	0x9277, 0,	0,		"", 0 },
@@ -211,7 +211,7 @@ const detexTextureFileInfo *detexLookupDDSFileInfo(const char *four_cc, int dx10
 			else {
 				uint32_t format = texture_info[i].texture_format;
 				if ((pixel_format_flags & 0x40) &&
-				!detexIsCompressed(format)) {
+				!detexFormatIsCompressed(format)) {
 					// Uncompressed format. Match component masks.
 					if (bitcount <= 32) {
 						int format_bitcount = detexGetNumberOfComponents(format) *
@@ -240,12 +240,12 @@ const detexTextureFileInfo *detexLookupDDSFileInfo(const char *four_cc, int dx10
 	return NULL;
 }
 
-// Return a description of the texture type.
+// Return a description of the texture format.
 const char *detexGetTextureFormatText(uint32_t texture_format) {
 	const detexTextureFileInfo *info;
 	info = detexLookupTextureFileInfo(texture_format);
 	if (info == NULL) {
-		printf("Error -- invalid texture type.\n");
+		printf("Error -- invalid texture format.\n");
 		return "Invalid";
 	}
 	return info->text1;

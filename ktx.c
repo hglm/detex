@@ -73,7 +73,7 @@ int *nu_mipmaps_out) {
 		return false;
 	}
 	int bytes_per_block;
-	if (detexIsCompressed(info->texture_format))
+	if (detexFormatIsCompressed(info->texture_format))
 		bytes_per_block = detexGetCompressedBlockSize(info->texture_format);
 	else
 		bytes_per_block = detexGetPixelSize(info->texture_format);

@@ -193,6 +193,12 @@ enum {
 		DETEX_PIXEL_FORMAT_THREE_COMPONENTS_BIT |
 		DETEX_PIXEL_FORMAT_64BIT_PIXEL_BITS
 		),
+	DETEX_PIXEL_FORMAT_RGBA16 = (
+		DETEX_PIXEL_FORMAT_16BIT_COMPONENT_BIT |
+		DETEX_PIXEL_FORMAT_ALPHA_COMPONENT_BIT |
+		DETEX_PIXEL_FORMAT_FOUR_COMPONENTS_BIT |
+		DETEX_PIXEL_FORMAT_64BIT_PIXEL_BITS
+		),
 	DETEX_PIXEL_FORMAT_FLOAT_R16 = (
 		DETEX_PIXEL_FORMAT_16BIT_COMPONENT_BIT |
 		DETEX_PIXEL_FORMAT_ONE_COMPONENT_BIT |
@@ -722,6 +728,9 @@ DETEX_API bool detexConvertPixelsInPlace(uint8_t * DETEX_RESTRICT source_pixel_b
 DETEX_API bool detexGetComponentMasks(uint32_t texture_format, uint64_t *red_mask, uint64_t *green_mask,
 	uint64_t *blue_mask, uint64_t *alpha_mask);
 
+// Return a description of the texture type.
+const char *detexGetTextureFormatText(uint32_t texture_format);
+
 
 /*
  * HDR-related functions.
@@ -753,7 +762,6 @@ bool detexLoadKTXFileWithMipmaps(const char *filename, int max_mipmaps, detexTex
 bool detexLoadKTXFile(const char *filename, detexTexture **texture_out);
 
 
-
 /* Return pixel size in bytes for pixel format or texture format (decompressed). */
 static DETEX_INLINE_ONLY int detexGetPixelSize(uint32_t pixel_format) {
 	return 1 + ((pixel_format & 0xF00) >> 8);
@@ -775,6 +783,11 @@ uint32_t height_in_blocks, uint32_t pixel_format) {
 	return width_in_blocks * height_in_blocks * detexGetPixelSize(pixel_format) * 16;
 }
 
+/* Return whether a pixel or texture format has an alpha component. */
+static DETEX_INLINE_ONLY uint32_t detexFormatHasAlpha(uint32_t pixel_format) {
+	return (pixel_format & DETEX_PIXEL_FORMAT_ALPHA_COMPONENT_BIT) != 0;
+}
+
 
 /* Return the compressed texture type index of a texture format. */
 static DETEX_INLINE_ONLY uint32_t detexGetCompressedFormat(uint32_t texture_format) {
@@ -787,7 +800,7 @@ static DETEX_INLINE_ONLY uint32_t detexGetCompressedBlockSize(uint32_t texture_f
 }
 
 /* Return whether a texture format is compressed. */
-static DETEX_INLINE_ONLY uint32_t detexIsCompressed(uint32_t texture_format) {
+static DETEX_INLINE_ONLY uint32_t detexFormatIsCompressed(uint32_t texture_format) {
 	return detexGetCompressedFormat(texture_format) != DETEX_COMPRESSED_TEXTURE_FORMAT_INDEX_UNCOMPRESSED;
 }
 
