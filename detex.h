@@ -671,7 +671,7 @@ typedef struct {
 } detexTexture;
 
 /*
- * General texture decompression functions (tiled or linear) with specifie
+ * General texture decompression functions (tiled or linear) with specified
  * compression format.
  */
 
@@ -725,6 +725,13 @@ DETEX_API bool detexGetComponentMasks(uint32_t texture_format, uint64_t *red_mas
 
 /* Return a description of the texture type. */
 const char *detexGetTextureFormatText(uint32_t texture_format);
+
+/* Return OpenGL Texture2D/KTX file parameters for a texture format. */
+bool detexGetOpenGLParameters(uint32_t texture_format, int *gl_internal_format,
+	int *gl_format, int *gl_type);
+
+/* Return DirectX 10 format for a texture format. */
+bool detexGetDX10Parameters(uint32_t texture_format, uint32_t *dx10_format);
 
 /* Return the error message for the last encountered error. */
 const char *detexGetErrorMessage();

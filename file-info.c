@@ -23,6 +23,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "detex.h"
 #include "file-info.h"
+#include "misc.h"
 
 /*
 	The TextureInfo structure has the following fields:
@@ -198,7 +199,9 @@ const detexTextureFileInfo *detexLookupKTXFileInfo(int gl_internal_format, int g
 }
 
 // Look-up texture file info for DDS file format based on DX format parameters.
-const detexTextureFileInfo *detexLookupDDSFileInfo(const char *four_cc, int dx10_format, uint32_t pixel_format_flags, int bitcount, uint32_t red_mask, uint32_t green_mask, uint32_t blue_mask, uint32_t alpha_mask) {
+const detexTextureFileInfo *detexLookupDDSFileInfo(const char *four_cc, int dx10_format,
+uint32_t pixel_format_flags, int bitcount, uint32_t red_mask, uint32_t green_mask,
+uint32_t blue_mask, uint32_t alpha_mask) {
 	for (int i = 0; i < DETEX_NU_TEXTURE_INFO_ENTRIES; i++)
 		if (strncmp(four_cc, "DX10", 4) == 0) {
 			if (texture_info[i].dx10_format == dx10_format)
@@ -249,5 +252,34 @@ const char *detexGetTextureFormatText(uint32_t texture_format) {
 		return "Invalid";
 	}
 	return info->text1;
+}
+
+/* Return OpenGL Texture2D/KTX file parameters for a texture format. */
+bool detexGetOpenGLParameters(uint32_t texture_format, int *gl_internal_format,
+int *gl_format, int *gl_type) {
+	const detexTextureFileInfo *info = detexLookupTextureFileInfo(texture_format);
+	if (info == NULL) {
+		detexSetErrorMessage("detexGetOpenGLParameters: Invalid texture format");
+		return false;
+	}
+	*gl_internal_format = info->gl_internal_format;
+	*gl_format = info->gl_format;
+	*gl_type = info->gl_type;
+	return true;
+}
+
+/* Return DirectX 10 format for a texture format. */
+bool detexGetDX10Parameters(uint32_t texture_format, uint32_t *dx10_format) {
+	const detexTextureFileInfo *info = detexLookupTextureFileInfo(texture_format);
+	if (info == NULL) {
+		detexSetErrorMessage("detexGetDX10Parameters: Invalid texture format");
+		return false;
+	}
+	if (strncmp(info->dx_four_cc, "DX10", 4) != 0) {
+		detexSetErrorMessage("detexGetDX10Parameters: No DX10 format for texture format");
+		return false;
+	}
+	*dx10_format = info->dx10_format;
+	return true;
 }
 
