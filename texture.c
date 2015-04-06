@@ -17,7 +17,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include <string.h>
+
 #include "detex.h"
+#include "misc.h"
 
 typedef bool (*detexDecompressBlockFuncType)(const uint8_t *bitstring,
 	uint32_t mode_mask, uint32_t flags, uint8_t *pixel_buffer);
@@ -57,8 +59,11 @@ uint32_t pixel_format) {
 	uint32_t compressed_format = detexGetCompressedFormat(texture_format);
 	bool r = decompress_function[compressed_format](bitstring, mode_mask, flags,
             block_buffer);
-	if (!r)
+	if (!r) {
+		detexSetErrorMessage("detexDecompressBlock: Decompress function for format "
+			"0x%08X returned error", texture_format);
 		return false;
+	}
 	/* Convert into desired pixel format. */
 	return detexConvertPixels(block_buffer, 16,
 		detexGetPixelFormat(texture_format), pixel_buffer, pixel_format); 
@@ -71,8 +76,10 @@ uint32_t pixel_format) {
  */
 bool detexDecompressTextureTiled(const detexTexture *texture,
 uint8_t * DETEX_RESTRICT pixel_buffer, uint32_t pixel_format) {
-	if (!detexFormatIsCompressed(texture->format))
+	if (!detexFormatIsCompressed(texture->format)) {
+		detexSetErrorMessage("detexDecompressTextureTiled: Cannot handle uncompressed texture format");
 		return false;
+	}
 	const uint8_t *data = texture->data;
 	bool result = true;
 	for (int y = 0; y < texture->height_in_blocks; y++)

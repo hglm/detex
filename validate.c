@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
 			(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
 		bool r = LoadCompressedTexture(i);
 		if (!r) {
-			printf("Error reading texture file %s.\n", texture_file[i]);
+			printf("%s\n", detexGetErrorMessage());
 			memset(pixel_buffer[i], 0, 16 * 8 *
 				(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
 			continue;
@@ -182,8 +182,8 @@ int main(int argc, char **argv) {
 		r = detexDecompressTextureLinear(texture[i], pixel_buffer[i],
 			pixel_format);
 		if (!r) {
-			printf("Decompression of %s returned error.\n",
-				texture_file[i]);
+			printf("Decompression of %s returned error:\n%s\n",
+				texture_file[i], detexGetErrorMessage());
 			continue;
 		}
 	}

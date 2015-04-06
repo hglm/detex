@@ -25,6 +25,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "detex.h"
 #include "half-float.h"
 #include "hdr.h"
+#include "misc.h"
 
 // Gamma/HDR parameters.
 
@@ -92,8 +93,10 @@ float *range_min_out, float *range_max_out) {
 
 bool detexCalculateDynamicRange(uint8_t *pixel_buffer, int nu_pixels, uint32_t pixel_format,
 float *range_min_out, float *range_max_out) {
-	if (~(pixel_format & DETEX_PIXEL_FORMAT_FLOAT_BIT))
+	if (~(pixel_format & DETEX_PIXEL_FORMAT_FLOAT_BIT)) {
+		detexSetErrorMessage("detexCalculateDynamicRange: Pixel buffer not in float format");
 		return false;
+	}
 	if (pixel_format & DETEX_PIXEL_FORMAT_16BIT_COMPONENT_BIT) {
 		CalculateRangeHalfFloat((uint16_t *)pixel_buffer,
 			nu_pixels * detexGetPixelSize(pixel_format) / 2,
@@ -106,8 +109,10 @@ float *range_min_out, float *range_max_out) {
 			range_min_out, range_max_out);
 		return true;
 	}
-	else
+	else {
+		detexSetErrorMessage("detexCalculateDynamicRange: Unable to handle pixel buffer format");
 		return false;
+	}
 }
 
 // Convert half floats to unsigned 16-bit integers in place with gamma value of 1.

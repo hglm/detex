@@ -23,6 +23,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "detex.h"
 #include "half-float.h"
 #include "hdr.h"
+#include "misc.h"
 
 // Conversion functions. For conversions where the pixel size is unchanged,
 // the conversion is performed in-place and target_pixel_buffer will be NULL.
@@ -835,8 +836,10 @@ uint32_t source_pixel_format, uint8_t * DETEX_RESTRICT target_pixel_buffer,
 uint32_t target_pixel_format) {
 	uint32_t conversion[4];
 	int nu_conversions = detexMatchConversion(source_pixel_format, target_pixel_format, conversion);
-	if (nu_conversions < 0)
+	if (nu_conversions < 0) {
+		detexSetErrorMessage("detexConvertPixels: Unable to find conversion path");
 		return false;
+	}
 	// Count in place/non-place steps.
 	int nu_non_in_place_conversions = 0;
 	int last_non_in_place_conversion = - 1;
@@ -849,8 +852,10 @@ uint32_t target_pixel_format) {
 			if (first_non_in_place_conversion < 0)
 				first_non_in_place_conversion = i;
 		}
-	if (target_pixel_buffer == NULL && nu_non_in_place_conversions > 0)
+	if (target_pixel_buffer == NULL && nu_non_in_place_conversions > 0) {
+		detexSetErrorMessage("Unable to find in-place conversion path");
 		return false;
+	}
 	// Perform conversions.
 	TempPixelBufferInfo temp_pixel_buffer_info;
 	InitTemporaryPixelBuffers(&temp_pixel_buffer_info);
@@ -889,7 +894,7 @@ uint32_t target_pixel_format) {
 						detex_conversion_table[conversion[i]].target_format));
 				if (temp_pixel_buffer == NULL) {
 					// Error: Too many temporary buffers needed.
-					printf("Too many temporary buffers needed.\n");
+					detexSetErrorMessage("detexConvertPixels: Too many temporary buffers needed");
 					FreeTemporaryPixelBuffers(&temp_pixel_buffer_info);
 					return false;
 				}

@@ -245,7 +245,7 @@ const char *detexGetTextureFormatText(uint32_t texture_format) {
 	const detexTextureFileInfo *info;
 	info = detexLookupTextureFileInfo(texture_format);
 	if (info == NULL) {
-		printf("Error -- invalid texture format.\n");
+//		printf("Error -- invalid texture format.\n");
 		return "Invalid";
 	}
 	return info->text1;

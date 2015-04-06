@@ -723,8 +723,11 @@ DETEX_API bool detexConvertPixelsInPlace(uint8_t * DETEX_RESTRICT source_pixel_b
 DETEX_API bool detexGetComponentMasks(uint32_t texture_format, uint64_t *red_mask, uint64_t *green_mask,
 	uint64_t *blue_mask, uint64_t *alpha_mask);
 
-// Return a description of the texture type.
+/* Return a description of the texture type. */
 const char *detexGetTextureFormatText(uint32_t texture_format);
+
+/* Return the error message for the last encountered error. */
+const char *detexGetErrorMessage();
 
 
 /*

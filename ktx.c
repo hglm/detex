@@ -22,6 +22,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "detex.h"
 #include "file-info.h"
+#include "misc.h"
 
 static const uint8_t ktx_id[12] = {
 	0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
@@ -36,7 +37,7 @@ bool detexLoadKTXFileWithMipmaps(const char *filename, int max_mipmaps, detexTex
 int *nu_mipmaps_out) {
 	FILE *f = fopen(filename, "rb");
 	if (f == NULL) {
-		printf("Error -- could not open file %s.\n", filename);
+		detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Could not open file %s", filename);
 		return false;
 	}
 	int header[16];
@@ -45,7 +46,7 @@ int *nu_mipmaps_out) {
 		return false;
 	if (memcmp(header, ktx_id, 12) != 0) {
 		// KTX signature not found.
-		printf("Error -- couldn't find KTX signature.\n");
+		detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Couldn't find KTX signature");
 		return false;
 	}
 	int wrong_endian = 0;
@@ -68,8 +69,8 @@ int *nu_mipmaps_out) {
 //	int pixel_depth = header[11];
 	const detexTextureFileInfo *info = detexLookupKTXFileInfo(glInternalFormat, glFormat, glType);
 	if (info == NULL) {
-		printf("Error -- unsupported format in .ktx file (glInternalFormat = 0x%04X).\n",
-			glInternalFormat);
+		detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Unsupported format in .ktx file "
+			"(glInternalFormat = 0x%04X)", glInternalFormat);
 		return false;
 	}
 	int bytes_per_block;
@@ -79,15 +80,15 @@ int *nu_mipmaps_out) {
 		bytes_per_block = detexGetPixelSize(info->texture_format);
 	int block_width = info->block_width;
 	int block_height = info->block_height;
-	printf("File is %s texture.\n", info->text1);
+//	printf("File is %s texture.\n", info->text1);
 	int width = header[9];
 	int height = header[10];
 	int extended_width = ((width + block_width - 1) / block_width) * block_width;
 	int extended_height = ((height + block_height - 1) / block_height) * block_height;
 	int nu_file_mipmaps = header[14];
-	if (nu_file_mipmaps > 1 && max_mipmaps == 1) {
-		printf("Disregarding mipmaps beyond the first level.\n");
-	}
+//	if (nu_file_mipmaps > 1 && max_mipmaps == 1) {
+//		detexSetErrorMessage("Disregarding mipmaps beyond the first level.\n");
+//	}
 	int nu_mipmaps;
 	if (nu_file_mipmaps > max_mipmaps)
 		nu_mipmaps = max_mipmaps;
@@ -97,7 +98,7 @@ int *nu_mipmaps_out) {
 		// Skip metadata.
 		uint8_t *metadata = (unsigned char *)malloc(header[15]);
 		if (fread(metadata, 1, header[15], f) < header[15]) {
-			printf("Error reading metadata.\n");
+			detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Error reading file %s", filename);
 			return false;
 		}
 		free(metadata);
@@ -110,6 +111,7 @@ int *nu_mipmaps_out) {
 			for (int j = 0; j < i; j++)
 				free(textures[j]);
 			free(textures);
+			detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Error reading file %s", filename);
 			return false;
 		}
 		if (wrong_endian) {
@@ -126,11 +128,12 @@ int *nu_mipmaps_out) {
 		if (/* (detexPixelSize(info->texture_format) != 3 &&
 		detexPixelSize(info->texture_format) != 6 && */
 		image_size != n * bytes_per_block) {
-			printf("Error -- image size field of mipmap level %d does not match (%d vs %d).\n",
-				i, image_size, n * bytes_per_block);
 			for (int j = 0; j < i; j++)
 				free(textures[j]);
 			free(textures);
+			detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Error loading file %s: "
+				"Image size field of mipmap level %d does not match (%d vs %d)",
+				filename, i, image_size, n * bytes_per_block);
 			return false;
 		}
 		// Allocate texture.
@@ -142,10 +145,10 @@ int *nu_mipmaps_out) {
 		textures[i]->width_in_blocks = extended_width / block_width;
 		textures[i]->height_in_blocks = extended_height / block_height;
 		if (fread(textures[i]->data, 1, n * bytes_per_block, f) < n * bytes_per_block) {
-			printf("Error reading file %s.\n", filename);
 			for (int j = 0; j <= i; j++)
 				free(textures[j]);
 			free(textures);
+			detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Error reading file %s", filename);
 			return false;
 		}
 		// Divide by two for the next mipmap level, rounding down.
@@ -161,6 +164,7 @@ int *nu_mipmaps_out) {
 				for (int j = 0; j <= i; j++)
 					free(textures[j]);
 				free(textures);
+				detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Error reading file %s", filename);
 				return false;
 			}
 		}
