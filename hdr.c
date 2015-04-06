@@ -17,6 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <float.h>
 #include <fenv.h>
@@ -48,16 +49,13 @@ static void ValidateGammaCorrectedHalfFloatTable(float gamma) {
 	if (detex_gamma_corrected_half_float_table == NULL)
 		detex_gamma_corrected_half_float_table = malloc(65536 * sizeof(float));
 	float *float_table = detex_gamma_corrected_half_float_table;
-	uint16_t *hf_buffer = (uint16_t *)malloc(65536 * sizeof(uint16_t));
-	for (int i = 0; i <= 0xFFFF; i++)
-		hf_buffer[i] = i;
-	detexConvertHalfFloatToFloat(hf_buffer, 65536, float_table);
+	detexValidateHalfFloatTable();
+	memcpy(float_table, detex_half_float_table, 65536 * sizeof(float));
 	for (int i = 0; i <= 0xFFFF; i++)
 		if (float_table[i] >= 0.0f)
 			float_table[i] = powf(float_table[i], 1.0f / gamma);
 		else
 			float_table[i] = - powf(- float_table[i], 1.0f / gamma);
-	free(hf_buffer);
 }
 
 static DETEX_INLINE_ONLY void CalculateRangeFloat(float *buffer, int n,
@@ -77,6 +75,7 @@ float *range_min_out, float *range_max_out) {
 
 static DETEX_INLINE_ONLY void CalculateRangeHalfFloat(uint16_t *buffer, int n,
 float *range_min_out, float *range_max_out) {
+	detexValidateHalfFloatTable();
 	float range_min = FLT_MAX;
 	float range_max = - FLT_MAX;
 	for (int i = 0; i < n; i ++) {
@@ -113,6 +112,7 @@ float *range_min_out, float *range_max_out) {
 
 // Convert half floats to unsigned 16-bit integers in place with gamma value of 1.
 static DETEX_INLINE_ONLY void detexConvertHDRHalfFloatToUInt16Gamma1(uint16_t *buffer, int n) {
+	detexValidateHalfFloatTable();
 	float range_min = detex_gamma_range_min;
 	float range_max = detex_gamma_range_max;
 	fesetround(FE_DOWNWARD);

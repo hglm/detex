@@ -161,7 +161,6 @@ static bool LoadCompressedTexture(int i) {
 
 int main(int argc, char **argv) {
 	gtk_init(&argc, &argv);
-	detexInitialize();
 	CreateWindowLayout();
 	for (int i = 0; i < NU_TEXTURE_FORMATS; i++) {
 		pixel_buffer[i] = (uint8_t *)malloc(16 * 8 *

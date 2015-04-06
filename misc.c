@@ -17,11 +17,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include "detex.h"
-#include "half-float.h"
-
-void detexInitialize() {
-	detexCalculateHalfFloatTable();
-}
 
 // Generate bit mask from bit0 to bit1 (inclusive).
 static DETEX_INLINE_ONLY uint64_t GenerateMask(int bit0, int bit1) {

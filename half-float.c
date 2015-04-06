@@ -20,6 +20,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <math.h>
 #include <float.h>
 #include <fenv.h>
+#include <pthread.h>
 
 #include "detex.h"
 #include "half-float.h"
@@ -263,17 +264,11 @@ static DETEX_INLINE_ONLY void halfp2singles(void *target, void *source, int nume
     }
 }
 
-void detexConvertHalfFloatToFloat(uint16_t *source_buffer, int n, float *target_buffer) {
-	halfp2singles(target_buffer, source_buffer, n);
-}
- 
-void detexConvertFloatToHalfFloat(float *source_buffer, int n, uint16_t *target_buffer) {
-	singles2halfp(target_buffer, source_buffer, n);
-}
+// Precalculated half-float table management.
 
 float *detex_half_float_table = NULL;
 
-void detexCalculateHalfFloatTable() {
+static void detexCalculateHalfFloatTable() {
 	detex_half_float_table = (float *)malloc(65536 * sizeof(float));
 	uint16_t *hf_buffer = (uint16_t *)malloc(65536 * sizeof(uint16_t));
 	for (int i = 0; i <= 0xFFFF; i++)
@@ -282,8 +277,30 @@ void detexCalculateHalfFloatTable() {
 	free(hf_buffer);
 }
 
+static pthread_mutex_t mutex_half_float_table = PTHREAD_MUTEX_INITIALIZER;
+
+void detexValidateHalfFloatTable() {
+	pthread_mutex_lock(&mutex_half_float_table);
+	if (detex_half_float_table == NULL)
+		detexCalculateHalfFloatTable();
+	pthread_mutex_unlock(&mutex_half_float_table);
+}
+
+// Conversion functinos.
+
+void detexConvertHalfFloatToFloat(uint16_t *source_buffer, int n, float *target_buffer) {
+	detexValidateHalfFloatTable();
+	for (int i = 0; i < n; i++)
+		target_buffer[i] = detexGetFloatFromHalfFloat(source_buffer[i]);
+}
+ 
+void detexConvertFloatToHalfFloat(float *source_buffer, int n, uint16_t *target_buffer) {
+	singles2halfp(target_buffer, source_buffer, n);
+}
+
 // Convert normalized half floats to unsigned 16-bit integers in place.
 void detexConvertNormalizedHalfFloatToUInt16(uint16_t *buffer, int n) {
+	detexValidateHalfFloatTable();
 	fesetround(FE_DOWNWARD);
 	for (int i = 0; i < n; i++) {
 		float f = detexGetFloatFromHalfFloat(buffer[i]);

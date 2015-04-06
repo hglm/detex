@@ -704,11 +704,6 @@ DETEX_API bool detexDecompressTextureLinear(const detexTexture *texture, uint8_t
  * Miscellaneous functions.
  */
 
-/* Initialize the detex library. This function precalculates a table for fast conversion from */
-/* half-float format. It has to be called before any other library function calls and before any */
-/* extra threads using the library are created. */
-DETEX_API void detexInitialize();
-
 /*
  * Convert pixels between different formats. The target pixel buffer must
  * be allocated with sufficient size to the hold the result. Returns true if
