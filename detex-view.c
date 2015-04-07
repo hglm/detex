@@ -138,7 +138,7 @@ static void DrawTexture(detexTexture *texture, uint8_t *pixel_buffer) {
 }
 
 static bool LoadCompressedTexture(const char *filename) {
-	return detexLoadKTXFile(filename, &texture);
+	return detexLoadTextureFile(filename, &texture);
 }
 
 int main(int argc, char **argv) {
@@ -149,11 +149,11 @@ int main(int argc, char **argv) {
 	}
 	const char *filename = argv[1];
 	bool r = LoadCompressedTexture(filename);
-	CreateWindowLayout();
 	if (!r) {
 		printf("%s\n", detexGetErrorMessage());
 		exit(1);
 	}
+	CreateWindowLayout();
 	char *label_text;
 	asprintf(&label_text, "File: %s  Size: %dx%d  Format: %s",
 		filename, texture->width, texture->height,

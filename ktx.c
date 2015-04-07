@@ -34,7 +34,7 @@ static const uint8_t ktx_id[12] = {
 // free with free(). textures_out[i] are allocated textures corresponding to each level, free
 // with free();
 bool detexLoadKTXFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
-int *nu_mipmaps_out) {
+int *nu_levels_out) {
 	FILE *f = fopen(filename, "rb");
 	if (f == NULL) {
 		detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Could not open file %s", filename);
@@ -42,8 +42,10 @@ int *nu_mipmaps_out) {
 	}
 	int header[16];
 	size_t s = fread(header, 1, 64, f);
-	if (s != 64)
+	if (s != 64) {
+		detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Error reading file %s", filename);
 		return false;
+	}
 	if (memcmp(header, ktx_id, 12) != 0) {
 		// KTX signature not found.
 		detexSetErrorMessage("detexLoadKTXFileWithMipmaps: Couldn't find KTX signature");
@@ -170,7 +172,7 @@ int *nu_mipmaps_out) {
 		}
 	}
 	fclose(f);
-	*nu_mipmaps_out = nu_mipmaps;
+	*nu_levels_out = nu_mipmaps;
 	*textures_out = textures;
 	return true;
 }
