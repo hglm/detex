@@ -45,7 +45,7 @@ LIBRARY_MODULE_OBJECTS = bptc-tables.o bits.o clamp.o convert.o decompress-bc.o 
 	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o file-info.o \
 	half-float.o hdr.o misc.o ktx.o texture.o
 LIBRARY_HEADER_FILES = detex.h
-TEST_PROGRAMS = validate
+TEST_PROGRAMS = detex-validate detex-view
 
 default : library
 
@@ -80,8 +80,11 @@ install_shared : $(LIBRARY_OBJECT)
 install_static : $(LIBRARY_OBJECT)
 	install -m 0644 $(LIBRARY_OBJECT) $(STATIC_LIB_DIR)/$(LIBRARY_OBJECT)
 
-validate : validate.o $(LIBRARY_OBJECT)
-	gcc validate.o -o validate $(LIBRARY_OBJECT) $(LIBRARY_LIBS) `pkg-config --libs gtk+-3.0`
+detex-validate : validate.o $(LIBRARY_OBJECT)
+	gcc validate.o -o detex-validate $(LIBRARY_OBJECT) $(LIBRARY_LIBS) `pkg-config --libs gtk+-3.0`
+
+detex-view : detex-view.o $(LIBRARY_OBJECT)
+	gcc detex-view.o -o detex-view $(LIBRARY_OBJECT) $(LIBRARY_LIBS) `pkg-config --libs gtk+-3.0`
 
 clean :
 	rm -f $(LIBRARY_MODULE_OBJECTS)
@@ -95,6 +98,9 @@ clean :
 	gcc -c $(CFLAGS_LIB) $< -o $@
 
 validate.o : validate.c
+	gcc -c $(CFLAGS_TEST) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
+
+detex-view.o : detex-view.c
 	gcc -c $(CFLAGS_TEST) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
 
 dep :

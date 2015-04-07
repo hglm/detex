@@ -33,4 +33,5 @@
 
 # Misc.
 .depend
-validate
+detex-validate
+detex-view
