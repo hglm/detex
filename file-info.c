@@ -256,7 +256,7 @@ const char *detexGetTextureFormatText(uint32_t texture_format) {
 
 /* Return OpenGL Texture2D/KTX file parameters for a texture format. */
 bool detexGetOpenGLParameters(uint32_t texture_format, int *gl_internal_format,
-int *gl_format, int *gl_type) {
+uint32_t *gl_format, uint32_t *gl_type) {
 	const detexTextureFileInfo *info = detexLookupTextureFileInfo(texture_format);
 	if (info == NULL) {
 		detexSetErrorMessage("detexGetOpenGLParameters: Invalid texture format");

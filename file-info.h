@@ -25,8 +25,8 @@ typedef struct {
 	int block_width;		// The block width (1 for uncompressed textures).
 	int block_height;		// The block height (1 for uncompressed textures).
 	int gl_internal_format;
-	int gl_format;
-	int gl_type;
+	uint32_t gl_format;
+	uint32_t gl_type;
 	const char *dx_four_cc;
 	int dx10_format;
 } detexTextureFileInfo;
