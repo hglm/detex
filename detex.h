@@ -724,17 +724,17 @@ DETEX_API bool detexGetComponentMasks(uint32_t texture_format, uint64_t *red_mas
 	uint64_t *blue_mask, uint64_t *alpha_mask);
 
 /* Return a description of the texture type. */
-const char *detexGetTextureFormatText(uint32_t texture_format);
+DETEX_API const char *detexGetTextureFormatText(uint32_t texture_format);
 
 /* Return OpenGL TexImage2D/KTX file parameters for a texture format. */
-bool detexGetOpenGLParameters(uint32_t texture_format, int *gl_internal_format,
+DETEX_API bool detexGetOpenGLParameters(uint32_t texture_format, int *gl_internal_format,
 	uint32_t *gl_format, uint32_t *gl_type);
 
 /* Return DirectX 10 format for a texture format. */
-bool detexGetDX10Parameters(uint32_t texture_format, uint32_t *dx10_format);
+DETEX_API bool detexGetDX10Parameters(uint32_t texture_format, uint32_t *dx10_format);
 
 /* Return the error message for the last encountered error. */
-const char *detexGetErrorMessage();
+DETEX_API const char *detexGetErrorMessage();
 
 
 /*
@@ -754,41 +754,36 @@ DETEX_API bool detexCalculateDynamicRange(uint8_t *pixel_buffer, int nu_pixels, 
  * Texture file loading.
  */
 
-// Load texture from KTX file with mip-maps. Returns true if successful.
-// nu_levels is a return parameter that returns the number of mipmap levels found.
-// textures_out is a return parameter for an array of detexTexture pointers that is allocated,
-// free with free(). textures_out[i] are allocated textures corresponding to each level, free
-// with free().
-bool detexLoadKTXFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
+/*  Load texture from KTX file with mip-maps. Returns true if successful. */
+/* nu_levels is a return parameter that returns the number of mipmap levels found. */
+/* textures_out is a return parameter for an array of detexTexture pointers that is allocated, */
+/* free with free(). textures_out[i] are allocated textures corresponding to each level, free */
+/* with free().	 */
+DETEX_API bool detexLoadKTXFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
 	int *nu_levels_out);
 
-// Load texture from KTX file (first mip-map only). Returns true if successful.
-// The texture is allocated, free with free().
-bool detexLoadKTXFile(const char *filename, detexTexture **texture_out);
+/* Load texture from KTX file (first mip-map only). Returns true if successful. */
+/* The texture is allocated, free with free(). */
+DETEX_API bool detexLoadKTXFile(const char *filename, detexTexture **texture_out);
 
-// Load texture from DDS file with mip-maps. Returns true if successful.
-// nu_levels is a return parameter that returns the number of mipmap levels found.
-// textures_out is a return parameter for an array of detexTexture pointers that is allocated,
-// free with free(). textures_out[i] are allocated textures corresponding to each level, free
-// with free().
-bool detexLoadDDSFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
+/* Load texture from DDS file with mip-maps. Returns true if successful. */
+/* nu_levels is a return parameter that returns the number of mipmap levels found. */
+/* textures_out is a return parameter for an array of detexTexture pointers that is allocated, */
+/* free with free(). textures_out[i] are allocated textures corresponding to each level, free */
+/* with free(). */
+DETEX_API bool detexLoadDDSFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
 	int *nu_levels_out);
 
-// Load texture from KTX file (first mip-map only). Returns true if successful.
-// The texture is allocated, free with free().
-bool detexLoadDDSFile(const char *filename, detexTexture **texture_out);
+/* Load texture from DDS file (first mip-map only). Returns true if successful. */
+/* The texture is allocated, free with free(). */
+DETEX_API bool detexLoadDDSFile(const char *filename, detexTexture **texture_out);
 
-// Load texture file (type autodetected from extension) with mipmaps.
-bool detexLoadTextureFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
+/* Load texture file (type autodetected from extension) with mipmaps. */
+DETEX_API bool detexLoadTextureFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
 	int *nu_levels_out);
 
-// Load texture file (type autodetected from extension).
-bool detexLoadTextureFile(const char *filename, detexTexture **texture_out);
-
-
-// Load texture from KTX file (first mip-map only). Returns true if successful.
-// The texture is allocated, free with free().
-bool detexLoadKTXFile(const char *filename, detexTexture **texture_out);
+/* Load texture file (type autodetected from extension). */
+DETEX_API bool detexLoadTextureFile(const char *filename, detexTexture **texture_out);
 
 
 /* Return pixel size in bytes for pixel format or texture format (decompressed). */
