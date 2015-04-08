@@ -117,7 +117,7 @@ static double CalculateZoomFactor() {
 static void DrawTexture(detexTexture *texture, uint8_t *pixel_buffer) {
 	cairo_t *cr = cairo_create(area_surface);
 	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-	cairo_set_source_rgba(cr, 0.0d, 0.0d, 0.5d, 1.0d);
+	cairo_set_source_rgba(cr, 0.0d, 0.0d, 0.0d, 1.0d);
 	cairo_paint(cr);
 	if (texture == NULL) {
 		cairo_destroy(cr);
@@ -126,13 +126,16 @@ static void DrawTexture(detexTexture *texture, uint8_t *pixel_buffer) {
 	cairo_surface_t *image_surface = cairo_image_surface_create_for_data(
 		(unsigned char *)pixel_buffer, CAIRO_FORMAT_ARGB32,
 		texture->width, texture->height, texture->width * 4);
-	cairo_rectangle(cr, 0, 0, area_width, area_height);
 	double zoom_factor = CalculateZoomFactor();
+	cairo_rectangle(cr, 0, 0, zoom_factor * texture->width, zoom_factor * texture->height);
+	if (detexFormatHasAlpha(texture->format)) {
+		cairo_set_source_rgba(cr, 0.0d, 0.0d, 0.5d, 1.0d);
+		cairo_fill(cr);
+	}
         cairo_scale(cr, zoom_factor, zoom_factor);
 	cairo_set_source_surface(cr, image_surface, 0.0d, 0.0d);
         cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_NEAREST);
 	cairo_mask(cr, cairo_get_source(cr));
-        cairo_identity_matrix(cr);
 	cairo_destroy(cr);
 	cairo_surface_destroy(image_surface);
 }
