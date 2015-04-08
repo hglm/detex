@@ -28,33 +28,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #define TEXTURE_WIDTH 64
 #define TEXTURE_HEIGHT 64
 
-static const uint32_t texture_format[] = {
-	DETEX_TEXTURE_FORMAT_BC1,
-	DETEX_TEXTURE_FORMAT_BC1A,
-	DETEX_TEXTURE_FORMAT_BC2,
-	DETEX_TEXTURE_FORMAT_BC3,
-	DETEX_TEXTURE_FORMAT_RGTC1,
-	DETEX_TEXTURE_FORMAT_RGTC2,
-	DETEX_TEXTURE_FORMAT_SIGNED_RGTC1,
-	DETEX_TEXTURE_FORMAT_SIGNED_RGTC2,
-	DETEX_TEXTURE_FORMAT_BPTC,
-	DETEX_TEXTURE_FORMAT_BPTC_FLOAT,
-	DETEX_TEXTURE_FORMAT_BPTC_SIGNED_FLOAT,
-	DETEX_TEXTURE_FORMAT_ETC1,
-	DETEX_TEXTURE_FORMAT_ETC2,
-	DETEX_TEXTURE_FORMAT_ETC2_PUNCHTHROUGH,
-	DETEX_TEXTURE_FORMAT_ETC2_EAC,
-	DETEX_TEXTURE_FORMAT_EAC_R11,
-	DETEX_TEXTURE_FORMAT_EAC_RG11,
-	DETEX_TEXTURE_FORMAT_EAC_SIGNED_R11,
-	DETEX_TEXTURE_FORMAT_EAC_SIGNED_RG11,
-	// Uncompressed formats.
-	DETEX_PIXEL_FORMAT_RGB8,
-	DETEX_PIXEL_FORMAT_RGBA8,
-	DETEX_PIXEL_FORMAT_FLOAT_RGB16,
-	DETEX_PIXEL_FORMAT_FLOAT_RGBA16,
-};
-
 static const char *texture_file[] = {
 	"test-texture-BC1.ktx",
 	"test-texture-BC1A.ktx",
@@ -78,10 +51,12 @@ static const char *texture_file[] = {
 	"test-texture-RGB8.ktx",
 	"test-texture-RGBA8.ktx",
 	"test-texture-FLOAT_RGB16.ktx",
-	"test-texture-FLOAT_RGBA16.ktx"
+	"test-texture-FLOAT_RGBA16.ktx",
+	"test-texture-RGB8.dds",
+	"test-texture-RGBA8.dds",
 };
 
-#define NU_TEXTURE_FORMATS (sizeof(texture_format) / sizeof(texture_format[0]))
+#define NU_TEXTURE_FORMATS (sizeof(texture_file) / sizeof(texture_file[0]))
 
 static GtkWidget *gtk_window;
 cairo_surface_t *surface[NU_TEXTURE_FORMATS];
@@ -155,8 +130,8 @@ static void DrawTexture(int i) {
 	cairo_surface_destroy(image_surface);
 }
 
-static bool LoadCompressedTexture(int i) {
-	return detexLoadKTXFile(texture_file[i], &texture[i]);
+static bool LoadTexture(int i) {
+	return detexLoadTextureFile(texture_file[i], &texture[i]);
 }
 
 int main(int argc, char **argv) {
@@ -165,7 +140,7 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < NU_TEXTURE_FORMATS; i++) {
 		pixel_buffer[i] = (uint8_t *)malloc(16 * 8 *
 			(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
-		bool r = LoadCompressedTexture(i);
+		bool r = LoadTexture(i);
 		if (!r) {
 			printf("%s\n", detexGetErrorMessage());
 			memset(pixel_buffer[i], 0, 16 * 8 *

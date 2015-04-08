@@ -36,7 +36,7 @@ DETEX_API bool detexGetComponentMasks(uint32_t pixel_format, uint64_t *red_mask_
 uint64_t *blue_mask_out, uint64_t *alpha_mask_out) {
 	if (detexGetPixelSize(pixel_format) > 64)
 		return false;
-	int component_size = detexGetComponentSize(pixel_format);
+	int component_size = detexGetComponentSize(pixel_format) * 8;
 	int nu_components = detexGetNumberOfComponents(pixel_format);
 	uint64_t red_mask, green_mask, blue_mask, alpha_mask;
 	red_mask = GenerateMask(0, component_size - 1);

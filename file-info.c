@@ -52,7 +52,7 @@ static const detexTextureFileInfo texture_info[] = {
 //												internalFormat, format, type	FourCC, DX10 format
 // Uncompressed formats (texture format = pixel format).
 	{ DETEX_PIXEL_FORMAT_RGB8,		1, 1,	"RGB8", "",			1, 1,	0x1907, 0x1907,	0x1401,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_RGBA8,		1, 1,	"RGBA", "",			1, 1, 	0x1908, 0x1908, 0x1401,		"DX10", 28 },
+	{ DETEX_PIXEL_FORMAT_RGBA8,		1, 1,	"RGBA8", "",			1, 1, 	0x1908, 0x1908, 0x1401,		"DX10", 28 },
 //	{ DETEX_PIXEL_FORMAT_ARGB8,		0, 1,	"argb8", "",			1, 1, 	0,	0,	0,		"", 0 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16,	1, 0,	"FLOAT_RGB16", "",		1, 1,	0x1907, 0x1907, 0x140B,		"", 0 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA16,	1, 1,	"FLOAT_RGBA16", "",		1, 1,	0x1908, 0x1908, 0x140B,		"DX10", 10 },
@@ -217,8 +217,7 @@ uint32_t blue_mask, uint32_t alpha_mask) {
 				!detexFormatIsCompressed(format)) {
 					// Uncompressed format. Match component masks.
 					if (bitcount <= 32) {
-						int format_bitcount = detexGetNumberOfComponents(format) *
-							detexGetComponentSize(format);
+						int format_bitcount = detexGetPixelSize(format) * 8;
 						uint64_t format_red_mask, format_green_mask, format_blue_mask,
 							format_alpha_mask;
 						detexGetComponentMasks(format, &format_red_mask, &format_green_mask,
@@ -226,6 +225,7 @@ uint32_t blue_mask, uint32_t alpha_mask) {
 						if (format_bitcount == bitcount &&
 						format_red_mask == red_mask &&
 						format_green_mask == green_mask &&
+						format_blue_mask == blue_mask &&
 						((pixel_format_flags & 0x1) == 0 ||
 						format_alpha_mask == alpha_mask))
 							return &texture_info[i];

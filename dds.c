@@ -87,7 +87,7 @@ int *nu_levels_out) {
 		red_mask, green_mask, blue_mask, alpha_mask);
 	if (info == NULL) {
 		detexSetErrorMessage("detexLoadDDSFileWithMipmaps: Unsupported format in .dds file (fourCC = %s, "
-			"DX10 format = %d).\n", four_cc, dx10_format);
+			"DX10 format = %d).", four_cc, dx10_format);
 		return false;
 	}
 	// Maybe implement option to treat BC1 as BC1A?

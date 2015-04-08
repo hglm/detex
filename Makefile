@@ -113,6 +113,7 @@ dep :
 	for x in $(LIBRARY_MODULE_OBJECTS); do \
 	echo $$x : Makefile.conf Makefile >> .depend; done
 	gcc -MM $(CFLAGS_TEST) validate.c >> .depend
+	gcc -MM $(CFLAGS_TEST) detex-view.c >> .depend
 
 include .depend
 
