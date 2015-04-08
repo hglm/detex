@@ -29,7 +29,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #define __END_DECLS /* empty */
 #endif
 
-// Generic helper definitions for shared library support
+/* Generic helper definitions for shared library support. */
 #if defined _WIN32 || defined __CYGWIN__
   #define DETEX_HELPER_SHARED_IMPORT __declspec(dllimport)
   #define DETEX_HELPER_SHARED_EXPORT __declspec(dllexport)
@@ -46,25 +46,25 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   #endif
 #endif
 
-// Now we use the generic helper definitions above to define DETEX_API and DETEX_LOCAL.
-// DETEX_API is used for the public API symbols. It either imports or exports the symbol
-// for shared/DLL libraries (or does nothing for static build). DETEX_LOCAL is used for
-// non-API symbols.
+/* Now we use the generic helper definitions above to define DETEX_API and DETEX_LOCAL. */
+/* DETEX_API is used for the public API symbols. It either imports or exports the symbol */
+/* for shared/DLL libraries (or does nothing for static build). DETEX_LOCAL is used for */
+/* non-API symbols. */
 
 #ifdef DETEX_SHARED
-  // Defined if DETEX is compiled as a shared library.
+  /* Defined if DETEX is compiled as a shared library. */
   #ifdef DETEX_SHARED_EXPORTS
-    // Defined if we are building the detex shared library (instead of using it).
+    /* Defined if we are building the detex shared library (instead of using it). */
     #define DETEX_API DETEX_HELPER_SHARED_EXPORT
   #else
     #define DETEX_API DETEX_HELPER_SHARED_IMPORT
-  #endif // DETEX_SHARED_EXPORTS
+  #endif /* DETEX_SHARED_EXPORTS */
   #define DETEX_LOCAL DETEX_HELPER_SHARED_LOCAL
 #else
-  // DETEX_SHARED is not defined: this means detex is a static lib.
+  /* DETEX_SHARED is not defined: this means detex is a static lib. */
   #define DETEX_API
   #define DETEX_LOCAL
-#endif // DETEX_SHARED
+#endif /* DETEX_SHARED */
 
 __BEGIN_DECLS
 
@@ -82,7 +82,7 @@ __BEGIN_DECLS
 enum {
 	/* The format has 16-bit components. */
 	DETEX_PIXEL_FORMAT_16BIT_COMPONENT_BIT = 0x1,
-	// The format has 32-bit components. */
+	/* The format has 32-bit components. */
 	DETEX_PIXEL_FORMAT_32BIT_COMPONENT_BIT = 0x2,
 	/* The format has an alpha component. */
 	DETEX_PIXEL_FORMAT_ALPHA_COMPONENT_BIT = 0x4,
