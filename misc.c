@@ -39,10 +39,15 @@ uint64_t *blue_mask_out, uint64_t *alpha_mask_out) {
 	int component_size = detexGetComponentSize(pixel_format) * 8;
 	int nu_components = detexGetNumberOfComponents(pixel_format);
 	uint64_t red_mask, green_mask, blue_mask, alpha_mask;
-	red_mask = GenerateMask(0, component_size - 1);
+	red_mask = 0;
 	green_mask = 0;
 	blue_mask = 0;
 	alpha_mask = 0;
+	if (nu_components == 1 && (pixel_format & DETEX_PIXEL_FORMAT_ALPHA_COMPONENT_BIT)) {
+		alpha_mask = GenerateMask(0, component_size - 1);
+		goto end;
+	}
+	red_mask = GenerateMask(0, component_size - 1);
 	if (nu_components > 1) {
 		green_mask = GenerateMask(component_size, component_size * 2 - 1);
 		if (nu_components > 2) {
@@ -57,6 +62,7 @@ uint64_t *blue_mask_out, uint64_t *alpha_mask_out) {
 		red_mask = blue_mask;
 		blue_mask = temp;
 	}
+end:
 	*red_mask_out = red_mask;
 	*green_mask_out = green_mask;
 	*blue_mask_out = blue_mask;

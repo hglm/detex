@@ -62,22 +62,16 @@ static const detexTextureFileInfo texture_info[] = {
 	{ DETEX_PIXEL_FORMAT_SIGNED_R16,	1, 1,	"SIGNED_R16", "",		1, 1,	0x8F98, 0x1903,	0x1402,		"DX10", 58 },
 	{ DETEX_PIXEL_FORMAT_RG16,		1, 1,	"RG16", "",			1, 1,	0x8226, 0x8227,	0x1403,		"DX10", 35 },
 	{ DETEX_PIXEL_FORMAT_SIGNED_RG16,	1, 1,	"SIGNED_RG16", "",		1, 1,	0x8F99, 0x8227,	0x1402,		"DX10", 37 },
+	{ DETEX_PIXEL_FORMAT_RGBA16,		1, 1,	"RGBA16", "",			1, 1,	0x8226, 0x8227,	0x1403,		"DX10", 11 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_R16,		1, 1,	"FLOAT_R16", "",		1, 1,	0x822D, 0x1903,	0x140B,		"DX10", 54 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG16,	1, 1,	"FLOAT_RG16", "",		1, 1,	0x822F, 0x8227,	0x140B,		"DX10", 34 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16,	1, 0,	"FLOAT_RGB16", "",		1, 1,	0x1907, 0x1907, 0x140B,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA16,	1, 0,	"FLOAT_RGBA16", "",		1, 1,	0x1908,	0x1908,	0x140B,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_R16_HDR,	0, 0,	"FLOAT_R16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RG16_HDR,	0, 0,	"FLOAT_RG16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16_HDR,	0, 0,	"FLOAT_RGB16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA16_HDR,	0, 0,	"FLOAT_RGBA16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_R32,		1, 0,	"FLOAT_R32", "",		1, 1,   0x822E,	0x1903, 0x1406,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RG32,	1, 0,	"FLOAT_RG32", "",		1, 1,   0x8230,	0x8227,	0x1406,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32,	1, 0,	"FLOAT_RGB32", "",		1, 1,   0x8815,	0x1907,	0x1406,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA32,	1, 0,	"FLOAT_RGBA32", "",		1, 1,   0x8814,	0x1908,	0x1406,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_R32_HDR,	0, 0,	"FLOAT_R32_HDR", "",		1, 1,   0,	0,	0,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RG32_HDR,	0, 0,	"FLOAT_RG32_HDR", "",		1, 1,   0,	0,	0,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32_HDR,	0, 0,	"FLOAT_RGB32_HDR", "",		1, 1,   0,	0,	0,		"", 0 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA32_HDR,	0, 0,	"FLOAT_RGBA32_HDR", "",		1, 1,   0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA16,	1, 1,	"FLOAT_RGBA16", "",		1, 1,	0x1908,	0x1908,	0x140B,		"DX10", 10 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_R32,		1, 1,	"FLOAT_R32", "",		1, 1,   0x822E,	0x1903, 0x1406,		"DX10", 41 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RG32,	1, 1,	"FLOAT_RG32", "",		1, 1,   0x8230,	0x8227,	0x1406,		"DX10", 16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32,	1, 1,	"FLOAT_RGB32", "",		1, 1,   0x8815,	0x1907,	0x1406,		"DX10", 6 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA32,	1, 1,	"FLOAT_RGBA32", "",		1, 1,   0x8814,	0x1908,	0x1406,		"DX10", 2 },
+	{ DETEX_PIXEL_FORMAT_A8,		1, 1,	"A8", "",			1, 1,	0x1906, 0x1906, 0x1401,		"DX10", 65 },
 // Compressed formats.
 	{ DETEX_TEXTURE_FORMAT_BC1,		1, 1,	"BC1", "DXT1",			4, 4,	0x83F0, 0,	0,		"DXT1",	0 },
 	{ DETEX_TEXTURE_FORMAT_BC1A,		1, 1,	"BC1A",	"DXT1A",		4, 4,	0x83F1, 0,	0, 		"", 0 },
@@ -101,8 +95,8 @@ static const detexTextureFileInfo texture_info[] = {
 //	{ DETEX_TEXTURE_FORMAT_ETC2_SRGB8,	1, 0,	"SRGB_ETC2", "",		4, 4,	0x9275, 0,	0,		"", 0 },
 //	{ DETEX_TEXTURE_FORMAT_ETC2_SRGB_EAC,	1, 0,	"SRGB_ETC2_EAC", "",		4, 4,	0x9279, 0,	0,		"", 0 },
 //	{ DETEX_TEXTURE_FORMAT_ETC2_SRGB_PUNCHTHROUGH, 1, 0, "SRGB_ETC2_PUNCHTHROUGH, "", 4, 4,	0x9277, 0,	0,		"", 0 },
+	{ DETEX_TEXTURE_FORMAT_ASTC_4X4,	1, 0,	"ASTC_4x4", "",			4, 4,	0x93B0, 0,	0,		"DX10", 134 },
 #if 0
-	{ DETEX_TEXTURE_FORMAT_RGBA_ASTC_4X4,			1, 0,	"astc_4x4", "",			4, 4	0x93B0, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_RGBA_ASTC_5X4,			1, 0,	"astc_5x4", "",			5, 4,	0x93B1, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_RGBA_ASTC_5X5,			1, 0,	"astc_5x5", "",			5, 5,	0x93B2, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_RGBA_ASTC_6X5,			1, 0,	"astc_6x4", "",			6, 5,	0x93B3, 0,	0,		"", 0 },
@@ -117,6 +111,15 @@ static const detexTextureFileInfo texture_info[] = {
 	{ DETEX_TEXTURE_FORMAT_RGBA_ASTC_12X10,			1, 0,	"astc_12x10", "",		12, 10,	0x93BC, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_RGBA_ASTC_12X12,			1, 0,	"astc_12x12", "",		12, 12,	0x93BD, 0,	0,		"", 0 },
 #endif
+// Pseudo-formats (not present in files, but used for name look-up).
+	{ DETEX_PIXEL_FORMAT_FLOAT_R16_HDR,	0, 0,	"FLOAT_R16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RG16_HDR,	0, 0,	"FLOAT_RG16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16_HDR,	0, 0,	"FLOAT_RGB16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA16_HDR,	0, 0,	"FLOAT_RGBA16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_R32_HDR,	0, 0,	"FLOAT_R32_HDR", "",		1, 1,   0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RG32_HDR,	0, 0,	"FLOAT_RG32_HDR", "",		1, 1,   0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32_HDR,	0, 0,	"FLOAT_RGB32_HDR", "",		1, 1,   0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA32_HDR,	0, 0,	"FLOAT_RGBA32_HDR", "",		1, 1,   0,	0,	0,		"", 0 },
 };
 
 #define DETEX_NU_TEXTURE_INFO_ENTRIES (sizeof(texture_info) / sizeof(texture_info[0]))
@@ -134,6 +137,7 @@ static OpenGLTextureFormatSynonym open_gl_synonym[] = {
 	{ DETEX_PIXEL_FORMAT_RGBA8, 0x8058, 0x1908, 0x1401 },	// GL_RGBA8
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16, 0x881B, 0x1907, 0x140B }, // GL_RGB16F
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA16, 0x881A, 0x1908, 0x140B }, // GL_RGAB16F
+	{ DETEX_PIXEL_FORMAT_A8, 0x803C, 0x1906, 0x1401 }, // GL_ALPHA8
 	{ DETEX_TEXTURE_FORMAT_RGTC1, 0x8C70, 0, 0 },		// LATC1
 	{ DETEX_TEXTURE_FORMAT_SIGNED_RGTC1, 0x8C71, 0, 0 },	// SIGNED_LATC1
 	{ DETEX_TEXTURE_FORMAT_RGTC2, 0x8C72, 0, 0 },		// LATC1
@@ -160,7 +164,8 @@ static const DDSTextureFormatSynonym dds_synonym[] = {
 	{ DETEX_PIXEL_FORMAT_RG8, "DX10", 50 },
 	{ DETEX_PIXEL_FORMAT_R8, "DX10", 62 },
 	{ DETEX_PIXEL_FORMAT_SIGNED_RG8, "DX10", 52 },
-	{ DETEX_PIXEL_FORMAT_SIGNED_R8, "DX10", 64 }, 
+	{ DETEX_PIXEL_FORMAT_SIGNED_R8, "DX10", 64 },
+	{ DETEX_PIXEL_FORMAT_RGBA16, "DX10", 12 },
 	{ DETEX_TEXTURE_FORMAT_BC1, "DX10", 70 },
 	{ DETEX_TEXTURE_FORMAT_BC1, "DX10", 71 },
 	{ DETEX_TEXTURE_FORMAT_BC2, "DX10", 73 },
@@ -168,7 +173,10 @@ static const DDSTextureFormatSynonym dds_synonym[] = {
 	{ DETEX_TEXTURE_FORMAT_BC3, "DX10", 76 },
 	{ DETEX_TEXTURE_FORMAT_BC3, "DX10", 77 },
         { DETEX_TEXTURE_FORMAT_RGTC1, "DX10", 79 },
+	{ DETEX_TEXTURE_FORMAT_RGTC1, "BC4U", 0 },
+	{ DETEX_TEXTURE_FORMAT_SIGNED_RGTC1, "BC4S", 0 },
         { DETEX_TEXTURE_FORMAT_RGTC2, "DX10", 82 },
+	{ DETEX_TEXTURE_FORMAT_SIGNED_RGTC2, "BC5S", 0 },
 	{ DETEX_TEXTURE_FORMAT_BPTC, "DX10", 97 },
 	{ DETEX_TEXTURE_FORMAT_BPTC_FLOAT, "DX10", 94 },
 	{ DETEX_TEXTURE_FORMAT_RGTC1, "ATI1", 0 },
@@ -212,6 +220,12 @@ const detexTextureFileInfo *detexLookupKTXFileInfo(int gl_internal_format, int g
 	return NULL;
 }
 
+enum {
+	DDPF_ALPHAPIXELS = 0x1,
+	DDPF_ALPHA = 0x2,
+	DDPF_RGB = 0x40,
+};
+
 // Look-up texture file info for DDS file format based on DX format parameters.
 const detexTextureFileInfo *detexLookupDDSFileInfo(const char *four_cc, int dx10_format,
 uint32_t pixel_format_flags, int bitcount, uint32_t red_mask, uint32_t green_mask,
@@ -227,7 +241,7 @@ uint32_t blue_mask, uint32_t alpha_mask) {
 				return &texture_info[i];
 			else {
 				uint32_t format = texture_info[i].texture_format;
-				if ((pixel_format_flags & 0x40) &&
+				if ((pixel_format_flags & DDPF_RGB) &&
 				!detexFormatIsCompressed(format)) {
 					// Uncompressed format. Match component masks.
 					if (bitcount <= 32) {
@@ -240,11 +254,15 @@ uint32_t blue_mask, uint32_t alpha_mask) {
 						format_red_mask == red_mask &&
 						format_green_mask == green_mask &&
 						format_blue_mask == blue_mask &&
-						((pixel_format_flags & 0x1) == 0 ||
+						((pixel_format_flags & DDPF_ALPHAPIXELS) == 0 ||
 						format_alpha_mask == alpha_mask))
 							return &texture_info[i];
 					}
 				}
+				// Detect old alpha format.
+				if ((pixel_format_flags & DDPF_ALPHA) && bitcount == 8 &&
+				format == DETEX_PIXEL_FORMAT_A8)
+					return &texture_info[i];
 			}
 	for (int i = 0; i < DETEX_NU_DDS_SYNONYMS; i++)
 		if (strncmp(four_cc, "DX10", 4) == 0) {
