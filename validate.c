@@ -56,13 +56,14 @@ static const char *texture_file[] = {
 	"test-texture-RGBA8.dds",
 };
 
-#define NU_TEXTURE_FORMATS (sizeof(texture_file) / sizeof(texture_file[0]))
+#define NU_TEXTURE_FORMATS_FROM_FILE (sizeof(texture_file) / sizeof(texture_file[0]))
+#define NU_TEXTURES (NU_TEXTURE_FORMATS_FROM_FILE + 4)
 
 static GtkWidget *gtk_window;
-cairo_surface_t *surface[NU_TEXTURE_FORMATS];
-GtkWidget *texture_label[NU_TEXTURE_FORMATS];
-uint8_t *pixel_buffer[NU_TEXTURE_FORMATS];
-detexTexture *texture[NU_TEXTURE_FORMATS];
+cairo_surface_t *surface[NU_TEXTURES];
+GtkWidget *texture_label[NU_TEXTURES];
+uint8_t *pixel_buffer[NU_TEXTURES];
+detexTexture *texture[NU_TEXTURES];
 
 static gboolean delete_event_cb(GtkWidget *widget, GdkEvent *event, gpointer data) {
     return FALSE;
@@ -92,7 +93,7 @@ static void CreateWindowLayout() {
 	GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_container_add(GTK_CONTAINER(gtk_window), vbox);
 	GtkWidget *hbox;
-	for (int i = 0; i < NU_TEXTURE_FORMATS; i++) {
+	for (int i = 0; i < NU_TEXTURES; i++) {
 		if (i % 8 == 0) {
 			hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 			gtk_container_add(GTK_CONTAINER(vbox), hbox);
@@ -134,16 +135,66 @@ static bool LoadTexture(int i) {
 	return detexLoadTextureFile(texture_file[i], &texture[i]);
 }
 
+static void CreateHDRTextures() {
+	int i = NU_TEXTURE_FORMATS_FROM_FILE;
+	texture[i] = (detexTexture *)malloc(sizeof(detexTexture));
+	texture[i]->format = DETEX_PIXEL_FORMAT_FLOAT_RGB16;
+	texture[i]->data = (uint8_t *)malloc(detexGetPixelSize(DETEX_PIXEL_FORMAT_FLOAT_RGB16) *
+		TEXTURE_WIDTH * TEXTURE_HEIGHT);
+	texture[i]->width = TEXTURE_WIDTH;
+	texture[i]->height = TEXTURE_HEIGHT;
+	texture[i]->width_in_blocks = TEXTURE_WIDTH;
+	texture[i]->height_in_blocks = TEXTURE_HEIGHT;
+	float *float_buffer = (float *)malloc(sizeof(float) * 3 * TEXTURE_WIDTH * TEXTURE_HEIGHT);
+	for (int y = 0; y < TEXTURE_HEIGHT; y++)
+		for (int x = 0; x < TEXTURE_WIDTH; x++) {
+			float c = (x + y) / (float)(TEXTURE_WIDTH + TEXTURE_HEIGHT - 2);
+			float_buffer[(y * TEXTURE_WIDTH + x) * 3] = c;
+			float_buffer[(y * TEXTURE_WIDTH + x) * 3 + 1] = c;
+			float_buffer[(y * TEXTURE_WIDTH + x) * 3 + 2] = c;
+		}
+	bool r = detexConvertPixels((uint8_t *)float_buffer, TEXTURE_WIDTH * TEXTURE_HEIGHT,
+		DETEX_PIXEL_FORMAT_FLOAT_RGB32,	texture[i]->data, DETEX_PIXEL_FORMAT_FLOAT_RGB16);
+	if (!r)
+		printf("Error converting float to half-float:\n%s\n", detexGetErrorMessage());
+	texture[i + 1] = (detexTexture *)malloc(sizeof(detexTexture));
+	texture[i + 1]->format = DETEX_PIXEL_FORMAT_FLOAT_RGB32;
+	texture[i + 1]->data = (uint8_t *)float_buffer;
+	texture[i + 1]->width = TEXTURE_WIDTH;
+	texture[i + 1]->height = TEXTURE_HEIGHT;
+	texture[i + 1]->width_in_blocks = TEXTURE_WIDTH;
+	texture[i + 1]->height_in_blocks = TEXTURE_HEIGHT;
+	// Create copies with HDR format (sharing the pixel buffer);
+	texture[i + 2] = (detexTexture *)malloc(sizeof(detexTexture));
+	*texture[i + 2] = *texture[i];
+	texture[i + 2]->format = DETEX_PIXEL_FORMAT_FLOAT_RGB16_HDR;
+	texture[i + 3] = (detexTexture *)malloc(sizeof(detexTexture));
+	*texture[i + 3] = *texture[i + 1];
+	texture[i + 3]->format = DETEX_PIXEL_FORMAT_FLOAT_RGB32_HDR;
+}
+
+static void ConvertHDRTextures() {
+	detexSetHDRParameters(1.0f, 0.0f, 2.0f);
+	for (int i = NU_TEXTURE_FORMATS_FROM_FILE; i < NU_TEXTURES; i++) {
+		pixel_buffer[i] = (uint8_t *)malloc(4 * TEXTURE_WIDTH * TEXTURE_HEIGHT);
+		bool r = detexDecompressTextureLinear(texture[i], pixel_buffer[i], DETEX_PIXEL_FORMAT_BGRX8);
+		if (!r) {
+			printf("Decompression of format %s returned error:\n%s\n",
+				detexGetTextureFormatText(texture[i]->format), detexGetErrorMessage());
+		}
+	}
+}
+
 int main(int argc, char **argv) {
 	gtk_init(&argc, &argv);
 	CreateWindowLayout();
-	for (int i = 0; i < NU_TEXTURE_FORMATS; i++) {
-		pixel_buffer[i] = (uint8_t *)malloc(16 * 8 *
+	for (int i = 0; i < NU_TEXTURE_FORMATS_FROM_FILE; i++) {
+		pixel_buffer[i] = (uint8_t *)malloc(16 * 4 *
 			(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
 		bool r = LoadTexture(i);
 		if (!r) {
 			printf("%s\n", detexGetErrorMessage());
-			memset(pixel_buffer[i], 0, 16 * 8 *
+			memset(pixel_buffer[i], 0, 16 * 4 *
 				(TEXTURE_WIDTH / 4) * (TEXTURE_HEIGHT / 4));
 			continue;
 		}
@@ -162,7 +213,11 @@ int main(int argc, char **argv) {
 			continue;
 		}
 	}
-	for (int i = 0; i < NU_TEXTURE_FORMATS; i++)
+	CreateHDRTextures();
+	ConvertHDRTextures();
+	for (int i = NU_TEXTURE_FORMATS_FROM_FILE; i < NU_TEXTURES; i++)
+		gtk_label_set_text(GTK_LABEL(texture_label[i]), detexGetTextureFormatText(texture[i]->format));
+	for (int i = 0; i < NU_TEXTURES; i++)
 		DrawTexture(i);
 	gtk_main();
 }

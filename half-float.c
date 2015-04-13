@@ -99,7 +99,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //
 //-----------------------------------------------------------------------------
 
-static DETEX_INLINE_ONLY void singles2halfp(void *target, void *source, int numel)
+static DETEX_INLINE_ONLY void singles2halfp(void * DETEX_RESTRICT target,
+void * DETEX_RESTRICT source, int numel)
 {
     uint16_t *hp = (uint16_t *) target; // Type pun output as an unsigned 16-bit int
     uint32_t *xp = (uint32_t *) source; // Type pun input as an unsigned 32-bit int
@@ -193,7 +194,8 @@ static DETEX_INLINE_ONLY void singles2halfp(void *target, void *source, int nume
 //
 //-----------------------------------------------------------------------------
 
-static DETEX_INLINE_ONLY void halfp2singles(void *target, void *source, int numel)
+static DETEX_INLINE_ONLY void halfp2singles(void * DETEX_RESTRICT target,
+void * DETEX_RESTRICT source, int numel)
 {
     uint16_t *hp = (uint16_t *) source; // Type pun input as an unsigned 16-bit int
     uint32_t *xp = (uint32_t *) target; // Type pun output as an unsigned 32-bit int
@@ -286,7 +288,7 @@ void detexValidateHalfFloatTable() {
 	pthread_mutex_unlock(&mutex_half_float_table);
 }
 
-// Conversion functinos.
+// Conversion functions.
 
 void detexConvertHalfFloatToFloat(uint16_t *source_buffer, int n, float *target_buffer) {
 	detexValidateHalfFloatTable();
@@ -306,6 +308,16 @@ void detexConvertNormalizedHalfFloatToUInt16(uint16_t *buffer, int n) {
 		float f = detexGetFloatFromHalfFloat(buffer[i]);
 		int u = lrintf(detexClamp0To1(f) * 65535.0f + 0.5f);
 		buffer[i] = (uint16_t)u;
+	}
+}
+
+// Convert normalized floats to unsigned 16-bit integers.
+void detexConvertNormalizedFloatToUInt16(float * DETEX_RESTRICT source_buffer, int n,
+uint16_t * DETEX_RESTRICT target_buffer) {
+	fesetround(FE_DOWNWARD);
+	for (int i = 0; i < n; i++) {
+		int u = lrintf(detexClamp0To1(source_buffer[i]) * 65535.0f + 0.5f);
+		target_buffer[i] = (uint16_t)u;
 	}
 }
 

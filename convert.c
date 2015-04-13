@@ -68,6 +68,23 @@ uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	}
 }
 
+// Swapping red and blue (not in-place).
+
+static void ConvertPixel24RGB8ToPixel32BGRX8(uint8_t * DETEX_RESTRICT source_pixel_buffer, int nu_pixels,
+uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	uint32_t *target_pixel32_buffer = (uint32_t *)target_pixel_buffer;
+	for (int i = 0; i < nu_pixels; i++) {
+		/* Swap R and B. */
+		uint32_t red = source_pixel_buffer[0];
+		uint32_t green = source_pixel_buffer[1];
+		uint32_t blue = source_pixel_buffer[2];
+		uint32_t pixel = detexPack32RGB8Alpha0xFF(blue, green, red);
+		*target_pixel32_buffer = pixel;
+		source_pixel_buffer += 3;
+		target_pixel32_buffer++;
+	}
+}
+
 // In-place signed integer conversions (8-bit components).
 
 static void ConvertPixel8R8ToPixel8SignedR8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
@@ -241,6 +258,21 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	}
 }
 
+static void ConvertPixel48RGB16ToPixel24RGB8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
+	for (int i = 0; i < nu_pixels; i++) {
+		uint32_t red = source_pixel16_buffer[0];
+		uint32_t green = source_pixel16_buffer[1];
+		uint32_t blue = source_pixel16_buffer[2];
+		target_pixel_buffer[0] = (red + 127) * 255 / 65535;
+		target_pixel_buffer[1] = (green + 127) * 255 / 65535;
+		target_pixel_buffer[2] = (blue + 127) * 255 / 65535;
+		source_pixel16_buffer += 3;
+		target_pixel_buffer += 3;
+	}
+}
+
 static void ConvertPixel64RGBX16ToPixel32RGBX8(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint64_t *source_pixel64_buffer = (uint64_t *)source_pixel_buffer;
@@ -346,9 +378,36 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	detexConvertFloatToHalfFloat((float *)source_pixel_buffer, nu_pixels * 2, (uint16_t *)target_pixel_buffer);
 }
 
+static void ConvertPixel96FloatRGB32ToPixel48FloatRGB16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	detexConvertFloatToHalfFloat((float *)source_pixel_buffer, nu_pixels * 3, (uint16_t *)target_pixel_buffer);
+}
+
 static void ConvertPixel128FloatRGBX32ToPixel64FloatRGBX16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	detexConvertFloatToHalfFloat((float *)source_pixel_buffer, nu_pixels * 4, (uint16_t *)target_pixel_buffer);
+}
+
+// Float to 16-bit integer conversion.
+
+static void ConvertPixel32FloatR32ToPixel16R16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	detexConvertNormalizedFloatToUInt16((float *)source_pixel_buffer, nu_pixels, (uint16_t *)target_pixel_buffer);
+}
+
+static void ConvertPixel64FloatRG32ToPixel32RG16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	detexConvertNormalizedFloatToUInt16((float *)source_pixel_buffer, nu_pixels * 2, (uint16_t *)target_pixel_buffer);
+}
+
+static void ConvertPixel96FloatRGB32ToPixel48RGB16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	detexConvertNormalizedFloatToUInt16((float *)source_pixel_buffer, nu_pixels * 3, (uint16_t *)target_pixel_buffer);
+}
+
+static void ConvertPixel128FloatRGBX32ToPixel64RGBX16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	detexConvertNormalizedFloatToUInt16((float *)source_pixel_buffer, nu_pixels * 4, (uint16_t *)target_pixel_buffer);
 }
 
 // Half-float to float conversion.
@@ -361,6 +420,11 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 static void ConvertPixel32FloatRG16ToPixel64FloatRG32(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	detexConvertHalfFloatToFloat((uint16_t *)source_pixel_buffer, nu_pixels * 2, (float *)target_pixel_buffer);
+}
+
+static void ConvertPixel48FloatRGB16ToPixel96FloatRGB32(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	detexConvertHalfFloatToFloat((uint16_t *)source_pixel_buffer, nu_pixels * 3, (float *)target_pixel_buffer);
 }
 
 static void ConvertPixel64FloatRGBX16ToPixel128FloatRGBX32(uint8_t * DETEX_RESTRICT source_pixel_buffer,
@@ -461,6 +525,11 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	detexConvertNormalizedHalfFloatToUInt16((uint16_t *)source_pixel_buffer, nu_pixels * 2);
 }
 
+static void ConvertPixel48FloatRGB16ToPixel48RGB16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	detexConvertNormalizedHalfFloatToUInt16((uint16_t *)source_pixel_buffer, nu_pixels * 3);
+}
+
 static void ConvertPixel64FloatRGBX16ToPixel64RGBX16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	detexConvertNormalizedHalfFloatToUInt16((uint16_t *)source_pixel_buffer, nu_pixels * 4);
@@ -503,6 +572,12 @@ static void ConvertPixel64FloatRG32HDRToPixel64FloatRG32(uint8_t * DETEX_RESTRIC
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	float *source_pixelf_buffer = (float *)source_pixel_buffer;
 	detexConvertHDRFloatToFloat(source_pixelf_buffer, nu_pixels * 2);
+}
+
+static void ConvertPixel96FloatRGB32HDRToPixel96FloatRGB32(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	float *source_pixelf_buffer = (float *)source_pixel_buffer;
+	detexConvertHDRFloatToFloat(source_pixelf_buffer, nu_pixels * 3);
 }
 
 static void ConvertPixel128FloatRGBX32HDRToPixel128FloatRGBX32(uint8_t * DETEX_RESTRICT source_pixel_buffer,
@@ -573,6 +648,41 @@ uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	}
 }
 
+// Conversion between packed float RGB32 and float RGBX32.
+
+static void ConvertPixel96RGB32ToPixel128RGBX32(uint8_t * DETEX_RESTRICT source_pixel_buffer, int nu_pixels,
+uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	float *source_pixelf_buffer = (float *)source_pixel_buffer;
+	float *target_pixelf_buffer = (float *)target_pixel_buffer;
+	for (int i = 0; i < nu_pixels; i++) {
+		float red = source_pixelf_buffer[0];
+		float green = source_pixelf_buffer[1];
+		float blue = source_pixelf_buffer[2];
+		target_pixelf_buffer[0] = red;
+		target_pixelf_buffer[1] = green;
+		target_pixelf_buffer[2] = blue;
+		target_pixelf_buffer[3] = 1.0f;
+		source_pixelf_buffer += 3;
+		target_pixelf_buffer += 4;
+	}
+}
+
+static void ConvertPixel128RGBX32ToPixel96RGB32(uint8_t * DETEX_RESTRICT source_pixel_buffer, int nu_pixels,
+uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	float *source_pixelf_buffer = (float *)source_pixel_buffer;
+	float *target_pixelf_buffer = (float *)target_pixel_buffer;
+	for (int i = 0; i < nu_pixels; i++) {
+		float red = source_pixelf_buffer[0];
+		float green = source_pixelf_buffer[1];
+		float blue = source_pixelf_buffer[2];
+		target_pixelf_buffer[0] = red;
+		target_pixelf_buffer[1] = green;
+		target_pixelf_buffer[2] = blue;
+		source_pixelf_buffer += 4;
+		target_pixelf_buffer += 3;
+	}
+}
+
 
 typedef void (*detexConversionFunc)(uint8_t *source_pixel_buffer, int nu_pixels,
 	uint8_t *target_pixel_buffer);
@@ -587,6 +697,7 @@ typedef struct {
 // target pixel size are performed in-place on the source pixel buffer.
 detexConversionType detex_conversion_table[] = {
 	// No-ops (in-place).
+	// 0
 	{ DETEX_PIXEL_FORMAT_RGBX8, DETEX_PIXEL_FORMAT_RGBA8, ConvertNoop },
 	{ DETEX_PIXEL_FORMAT_RGBA8, DETEX_PIXEL_FORMAT_RGBX8, ConvertNoop },
 	{ DETEX_PIXEL_FORMAT_BGRX8, DETEX_PIXEL_FORMAT_BGRA8, ConvertNoop },
@@ -598,7 +709,10 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_BGRA8, DETEX_PIXEL_FORMAT_RGBA8, ConvertPixel32RGBA8ToPixel32BGRA8 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16, DETEX_PIXEL_FORMAT_FLOAT_BGRX16, ConvertPixel64RGBX16ToPixel64BGRX16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_BGRX16, DETEX_PIXEL_FORMAT_FLOAT_RGBX16, ConvertPixel64RGBX16ToPixel64BGRX16 },
+	// Swapping red and blue (not in-place)
+	{ DETEX_PIXEL_FORMAT_RGB8, DETEX_PIXEL_FORMAT_BGRX8, ConvertPixel24RGB8ToPixel32BGRX8 },
 	// Signed integer conversions (in-place).
+	// 11
 	{ DETEX_PIXEL_FORMAT_R8, DETEX_PIXEL_FORMAT_SIGNED_R8, ConvertPixel8R8ToPixel8SignedR8 },
 	{ DETEX_PIXEL_FORMAT_RG8, DETEX_PIXEL_FORMAT_SIGNED_RG8, ConvertPixel16RG8ToPixel16SignedRG8 },
 	{ DETEX_PIXEL_FORMAT_SIGNED_R8, DETEX_PIXEL_FORMAT_R8, ConvertPixel8SignedR8ToPixel8R8 },
@@ -611,11 +725,13 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_RGBA8, DETEX_PIXEL_FORMAT_R8, ConvertPixel32RGBA8ToPixel8R8 },
 	{ DETEX_PIXEL_FORMAT_RGBA8, DETEX_PIXEL_FORMAT_RG8, ConvertPixel32RGBA8ToPixel16RG8 },
 	// Increasing the number of components.
+	// 21
 	{ DETEX_PIXEL_FORMAT_R8, DETEX_PIXEL_FORMAT_RGBX8, ConvertPixel8R8ToPixel32RGBX8 },
 	{ DETEX_PIXEL_FORMAT_RG8, DETEX_PIXEL_FORMAT_RGBX8, ConvertPixel16RG8ToPixel32RGBX8 },
 	// Conversion to component of different size.
 	{ DETEX_PIXEL_FORMAT_R16, DETEX_PIXEL_FORMAT_R8, ConvertPixel16R16ToPixel8R8 },
 	{ DETEX_PIXEL_FORMAT_RG16, DETEX_PIXEL_FORMAT_RG8, ConvertPixel32RG16ToPixel16RG8 },
+	{ DETEX_PIXEL_FORMAT_RGB16, DETEX_PIXEL_FORMAT_RGB8, ConvertPixel48RGB16ToPixel24RGB8 },
 	{ DETEX_PIXEL_FORMAT_RGBX16, DETEX_PIXEL_FORMAT_RGBX8, ConvertPixel64RGBX16ToPixel32RGBX8 },
 	{ DETEX_PIXEL_FORMAT_RGBA16, DETEX_PIXEL_FORMAT_RGBA8, ConvertPixel64RGBA16ToPixel32RGBA8 },
 	{ DETEX_PIXEL_FORMAT_R8, DETEX_PIXEL_FORMAT_R16, ConvertPixel8R8ToPixel16R16 },
@@ -623,12 +739,14 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_RGBX8, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel32RGBX8ToPixel64RGBX16 },
 	{ DETEX_PIXEL_FORMAT_RGBA8, DETEX_PIXEL_FORMAT_RGBA16, ConvertPixel32RGBA8ToPixel64RGBA16 },
 	// Integer to half-float conversion (in-place).
+	// 32
 	{ DETEX_PIXEL_FORMAT_R16, DETEX_PIXEL_FORMAT_FLOAT_R16, ConvertPixel16R16ToPixel16FloatR16 },
 	{ DETEX_PIXEL_FORMAT_RG16, DETEX_PIXEL_FORMAT_FLOAT_RG16, ConvertPixel32RG16ToPixel32FloatRG16 },
 	{ DETEX_PIXEL_FORMAT_RGBX16, DETEX_PIXEL_FORMAT_FLOAT_RGBX16, ConvertPixel64RGBX16ToPixel64FloatRGBX16 },
-	// Half-float to integer conversion (in-place).
+	// Half-float to integer conversion (in-place). Note: Integer format has higher precision.
 	{ DETEX_PIXEL_FORMAT_FLOAT_R16, DETEX_PIXEL_FORMAT_R16, ConvertPixel16FloatR16ToPixel16R16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG16, DETEX_PIXEL_FORMAT_RG16, ConvertPixel32FloatRG16ToPixel32RG16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16, DETEX_PIXEL_FORMAT_RGB16, ConvertPixel48FloatRGB16ToPixel48RGB16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel64FloatRGBX16ToPixel64RGBX16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBA16, DETEX_PIXEL_FORMAT_RGBA16, ConvertPixel64FloatRGBA16ToPixel64RGBA16 },
 	// HDR half-float to integer conversion (in-place).
@@ -636,19 +754,29 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG16_HDR, DETEX_PIXEL_FORMAT_RG16, ConvertPixel32FloatRG16HDRToPixel32RG16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16_HDR, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel64FloatRGBX16HDRToPixel64RGBX16 },
 	// Float to half-float conversion.
+	// 43
 	{ DETEX_PIXEL_FORMAT_FLOAT_R32, DETEX_PIXEL_FORMAT_FLOAT_R16, ConvertPixel32FloatR32ToPixel16FloatR16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG32, DETEX_PIXEL_FORMAT_FLOAT_RG16, ConvertPixel64FloatRG32ToPixel32FloatRG16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32, DETEX_PIXEL_FORMAT_FLOAT_RGB16, ConvertPixel96FloatRGB32ToPixel48FloatRGB16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32, DETEX_PIXEL_FORMAT_FLOAT_RGBX16, ConvertPixel128FloatRGBX32ToPixel64FloatRGBX16 },
+	// Float to 16-bit integer conversion.
+	{ DETEX_PIXEL_FORMAT_FLOAT_R32, DETEX_PIXEL_FORMAT_R16, ConvertPixel32FloatR32ToPixel16R16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RG32, DETEX_PIXEL_FORMAT_RG16, ConvertPixel64FloatRG32ToPixel32RG16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32, DETEX_PIXEL_FORMAT_RGB16, ConvertPixel96FloatRGB32ToPixel48RGB16 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel128FloatRGBX32ToPixel64RGBX16 },
 	// Half-float to float conversion.
 	{ DETEX_PIXEL_FORMAT_FLOAT_R16, DETEX_PIXEL_FORMAT_FLOAT_R32, ConvertPixel16FloatR16ToPixel32FloatR32 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RG32, DETEX_PIXEL_FORMAT_FLOAT_RG32, ConvertPixel32FloatRG16ToPixel64FloatRG32 },
-	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32, DETEX_PIXEL_FORMAT_FLOAT_RGBX32, ConvertPixel64FloatRGBX16ToPixel128FloatRGBX32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RG16, DETEX_PIXEL_FORMAT_FLOAT_RG32, ConvertPixel32FloatRG16ToPixel64FloatRG32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16, DETEX_PIXEL_FORMAT_FLOAT_RGB32, ConvertPixel48FloatRGB16ToPixel96FloatRGB32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16, DETEX_PIXEL_FORMAT_FLOAT_RGBX32, ConvertPixel64FloatRGBX16ToPixel128FloatRGBX32 },
 	// HDR Float to float conversion.
 	{ DETEX_PIXEL_FORMAT_FLOAT_R32_HDR, DETEX_PIXEL_FORMAT_FLOAT_R32, ConvertPixel32FloatR32HDRToPixel32FloatR32 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RG32, ConvertPixel64FloatRG32HDRToPixel64FloatRG32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGB32, ConvertPixel96FloatRGB32HDRToPixel96FloatRGB32 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGBX32,
 		ConvertPixel128FloatRGBX32HDRToPixel128FloatRGBX32 },
 	// Conversion between packed RGB8 and RGBX8.
+	// 59
 	{ DETEX_PIXEL_FORMAT_RGB8, DETEX_PIXEL_FORMAT_RGBX8, ConvertPixel24RGB8ToPixel32RGBX8 },
 	{ DETEX_PIXEL_FORMAT_RGBX8, DETEX_PIXEL_FORMAT_RGB8, ConvertPixel32RGBX8ToPixel24RGB8 },
 	// Conversion between packed half-float RGB16 and half-float RGBX16.
@@ -656,6 +784,11 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16, DETEX_PIXEL_FORMAT_FLOAT_RGB16, ConvertPixel64RGBX16ToPixel48RGB16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGBX16_HDR, ConvertPixel48RGB16ToPixel64RGBX16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGB16_HDR, ConvertPixel64RGBX16ToPixel48RGB16 },
+	// Conversion between packed float RGB32 and float RGBX32.
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32, DETEX_PIXEL_FORMAT_FLOAT_RGBX32, ConvertPixel96RGB32ToPixel128RGBX32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32, DETEX_PIXEL_FORMAT_FLOAT_RGB32, ConvertPixel128RGBX32ToPixel96RGB32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGBX32_HDR, ConvertPixel96RGB32ToPixel128RGBX32 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGB32_HDR, ConvertPixel128RGBX32ToPixel96RGB32 },
 };
 
 #define NU_CONVERSION_TYPES (sizeof(detex_conversion_table) / sizeof(detex_conversion_table[0]))
@@ -683,6 +816,8 @@ uint32_t *conversion) {
 	// Immediately return if the formats are identical.
 	if (source_pixel_format == target_pixel_format)
 		return 0;
+//	printf("Matching conversion between %s and %s.\n", detexGetTextureFormatText(source_pixel_format),
+//		detexGetTextureFormatText(target_pixel_format));
 	// Check whether the conversion has been cached.
 	if (source_pixel_format == cached_source_format && target_pixel_format == cached_target_format) {
 		for (int i = 0; i < cached_nu_conversions; i++)
@@ -702,11 +837,19 @@ uint32_t *conversion) {
 	int n = detexGetNumberOfComponents(target_pixel_format);
 	if (n < min_components)
 		min_components = n;
+	int min_precision = detexGetComponentPrecision(source_pixel_format);
+	n = detexGetComponentPrecision(target_pixel_format);
+	if (n < min_precision)
+		min_precision = n;
 	for (int i = 0; i < NU_CONVERSION_TYPES; i++)
 		if (detex_conversion_table[i].target_format == target_pixel_format) {
 			// Avoid loss of components.
 			if (detexGetNumberOfComponents(detex_conversion_table[i].source_format) <
 			min_components)
+				continue;
+			// Avoid loss of precision.
+			if (detexGetComponentPrecision(detex_conversion_table[i].source_format) <
+			min_precision)
 				continue;
 			conversion[1] = i;
 			for (int j = 0; j < NU_CONVERSION_TYPES; j++) {
@@ -727,6 +870,10 @@ uint32_t *conversion) {
 			if (detexGetNumberOfComponents(detex_conversion_table[i].target_format) <
 			min_components)
 				continue;
+			// Avoid loss of precision.
+			if (detexGetComponentPrecision(detex_conversion_table[i].target_format) <
+			min_precision)
+				continue;
 			conversion[0] = i;
 //			printf("Trying conversion ( %d ? ? )\n", conversion[0]);
 			// Match the third conversion with the target format.
@@ -735,6 +882,10 @@ uint32_t *conversion) {
 					// Avoid loss of components.
 					if (detexGetNumberOfComponents(detex_conversion_table[j].source_format) <
 					min_components)
+						continue;
+					// Avoid loss of precision.
+					if (detexGetComponentPrecision(detex_conversion_table[j].source_format) <
+					min_precision)
 						continue;
 					conversion[2] = j;
 //					printf("Trying conversion ( %d ? %d )\n", conversion[0], conversion[2]);
@@ -758,6 +909,10 @@ uint32_t *conversion) {
 			if (detexGetNumberOfComponents(detex_conversion_table[i].target_format) <
 			min_components)
 				continue;
+			// Avoid loss of precision.
+			if (detexGetComponentPrecision(detex_conversion_table[i].target_format) <
+			min_precision)
+				continue;
 			conversion[0] = i;
 //			printf("Trying conversion ( %d ? ? ? )\n", conversion[0]);
 			// Match the fourth conversion with the target format.
@@ -766,6 +921,10 @@ uint32_t *conversion) {
 					// Avoid loss of components.
 					if (detexGetNumberOfComponents(detex_conversion_table[j].source_format) <
 					min_components)
+						continue;
+					// Avoid loss of precision.
+					if (detexGetComponentPrecision(detex_conversion_table[j].source_format) <
+					min_precision)
 						continue;
 					conversion[3] = j;
 //					printf("Trying conversion ( %d ? ? %d )\n", conversion[0], conversion[3]);
@@ -777,10 +936,14 @@ uint32_t *conversion) {
 							if (detexGetNumberOfComponents(
 							detex_conversion_table[k].target_format) < min_components)
 								continue;
+							// Avoid loss of precision.
+							if (detexGetComponentPrecision(
+							detex_conversion_table[k].target_format) < min_precision)
+								continue;
 							conversion[1] = k;
 //							printf("Trying conversion ( %d %d ? %d )\n",
 //								conversion[0], conversion[1], conversion[3]);
-							// March the third conversion.
+							// Match the third conversion.
 							for (int l = 0; l < NU_CONVERSION_TYPES; l++) {
 								if (detex_conversion_table[l].target_format ==
 								detex_conversion_table[j].source_format &&
@@ -834,6 +997,8 @@ static void FreeTemporaryPixelBuffers(TempPixelBufferInfo *info) {
 bool detexConvertPixels(uint8_t * DETEX_RESTRICT source_pixel_buffer, uint32_t nu_pixels,
 uint32_t source_pixel_format, uint8_t * DETEX_RESTRICT target_pixel_buffer,
 uint32_t target_pixel_format) {
+//	printf("Converting between %s and %s (0x%08X and 0x%08X).\n", detexGetTextureFormatText(source_pixel_format),
+//		detexGetTextureFormatText(target_pixel_format), source_pixel_format, target_pixel_format);
 	uint32_t conversion[4];
 	int nu_conversions = detexMatchConversion(source_pixel_format, target_pixel_format, conversion);
 	if (nu_conversions < 0) {
