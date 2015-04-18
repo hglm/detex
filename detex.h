@@ -809,7 +809,7 @@ DETEX_API bool detexCalculateDynamicRange(uint8_t *pixel_buffer, int nu_pixels, 
  * Texture file loading.
  */
 
-/*  Load texture from KTX file with mip-maps. Returns true if successful. */
+/* Load texture from KTX file with mip-maps. Returns true if successful. */
 /* nu_levels is a return parameter that returns the number of mipmap levels found. */
 /* textures_out is a return parameter for an array of detexTexture pointers that is allocated, */
 /* free with free(). textures_out[i] are allocated textures corresponding to each level, free */
@@ -820,6 +820,12 @@ DETEX_API bool detexLoadKTXFileWithMipmaps(const char *filename, int max_mipmaps
 /* Load texture from KTX file (first mip-map only). Returns true if successful. */
 /* The texture is allocated, free with free(). */
 DETEX_API bool detexLoadKTXFile(const char *filename, detexTexture **texture_out);
+
+/* Save textures to KTX file (multiple mip-maps levels). Return true if succesful. */
+DETEX_API bool detexSaveKTXFileWithMipmaps(detexTexture **textures, int nu_levels, const char *filename);
+
+/* Save texture to KTX file (single mip-map level). Returns true if succesful. */
+DETEX_API bool detexSaveKTXFile(detexTexture *texture, const char *filename);
 
 /* Load texture from DDS file with mip-maps. Returns true if successful. */
 /* nu_levels is a return parameter that returns the number of mipmap levels found. */
@@ -833,6 +839,12 @@ DETEX_API bool detexLoadDDSFileWithMipmaps(const char *filename, int max_mipmaps
 /* The texture is allocated, free with free(). */
 DETEX_API bool detexLoadDDSFile(const char *filename, detexTexture **texture_out);
 
+/* Save textures to DDS file (multiple mip-maps levels). Return true if succesful. */
+DETEX_API bool detexSaveDDSFileWithMipmaps(detexTexture **textures, int nu_levels, const char *filename);
+
+/* Save texture to DDS file (single mip-map level). Returns true if succesful. */
+DETEX_API bool detexSaveDDSFile(detexTexture *texture, const char *filename);
+
 /* Load texture file (type autodetected from extension) with mipmaps. */
 DETEX_API bool detexLoadTextureFileWithMipmaps(const char *filename, int max_mipmaps, detexTexture ***textures_out,
 	int *nu_levels_out);
@@ -840,6 +852,14 @@ DETEX_API bool detexLoadTextureFileWithMipmaps(const char *filename, int max_mip
 /* Load texture file (type autodetected from extension). */
 DETEX_API bool detexLoadTextureFile(const char *filename, detexTexture **texture_out);
 
+/* Load texture from raw file (first mip-map only) given the format and dimensions */
+/* in texture. Returns true if successful. */
+/* The texture->data is allocated, free with free(). */
+DETEX_API bool detexLoadRawFile(const char *filename, detexTexture *texture);
+
+/* Save texture to raw file (first mip-map only) given the format and dimensions */
+/* in texture. Returns true if successful. */
+DETEX_API bool detexSaveRawFile(detexTexture *texture, const char *filename);
 
 /* Return pixel size in bytes for pixel format or texture format (decompressed). */
 static DETEX_INLINE_ONLY int detexGetPixelSize(uint32_t pixel_format) {

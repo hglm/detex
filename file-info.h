@@ -32,7 +32,7 @@ typedef struct {
 } detexTextureFileInfo;
 
 // Look-up texture file info for texture format.
-const detexTextureFileInfo *detexLookupTextureFileInfo(uint32_t texture_format);
+const detexTextureFileInfo *detexLookupTextureFormatFileInfo(uint32_t texture_format);
 
 // Look-up texture file info for texture description.
 const detexTextureFileInfo *detexLookupTextureDescription(const char *s);

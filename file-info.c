@@ -186,7 +186,7 @@ static const DDSTextureFormatSynonym dds_synonym[] = {
 #define DETEX_NU_DDS_SYNONYMS (sizeof(dds_synonym) / sizeof(dds_synonym[0]))
 
 // Look-up texture file info for texture format.
-const detexTextureFileInfo *detexLookupTextureFileInfo(uint32_t texture_format) {
+const detexTextureFileInfo *detexLookupTextureFormatFileInfo(uint32_t texture_format) {
 	for (int i = 0; i < DETEX_NU_TEXTURE_INFO_ENTRIES; i++)
 		if (texture_info[i].texture_format == texture_format)
 			return &texture_info[i];
@@ -213,9 +213,9 @@ const detexTextureFileInfo *detexLookupKTXFileInfo(int gl_internal_format, int g
 	for (int i = 0; i < DETEX_NU_OPEN_GL_SYNONYMS; i++)
 		if (open_gl_synonym[i].gl_internal_format == gl_internal_format) {
 			if (open_gl_synonym[i].gl_format == 0)
-				return detexLookupTextureFileInfo(open_gl_synonym[i].texture_format);
+				return detexLookupTextureFormatFileInfo(open_gl_synonym[i].texture_format);
 			if (open_gl_synonym[i].gl_format == gl_format && open_gl_synonym[i].gl_type == gl_type)
-				return detexLookupTextureFileInfo(open_gl_synonym[i].texture_format);
+				return detexLookupTextureFormatFileInfo(open_gl_synonym[i].texture_format);
 		}
 	return NULL;
 }
@@ -267,18 +267,18 @@ uint32_t blue_mask, uint32_t alpha_mask) {
 	for (int i = 0; i < DETEX_NU_DDS_SYNONYMS; i++)
 		if (strncmp(four_cc, "DX10", 4) == 0) {
 			if (dds_synonym[i].dx10_format == dx10_format)
-				return detexLookupTextureFileInfo(dds_synonym[i].texture_format);
+				return detexLookupTextureFormatFileInfo(dds_synonym[i].texture_format);
 		}
 		else if (dds_synonym[i].dx10_four_cc[0] != '\0' &&
 		strncmp(dds_synonym[i].dx10_four_cc, four_cc, 4) == 0)
-			return detexLookupTextureFileInfo(dds_synonym[i].texture_format);
+			return detexLookupTextureFormatFileInfo(dds_synonym[i].texture_format);
 	return NULL;
 }
 
 // Return a description of the texture format.
 const char *detexGetTextureFormatText(uint32_t texture_format) {
 	const detexTextureFileInfo *info;
-	info = detexLookupTextureFileInfo(texture_format);
+	info = detexLookupTextureFormatFileInfo(texture_format);
 	if (info == NULL) {
 //		printf("Error -- invalid texture format.\n");
 		return "Invalid";
@@ -289,7 +289,7 @@ const char *detexGetTextureFormatText(uint32_t texture_format) {
 /* Return OpenGL Texture2D/KTX file parameters for a texture format. */
 bool detexGetOpenGLParameters(uint32_t texture_format, int *gl_internal_format,
 uint32_t *gl_format, uint32_t *gl_type) {
-	const detexTextureFileInfo *info = detexLookupTextureFileInfo(texture_format);
+	const detexTextureFileInfo *info = detexLookupTextureFormatFileInfo(texture_format);
 	if (info == NULL) {
 		detexSetErrorMessage("detexGetOpenGLParameters: Invalid texture format");
 		return false;
@@ -302,7 +302,7 @@ uint32_t *gl_format, uint32_t *gl_type) {
 
 /* Return DirectX 10 format for a texture format. */
 bool detexGetDX10Parameters(uint32_t texture_format, uint32_t *dx10_format) {
-	const detexTextureFileInfo *info = detexLookupTextureFileInfo(texture_format);
+	const detexTextureFileInfo *info = detexLookupTextureFormatFileInfo(texture_format);
 	if (info == NULL) {
 		detexSetErrorMessage("detexGetDX10Parameters: Invalid texture format");
 		return false;
