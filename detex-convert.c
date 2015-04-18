@@ -32,6 +32,7 @@ static uint32_t output_format;
 static uint32_t option_flags;
 static char *input_file;
 static char *output_file;
+static int output_file_type;
 
 static const uint32_t supported_formats[] = {
 	// Uncompressed formats.
@@ -82,6 +83,7 @@ static const uint32_t supported_formats[] = {
 enum {
 	OPTION_FLAG_OUTPUT_FORMAT = 0x1,
 	OPTION_FLAG_INPUT_FORMAT = 0x2,
+	OPTION_FLAG_QUIET = 0x4,
 };
 
 static const struct option long_options[] = {
@@ -89,12 +91,22 @@ static const struct option long_options[] = {
 	{ "format", required_argument, NULL, 'f' },
 	{ "output-format", required_argument, NULL, 'o' },
 	{ "input-format", required_argument, NULL, 'i' },
+	{ "quiet", no_argument, NULL, 'q' },
 	{ NULL, 0, NULL, 0 }
 };
 
 #define NU_OPTIONS (sizeof(long_options) / sizeof(long_options[0]))
 
+enum {
+	FILE_TYPE_NONE = 0,
+	FILE_TYPE_KTX = 1,
+	FILE_TYPE_DDS = 2,
+	FILE_TYPE_RAW = 3
+};
+
 static void Message(const char *format, ...) {
+	if (option_flags & OPTION_FLAG_QUIET)
+		return;
 	va_list args;
 	va_start(args, format);
 	vprintf(format, args);
@@ -164,9 +176,10 @@ static uint32_t ParseFormat(const char *s) {
 }
 
 static void ParseArguments(int argc, char **argv) {
+	option_flags = 0;
 	while (true) {
-	int option_index = 0;
-		int c = getopt_long(argc, argv, "f:t:s:", long_options, &option_index);
+		int option_index = 0;
+		int c = getopt_long(argc, argv, "f:o:i:q", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -179,8 +192,11 @@ static void ParseArguments(int argc, char **argv) {
 			input_format = ParseFormat(optarg);
 			option_flags |= OPTION_FLAG_INPUT_FORMAT;
 			break;
+		case 'q' :	// -q, --quiet
+			option_flags |= OPTION_FLAG_QUIET;
+			break;
 		default :
-			FatalError("Unknown option.");
+			FatalError("");
 			break;
 		}
 	}
@@ -189,19 +205,18 @@ static void ParseArguments(int argc, char **argv) {
 		FatalError("Fatal error: Expected input and output filename arguments\n");
 	input_file = strdup(argv[optind]);
 	output_file = strdup(argv[optind + 1]);
-	char s[80];
-	if (option_flags & OPTION_FLAG_INPUT_FORMAT) {
-		sprintf(s, "%s (specified)", detexGetTextureFormatText(input_format));
-	}
+}
+
+static int DetermineFileType(const char *filename) {
+	int filename_length = strlen(filename);
+	if (filename_length > 4 && strncasecmp(filename + filename_length - 4, ".ktx", 4) == 0)
+		return FILE_TYPE_KTX;
+	else if (filename_length > 4 && strncasecmp(filename + filename_length - 4, ".dds", 4) == 0)
+		return FILE_TYPE_DDS;
+	else if (filename_length > 4 && strncasecmp(filename + filename_length - 4, ".dds", 4) == 0)
+		return FILE_TYPE_RAW;
 	else
-		sprintf(s, "auto-detected");
-	printf("Input file: %s, format %s\n", input_file, s);
-	if (option_flags & OPTION_FLAG_OUTPUT_FORMAT) {
-		sprintf(s, "%s (specified)", detexGetTextureFormatText(output_format));
-	}
-	else
-		sprintf(s, "taken from input");
-	Message("Output file: %s, format %s\n", output_file, s);
+		return FILE_TYPE_NONE;
 }
 
 int main(int argc, char **argv) {
@@ -209,7 +224,73 @@ int main(int argc, char **argv) {
 		Usage();
 		exit(0);
 	}
-	Message("detex-convert %s\n", DETEX_VERSION);
 	ParseArguments(argc, argv);
+	Message("detex-convert %s\n", DETEX_VERSION);
+
+	detexTexture **input_textures;
+	int nu_levels;
+	bool r = detexLoadTextureFileWithMipmaps(input_file, 32, &input_textures, &nu_levels);
+	if (!r)
+		FatalError("%s\n", detexGetErrorMessage());
+
+	char s[80];
+	if (option_flags & OPTION_FLAG_INPUT_FORMAT) {
+		sprintf(s, "%s (specified)", detexGetTextureFormatText(input_format));
+	}
+	else {
+		sprintf(s, "%s (detected)", detexGetTextureFormatText(input_textures[0]->format));
+		input_format = input_textures[0]->format;
+	}
+	Message("Input file: %s, format %s\n", input_file, s);
+	if (option_flags & OPTION_FLAG_OUTPUT_FORMAT) {
+		sprintf(s, "%s (specified)", detexGetTextureFormatText(output_format));
+	}
+	else {
+		sprintf(s, "%s (taken from input)", detexGetTextureFormatText(input_format));
+		output_format = input_format;
+	}
+	Message("Output file: %s, format %s\n", output_file, s);
+
+	detexTexture **output_textures;
+	if (output_format == input_format) {
+		output_textures = input_textures;
+	}
+	else {
+		if (detexFormatIsCompressed(output_format))
+			FatalError("Cannot convert to output format %s (detex-convert does not support compression)\n",
+				detexGetTextureFormatText(output_format));
+		FatalError("Conversion not yet implemented.\n");
+	}
+
+	output_file_type = DetermineFileType(output_file);
+	switch (output_file_type) {
+	case FILE_TYPE_KTX : {
+		bool r = detexSaveKTXFileWithMipmaps(output_textures, nu_levels, output_file);
+		if (!r)
+			FatalError("%s", detexGetErrorMessage());
+		break;
+		}
+	case FILE_TYPE_DDS : {
+		bool r = detexSaveDDSFileWithMipmaps(output_textures, nu_levels, output_file);
+		if (!r)
+			FatalError("%s", detexGetErrorMessage());
+		break;
+		}
+	case FILE_TYPE_RAW : {
+		if (nu_levels == 1) {
+			bool r = detexSaveRawFile(output_textures[0], output_file);
+			if (!r)
+				FatalError("%s", detexGetErrorMessage());
+		}
+		else
+			FatalError("Cannot write to RAW format with more than one mipmap level");
+		break;
+		}
+	case FILE_TYPE_NONE :
+		FatalError("Do not recognize output file type");
+		break;
+	}
+
+	exit(0);
 }
 
