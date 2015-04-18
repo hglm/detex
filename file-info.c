@@ -286,6 +286,16 @@ const char *detexGetTextureFormatText(uint32_t texture_format) {
 	return info->text1;
 }
 
+// Return alternative description of the texture format.
+const char *detexGetAlternativeTextureFormatText(uint32_t texture_format) {
+	const detexTextureFileInfo *info;
+	info = detexLookupTextureFormatFileInfo(texture_format);
+	if (info == NULL) {
+		return "Invalid";
+	}
+	return info->text2;
+}
+
 /* Return OpenGL Texture2D/KTX file parameters for a texture format. */
 bool detexGetOpenGLParameters(uint32_t texture_format, int *gl_internal_format,
 uint32_t *gl_format, uint32_t *gl_type) {

@@ -778,8 +778,12 @@ DETEX_API bool detexConvertPixelsInPlace(uint8_t * DETEX_RESTRICT source_pixel_b
 DETEX_API bool detexGetComponentMasks(uint32_t texture_format, uint64_t *red_mask, uint64_t *green_mask,
 	uint64_t *blue_mask, uint64_t *alpha_mask);
 
-/* Return a description of the texture type. */
+/* Return a text description/identifier of the texture type. */
 DETEX_API const char *detexGetTextureFormatText(uint32_t texture_format);
+
+/* Return a alternative text description of the texture type. Returns empty string */
+/* when there is no alternative description. */
+DETEX_API const char *detexGetAlternativeTextureFormatText(uint32_t texture_format);
 
 /* Return OpenGL TexImage2D/KTX file parameters for a texture format. */
 DETEX_API bool detexGetOpenGLParameters(uint32_t texture_format, int *gl_internal_format,
