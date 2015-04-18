@@ -15,7 +15,8 @@ OPTCFLAGS += -ggdb
 else
 OPTCFLAGS += -Ofast -ffast-math
 endif
-CFLAGS = -std=c99 -Wall -Wno-maybe-uninitialized -pipe -I. $(OPTCFLAGS)
+# Use the 1999 ISO C standard with POSIX.1-2008 definitions.
+CFLAGS = -std=c99 -D_POSIX_C_SOURCE=200809L -Wall -Wno-maybe-uninitialized -pipe -I. $(OPTCFLAGS)
 
 ifeq ($(LIBRARY_CONFIGURATION), SHARED)
 # Shared library.
@@ -39,13 +40,14 @@ TEST_PROGRAM_LFLAGS = $(LIBRARY_OBJECT)
 CFLAGS_LIB = $(CFLAGS)
 CFLAGS_TEST = $(CFLAGS)
 endif
+CFLAGS_TEST += -DDETEX_VERSION=\"v$(VERSION)\"
 LIBRARY_LIBS = -lm
 
 LIBRARY_MODULE_OBJECTS = bptc-tables.o bits.o clamp.o convert.o dds.o decompress-bc.o decompress-bptc.o \
 	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o file-info.o \
 	half-float.o hdr.o ktx.o misc.o raw.o texture.o
 LIBRARY_HEADER_FILES = detex.h
-TEST_PROGRAMS = detex-validate detex-view
+TEST_PROGRAMS = detex-validate detex-view detex-convert
 
 default : library
 
@@ -86,10 +88,15 @@ detex-validate : validate.o $(LIBRARY_OBJECT)
 detex-view : detex-view.o $(LIBRARY_OBJECT)
 	gcc detex-view.o -o detex-view $(LIBRARY_OBJECT) $(LIBRARY_LIBS) `pkg-config --libs gtk+-3.0`
 
+detex-convert : detex-convert.o $(LIBRARY_OBJECT)
+	gcc detex-convert.o -o detex-convert $(LIBRARY_OBJECT) $(LIBRARY_LIBS)
+
 clean :
 	rm -f $(LIBRARY_MODULE_OBJECTS)
 	rm -f $(TEST_PROGRAMS)
 	rm -f validate.o
+	rm -f detex-view.o
+	rm -f detex-convert.o
 	rm -f $(LIBRARY_NAME).so.$(VERSION)
 	rm -f $(LIBRARY_NAME).a
 	rm -f $(LIBRARY_NAME)_dbg.a
@@ -103,6 +110,9 @@ validate.o : validate.c
 detex-view.o : detex-view.c
 	gcc -c $(CFLAGS_TEST) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
 
+detex-convert.o : detex-convert.c
+	gcc -c $(CFLAGS_TEST) $< -o $@
+
 dep :
 	rm -f .depend
 	make .depend
@@ -114,6 +124,7 @@ dep :
 	echo $$x : Makefile.conf Makefile >> .depend; done
 	gcc -MM $(CFLAGS_TEST) validate.c >> .depend
 	gcc -MM $(CFLAGS_TEST) detex-view.c >> .depend
+	gcc -MM $(CFLAGS_TEST) detex-convert.c >> .depend
 
 include .depend
 
