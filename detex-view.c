@@ -48,6 +48,12 @@ static void destroy_cb(GtkWidget *widget, gpointer data) {
 	exit(0);
 }
 
+static gboolean window_key_press_cb(GtkWidget *widget, GdkEventKey *event, void *user_data) {
+	if (event->keyval == GDK_KEY_Q || event->keyval == GDK_KEY_q)
+		exit(0);
+	return TRUE;
+}
+
 static gboolean area_configure_event_cb(GtkWidget *widget, GdkEventConfigure *event,
 GtkWidget *image_drawing_area) {
 	if (area_surface != NULL)
@@ -88,6 +94,9 @@ static void CreateWindowLayout() {
 		G_CALLBACK(delete_event_cb), NULL);
 	g_signal_connect(G_OBJECT(gtk_window), "destroy",
 		G_CALLBACK(destroy_cb), NULL);
+	g_signal_connect(G_OBJECT(gtk_window), "key-press-event",
+		G_CALLBACK(window_key_press_cb), NULL);
+	gtk_widget_add_events(gtk_window, GDK_KEY_PRESS_MASK);
 	gtk_container_set_border_width(GTK_CONTAINER(gtk_window), 0);
 	GtkWidget *image_drawing_area = gtk_drawing_area_new();
 	// Create a vbox for texture image and label.
