@@ -83,7 +83,8 @@ static const uint32_t supported_formats[] = {
 enum {
 	OPTION_FLAG_OUTPUT_FORMAT = 0x1,
 	OPTION_FLAG_INPUT_FORMAT = 0x2,
-	OPTION_FLAG_QUIET = 0x4,
+	OPTION_FLAG_DECOMPRESS = 0x4,
+	OPTION_FLAG_QUIET = 0x8,
 };
 
 static const struct option long_options[] = {
@@ -91,6 +92,7 @@ static const struct option long_options[] = {
 	{ "format", required_argument, NULL, 'f' },
 	{ "output-format", required_argument, NULL, 'o' },
 	{ "input-format", required_argument, NULL, 'i' },
+	{ "decompress", no_argument, NULL, 'd' },
 	{ "quiet", no_argument, NULL, 'q' },
 	{ NULL, 0, NULL, 0 }
 };
@@ -192,6 +194,9 @@ static void ParseArguments(int argc, char **argv) {
 			input_format = ParseFormat(optarg);
 			option_flags |= OPTION_FLAG_INPUT_FORMAT;
 			break;
+		case 'd' :	// -d, --decompress
+			option_flags |= OPTION_FLAG_DECOMPRESS;
+			break;
 		case 'q' :	// -q, --quiet
 			option_flags |= OPTION_FLAG_QUIET;
 			break;
@@ -245,6 +250,18 @@ int main(int argc, char **argv) {
 	if (option_flags & OPTION_FLAG_OUTPUT_FORMAT) {
 		sprintf(s, "%s (specified)", detexGetTextureFormatText(output_format));
 	}
+	else if (option_flags & OPTION_FLAG_DECOMPRESS) {
+		if (!detexFormatIsCompressed(input_textures[0]->format))
+			FatalError("Cannot decompress uncompressed texture\n");
+		output_format = detexGetPixelFormat(input_textures[0]->format);
+		// Decompression of compressed textures can result in a pixel format with an unused component,
+		// which is not supported by KTX and DDS texture formats.
+		if (output_format == DETEX_PIXEL_FORMAT_RGBX8)
+			output_format = DETEX_PIXEL_FORMAT_RGB8;
+		else if (output_format == DETEX_PIXEL_FORMAT_FLOAT_RGBX16)
+			output_format = DETEX_PIXEL_FORMAT_FLOAT_RGB16;
+		sprintf(s, "%s (decompressed input)", detexGetTextureFormatText(output_format));
+	}
 	else {
 		sprintf(s, "%s (taken from input)", detexGetTextureFormatText(input_format));
 		output_format = input_format;
@@ -259,7 +276,24 @@ int main(int argc, char **argv) {
 		if (detexFormatIsCompressed(output_format))
 			FatalError("Cannot convert to output format %s (detex-convert does not support compression)\n",
 				detexGetTextureFormatText(output_format));
-		FatalError("Conversion not yet implemented.\n");
+		output_textures = (detexTexture **)malloc(sizeof(detexTexture *) * nu_levels);
+		for (int i = 0; i < nu_levels; i++) {
+			uint32_t size;
+			size = detexGetPixelSize(output_format) * input_textures[i]->width *
+				input_textures[i]->height;
+			output_textures[i] = (detexTexture *)malloc(sizeof(detexTexture));
+			output_textures[i]->data = (uint8_t *)malloc(size); 
+			bool r = detexDecompressTextureLinear(input_textures[i], output_textures[i]->data,
+				output_format);
+			if (!r)
+				FatalError("%s\n", detexGetErrorMessage());
+			output_textures[i]->format = output_format;
+			output_textures[i]->width = input_textures[i]->width;
+			output_textures[i]->height = input_textures[i]->height;
+			output_textures[i]->width_in_blocks = input_textures[i]->width;
+			output_textures[i]->height_in_blocks = input_textures[i]->height;
+		}
+//		FatalError("Conversion not yet implemented.\n");
 	}
 
 	output_file_type = DetermineFileType(output_file);
@@ -267,27 +301,27 @@ int main(int argc, char **argv) {
 	case FILE_TYPE_KTX : {
 		bool r = detexSaveKTXFileWithMipmaps(output_textures, nu_levels, output_file);
 		if (!r)
-			FatalError("%s", detexGetErrorMessage());
+			FatalError("%s\n", detexGetErrorMessage());
 		break;
 		}
 	case FILE_TYPE_DDS : {
 		bool r = detexSaveDDSFileWithMipmaps(output_textures, nu_levels, output_file);
 		if (!r)
-			FatalError("%s", detexGetErrorMessage());
+			FatalError("%s\n", detexGetErrorMessage());
 		break;
 		}
 	case FILE_TYPE_RAW : {
 		if (nu_levels == 1) {
 			bool r = detexSaveRawFile(output_textures[0], output_file);
 			if (!r)
-				FatalError("%s", detexGetErrorMessage());
+				FatalError("%s\n", detexGetErrorMessage());
 		}
 		else
-			FatalError("Cannot write to RAW format with more than one mipmap level");
+			FatalError("Cannot write to RAW format with more than one mipmap level\n");
 		break;
 		}
 	case FILE_TYPE_NONE :
-		FatalError("Do not recognize output file type");
+		FatalError("Do not recognize output file type\n");
 		break;
 	}
 

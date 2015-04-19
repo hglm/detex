@@ -283,7 +283,7 @@ bool detexSaveDDSFileWithMipmaps(detexTexture **textures, int nu_levels, const c
 		}
 	}
 	fclose(f);
-	return false;
+	return true;
 }
 
 // Save texture to DDS file (single mip-map level). Returns true if succesful.

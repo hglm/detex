@@ -53,7 +53,6 @@ static const detexTextureFileInfo texture_info[] = {
 // Uncompressed formats (texture format = pixel format).
 	{ DETEX_PIXEL_FORMAT_RGB8,		1, 1,	"RGB8", "",			1, 1,	0x1907, 0x1907,	0x1401,		"", 0 },
 	{ DETEX_PIXEL_FORMAT_RGBA8,		1, 1,	"RGBA8", "",			1, 1, 	0x1908, 0x1908, 0x1401,		"DX10", 28 },
-//	{ DETEX_PIXEL_FORMAT_ARGB8,		0, 1,	"argb8", "",			1, 1, 	0,	0,	0,		"", 0 },
 	{ DETEX_PIXEL_FORMAT_R8,		1, 1,	"R8", "",			1, 1,	0x8229, 0x1903, 0x1401,		"DX10", 61 },
 	{ DETEX_PIXEL_FORMAT_SIGNED_R8,		1, 1,	"SIGNED_R8", "",		1, 1,	0x8F49, 0x1903, 0x1400,		"DX10", 63 },
 	{ DETEX_PIXEL_FORMAT_RG8,		1, 1,	"RG8", "",			1, 1,	0x822B, 0x8227, 0x1401,		"DX10", 49 },
@@ -112,6 +111,10 @@ static const detexTextureFileInfo texture_info[] = {
 	{ DETEX_TEXTURE_FORMAT_RGBA_ASTC_12X12,			1, 0,	"astc_12x12", "",		12, 12,	0x93BD, 0,	0,		"", 0 },
 #endif
 // Pseudo-formats (not present in files, but used for name look-up).
+	{ DETEX_PIXEL_FORMAT_RGBX8,		0, 0,	"RGBX8", "",			1, 1,	0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_BGRX8,		0, 0,	"BGRX8", "",			1, 1,	0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16,	0, 0,	"FLOAT_RGBX16", "",		1, 1,	0,	0,	0,		"", 0 },
+	{ DETEX_PIXEL_FORMAT_FLOAT_BGRX16,	0, 0,	"FLOAT_BGRX16", "",		1, 1,	0,	0,	0,		"", 0 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_R16_HDR,	0, 0,	"FLOAT_R16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG16_HDR,	0, 0,	"FLOAT_RG16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16_HDR,	0, 0,	"FLOAT_RGB16_HDR", "",		1, 1,	0,	0,	0,		"", 0 },

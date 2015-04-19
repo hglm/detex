@@ -313,10 +313,10 @@ bool detexSaveKTXFileWithMipmaps(detexTexture **textures, int nu_levels, const c
 			for (int y = 0; y < textures[i]->height; y++) {
 				memcpy(row, &textures[i]->data[y * textures[i]->width * pixel_size],
 					textures[i]->width * pixel_size);
-				for (int i = textures[i]->width * pixel_size; i < row_size; i++)
-					row[i] = 0;
+				for (int j = textures[i]->width * pixel_size; j < row_size; j++)
+					row[j] = 0;
 				size_t r2 = fwrite(row, 1, row_size, f);
-				if (r2 != 4) {
+				if (r2 != row_size) {
 					detexSetErrorMessage("detexSaveKTXFileWithMipmaps: Error writing to file %s", 							filename);
 					return false;
 				}
