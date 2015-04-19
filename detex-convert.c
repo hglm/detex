@@ -103,7 +103,8 @@ enum {
 	FILE_TYPE_NONE = 0,
 	FILE_TYPE_KTX = 1,
 	FILE_TYPE_DDS = 2,
-	FILE_TYPE_RAW = 3
+	FILE_TYPE_RAW = 3,
+	FILE_TYPE_PNG = 4
 };
 
 static void Message(const char *format, ...) {
@@ -218,8 +219,10 @@ static int DetermineFileType(const char *filename) {
 		return FILE_TYPE_KTX;
 	else if (filename_length > 4 && strncasecmp(filename + filename_length - 4, ".dds", 4) == 0)
 		return FILE_TYPE_DDS;
-	else if (filename_length > 4 && strncasecmp(filename + filename_length - 4, ".dds", 4) == 0)
+	else if (filename_length > 4 && strncasecmp(filename + filename_length - 4, ".raw", 4) == 0)
 		return FILE_TYPE_RAW;
+	else if (filename_length > 4 && strncasecmp(filename + filename_length - 4, ".png", 4) == 0)
+		return FILE_TYPE_PNG;
 	else
 		return FILE_TYPE_NONE;
 }
@@ -310,7 +313,7 @@ int main(int argc, char **argv) {
 			FatalError("%s\n", detexGetErrorMessage());
 		break;
 		}
-	case FILE_TYPE_RAW : {
+	case FILE_TYPE_RAW :
 		if (nu_levels == 1) {
 			bool r = detexSaveRawFile(output_textures[0], output_file);
 			if (!r)
@@ -319,10 +322,10 @@ int main(int argc, char **argv) {
 		else
 			FatalError("Cannot write to RAW format with more than one mipmap level\n");
 		break;
-		}
+	case FILE_TYPE_PNG :
+		FatalError("PNG format not yet supported\n");
 	case FILE_TYPE_NONE :
 		FatalError("Do not recognize output file type\n");
-		break;
 	}
 
 	exit(0);
