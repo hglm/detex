@@ -115,7 +115,7 @@ bool detexLoadPNGFile(const char *filename, detexTexture **texture_out) {
 			format = DETEX_PIXEL_FORMAT_RGB8;
 		else
 			format = DETEX_PIXEL_FORMAT_RGB16;
-	else if (color_type == PNG_COLOR_TYPE_RGB)
+	else if (color_type == PNG_COLOR_TYPE_RGBA)
 		if (bit_depth == 8)
 			format = DETEX_PIXEL_FORMAT_RGBA8;
 		else
