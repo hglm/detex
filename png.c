@@ -19,6 +19,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // This file is not part of the detex library proper, but used by detex-convert.
 
 #include <stdlib.h>
+#include <alloca.h>
 #include <png.h>
 
 #include "detex.h"
@@ -139,6 +140,80 @@ bool detexLoadPNGFile(const char *filename, detexTexture **texture_out) {
 		free(row_pointers[y]);
 	free(row_pointers);
 	*texture_out = texture;
+	return true;
+}
+
+// Save texture to PNG file (single mip-map level). Returns true if succesful.
+bool detexSavePNGFile(detexTexture *texture, const char *filename) {
+	int color_type;
+	int bit_depth = 0;
+        if (detexGetNumberOfComponents(texture->format) == 1) {
+		if (texture->format == DETEX_PIXEL_FORMAT_R8 ||
+		texture->format == DETEX_PIXEL_FORMAT_A8) {
+			color_type= PNG_COLOR_TYPE_GRAY;
+			bit_depth = 8;
+		}
+		else if (texture->format == DETEX_PIXEL_FORMAT_R16) {
+			color_type= PNG_COLOR_TYPE_GRAY;
+			bit_depth = 16;
+		}
+	}
+	else if (texture->format == DETEX_PIXEL_FORMAT_RGB8) {
+		color_type= PNG_COLOR_TYPE_RGB;
+		bit_depth = 8;
+	}
+	else if (texture->format == DETEX_PIXEL_FORMAT_RGB16) {
+		color_type= PNG_COLOR_TYPE_RGB;
+		bit_depth = 16;
+	}
+	else if (texture->format == DETEX_PIXEL_FORMAT_RGBA8) {
+		color_type= PNG_COLOR_TYPE_RGBA;
+		bit_depth = 8;
+	}
+	else if (texture->format == DETEX_PIXEL_FORMAT_RGBA16) {
+		color_type= PNG_COLOR_TYPE_RGBA;
+		bit_depth = 16;
+	}
+	if (bit_depth == 0) {
+		printf("detexSavePNGFile: Cannot handle texture format\n");
+		return false;
+	}
+	FILE *fp;
+	png_structp png_ptr;
+	png_infop info_ptr;
+	fp = fopen(filename, "wb");
+	if (fp == NULL) {
+		printf("Error - file %s could not be opened for writing\n", filename);
+		return false;
+	}
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (png_ptr == NULL) {
+		printf("Error using libpng\n");
+		return false;
+	}
+	info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL) {
+		printf("Error using libpng\n");
+		return false;
+	}
+	if (setjmp(png_jmpbuf(png_ptr))) {
+		/* If we get here, we had a problem writing the file. */
+		printf("Error writing png file %s\n", filename);
+		return false;
+	}
+	png_init_io(png_ptr, fp);
+	png_set_IHDR(png_ptr, info_ptr, texture->width, texture->height, bit_depth, color_type,
+		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+	png_write_info(png_ptr, info_ptr);
+
+	png_byte **row_pointers = (png_byte **)alloca(texture->height * sizeof(png_byte *));
+	int row_size = texture->width * detexGetPixelSize(texture->format);
+	for (int y = 0; y < texture->height; y++)
+		row_pointers[y] = (png_byte *)(texture->data + y * row_size);
+	png_write_image(png_ptr, row_pointers);
+	png_write_end(png_ptr, info_ptr);
+	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	fclose(fp);
 	return true;
 }
 

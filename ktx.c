@@ -127,9 +127,7 @@ int *nu_levels_out) {
 		}
 		int image_size = image_size_buffer[0];
 		int n = (extended_height / block_height) * (extended_width / block_width);
-		if (/* (detexPixelSize(info->texture_format) != 3 &&
-		detexPixelSize(info->texture_format) != 6 && */
-		image_size != n * bytes_per_block) {
+		if (image_size != n * bytes_per_block) {
 			for (int j = 0; j < i; j++)
 				free(textures[j]);
 			free(textures);

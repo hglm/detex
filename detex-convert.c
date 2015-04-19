@@ -47,6 +47,7 @@ static const uint32_t supported_formats[] = {
 	DETEX_PIXEL_FORMAT_SIGNED_R16,
 	DETEX_PIXEL_FORMAT_RG16,
 	DETEX_PIXEL_FORMAT_SIGNED_RG16,
+	DETEX_PIXEL_FORMAT_RGB16,
 	DETEX_PIXEL_FORMAT_RGBA16,
 	DETEX_PIXEL_FORMAT_FLOAT_R16,
 	DETEX_PIXEL_FORMAT_FLOAT_RG16,
@@ -340,7 +341,12 @@ int main(int argc, char **argv) {
 			FatalError("Cannot write to RAW format with more than one mipmap level\n");
 		break;
 	case FILE_TYPE_PNG :
-		FatalError("PNG format not yet supported\n");
+		if (nu_levels > 1)
+			Message("Saving only first mipmap level of %d levels", nu_levels);
+		bool r = detexSavePNGFile(output_textures[0], output_file);
+		if (!r)
+			FatalError("");
+		break;
 	case FILE_TYPE_NONE :
 		FatalError("Do not recognize output file type\n");
 	}

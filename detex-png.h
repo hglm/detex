@@ -20,4 +20,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 /* The texture is allocated, free with free(). */
 bool detexLoadPNGFile(const char *filename, detexTexture **texture_out);
 
+/* Save texture to PNG file (single mip-map level). Returns true if succesful. */
+bool detexSavePNGFile(detexTexture *texture, const char *filename);
 
