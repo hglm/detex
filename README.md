@@ -5,5 +5,5 @@ It includes flexible pixel format conversion functions between a variety of form
 
 Additionally, loading of KTX and DDS texture files is supported.
 
-Included is a simple texture file viewer program.
+Included is a simple texture file viewer program as well as a command line utility to convert between texture file formats.
 
