@@ -26,6 +26,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <getopt.h>
 
 #include "detex.h"
+#include "detex-png.h"
 
 static uint32_t input_format;
 static uint32_t output_format;
@@ -237,9 +238,25 @@ int main(int argc, char **argv) {
 
 	detexTexture **input_textures;
 	int nu_levels;
-	bool r = detexLoadTextureFileWithMipmaps(input_file, 32, &input_textures, &nu_levels);
-	if (!r)
-		FatalError("%s\n", detexGetErrorMessage());
+	int input_file_type = DetermineFileType(input_file);
+	if (input_file_type == FILE_TYPE_KTX || input_file_type == FILE_TYPE_DDS) {
+		bool r = detexLoadTextureFileWithMipmaps(input_file, 32, &input_textures, &nu_levels);
+		if (!r)
+			FatalError("%s\n", detexGetErrorMessage());
+	}
+	else if (input_file_type == FILE_TYPE_PNG) {
+		detexTexture *texture;
+		bool r = detexLoadPNGFile(input_file, &texture);
+		if (!r)
+			FatalError("");
+		input_textures = (detexTexture **)malloc(sizeof(detexTexture *) * 1);
+		input_textures[0] = texture;
+		nu_levels = 1;
+	}
+	else if (input_file_type == FILE_TYPE_RAW)
+		FatalError("Cannot handle RAW type input texture file\n");
+	else
+		FatalError("Input file extension not recognized\n");
 
 	char s[80];
 	if (option_flags & OPTION_FLAG_INPUT_FORMAT) {

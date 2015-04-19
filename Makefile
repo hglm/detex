@@ -88,8 +88,8 @@ detex-validate : validate.o $(LIBRARY_OBJECT)
 detex-view : detex-view.o $(LIBRARY_OBJECT)
 	gcc detex-view.o -o detex-view $(LIBRARY_OBJECT) $(LIBRARY_LIBS) `pkg-config --libs gtk+-3.0`
 
-detex-convert : detex-convert.o $(LIBRARY_OBJECT)
-	gcc detex-convert.o -o detex-convert $(LIBRARY_OBJECT) $(LIBRARY_LIBS)
+detex-convert : detex-convert.o png.o $(LIBRARY_OBJECT)
+	gcc detex-convert.o png.o -o detex-convert $(LIBRARY_OBJECT) $(LIBRARY_LIBS) `pkg-config --libs libpng`
 
 clean :
 	rm -f $(LIBRARY_MODULE_OBJECTS)
@@ -97,6 +97,7 @@ clean :
 	rm -f validate.o
 	rm -f detex-view.o
 	rm -f detex-convert.o
+	rm -f png.o
 	rm -f $(LIBRARY_NAME).so.$(VERSION)
 	rm -f $(LIBRARY_NAME).a
 	rm -f $(LIBRARY_NAME)_dbg.a
@@ -113,6 +114,9 @@ detex-view.o : detex-view.c
 detex-convert.o : detex-convert.c
 	gcc -c $(CFLAGS_TEST) $< -o $@
 
+png.o : png.c
+	gcc -c $(CFLAGS_TEST) $< -o $@
+
 dep :
 	rm -f .depend
 	make .depend
@@ -124,7 +128,7 @@ dep :
 	echo $$x : Makefile.conf Makefile >> .depend; done
 	gcc -MM $(CFLAGS_TEST) validate.c >> .depend
 	gcc -MM $(CFLAGS_TEST) detex-view.c >> .depend
-	gcc -MM $(CFLAGS_TEST) detex-convert.c >> .depend
+	gcc -MM $(CFLAGS_TEST) detex-convert.c png.c >> .depend
 
 include .depend
 
