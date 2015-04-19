@@ -3,7 +3,7 @@ Low-level library to decompress and manipulate texture blocks compressed using f
 
 It includes flexible pixel format conversion functions between a variety of formats, including mapping HDR textures.
 
-Additionally, loading of KTX and DDS texture files is supported.
+Additionally, loading and saving of KTX and DDS texture files is supported.
 
 Included is a simple texture file viewer program as well as a command line utility to convert between texture file formats.
 

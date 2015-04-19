@@ -140,7 +140,7 @@ static void Usage() {
 		else
 			Message("    -%c, --%s\n", long_options[i].val, long_options[i].name);
 	}
-	Message("File formats supported: KTX, DDS, raw (no header)\n");
+	Message("File formats supported: KTX, DDS, raw (no header), PNG\n");
 	Message("Supported formats:\n");
 	int column = 0;
 	for (int i = 0; i < NU_SUPPORTED_FORMATS; i++) {
