@@ -12,7 +12,7 @@ Features include:
   BC1/DXT1/S3TC, BC2, BC3, BC4/RGTC1, BC5/RGTC2, BC6 (BPTC_FLOAT), BC7 (BPTC),
   ETC1 and the ETC2 family.
 - Flexible pixel format conversion functions between a variety of formats,
-  including mapping HDR textures.
+  including many uncompressed formats and mapping HDR textures.
 - Loading and saving of KTX and DDS texture files.
 
 Included is a simple texture file viewer program (detex-view) as well as a
