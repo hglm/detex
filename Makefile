@@ -53,7 +53,7 @@ default : library
 
 library : $(LIBRARY_OBJECT)
 
-test : $(TEST_PROGRAMS)
+programs : $(TEST_PROGRAMS)
 
 $(LIBRARY_NAME).so.$(VERSION) : $(LIBRARY_MODULE_OBJECTS) $(LIBRARY_HEADER_FILES)
 	g++ -shared -Wl,-soname,$(LIBRARY_NAME).so.$(SO_VERSION) -fPIC -o $(LIBRARY_OBJECT) \
@@ -81,6 +81,10 @@ install_shared : $(LIBRARY_OBJECT)
 
 install_static : $(LIBRARY_OBJECT)
 	install -m 0644 $(LIBRARY_OBJECT) $(STATIC_LIB_DIR)/$(LIBRARY_OBJECT)
+
+install-programs : detex-view detex-convert
+	install -m 0755 detex-view $(PROGRAM_INSTALL_DIR)/detex-view
+	install -m 0755 detex-convert $(PROGRAM_INSTALL_DIR)/detex-convert
 
 detex-validate : validate.o $(LIBRARY_OBJECT)
 	gcc validate.o -o detex-validate $(LIBRARY_OBJECT) $(LIBRARY_LIBS) `pkg-config --libs gtk+-3.0`
