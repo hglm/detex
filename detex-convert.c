@@ -240,6 +240,7 @@ int main(int argc, char **argv) {
 	detexTexture **input_textures;
 	int nu_levels;
 	int input_file_type = DetermineFileType(input_file);
+	output_file_type = DetermineFileType(output_file);
 	if (input_file_type == FILE_TYPE_KTX || input_file_type == FILE_TYPE_DDS) {
 		bool r = detexLoadTextureFileWithMipmaps(input_file, 32, &input_textures, &nu_levels);
 		if (!r)
@@ -271,7 +272,9 @@ int main(int argc, char **argv) {
 	if (option_flags & OPTION_FLAG_OUTPUT_FORMAT) {
 		sprintf(s, "%s (specified)", detexGetTextureFormatText(output_format));
 	}
-	else if (option_flags & OPTION_FLAG_DECOMPRESS) {
+	else if ((option_flags & OPTION_FLAG_DECOMPRESS)
+	|| (detexFormatIsCompressed(input_textures[0]->format) &&
+	output_file_type == FILE_TYPE_PNG)) {
 		if (!detexFormatIsCompressed(input_textures[0]->format))
 			FatalError("Cannot decompress uncompressed texture\n");
 		output_format = detexGetPixelFormat(input_textures[0]->format);
@@ -317,7 +320,6 @@ int main(int argc, char **argv) {
 //		FatalError("Conversion not yet implemented.\n");
 	}
 
-	output_file_type = DetermineFileType(output_file);
 	switch (output_file_type) {
 	case FILE_TYPE_KTX : {
 		bool r = detexSaveKTXFileWithMipmaps(output_textures, nu_levels, output_file);
