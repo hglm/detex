@@ -557,7 +557,10 @@ DETEX_API uint32_t detexGetModeBPTC_SIGNED_FLOAT(const uint8_t *bitstring);
 
 DETEX_API void detexSetModeETC1(uint8_t *bitstring, uint32_t mode, uint32_t flags,
 	uint32_t *colors);
-
+DETEX_API void detexSetModeETC2(uint8_t *bitstring, uint32_t mode, uint32_t flags,
+	uint32_t *colors);
+DETEX_API void detexSetModeETC2_PUNCHTHROUGH(uint8_t *bitstring, uint32_t mode, uint32_t flags,
+	uint32_t *colors);
 
 /* Compressed texture format definitions for general texture decompression */
 /* functions. */
