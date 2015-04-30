@@ -62,7 +62,7 @@ $(LIBRARY_MODULE_OBJECTS) $(LIBRARY_LIBS)
 
 $(LIBRARY_NAME).a : $(LIBRARY_MODULE_OBJECTS) $(LIBRARY_HEADER_FILES)
 	ar r $(LIBRARY_OBJECT) $(LIBRARY_MODULE_OBJECTS)
-	@echo 'Run (sudo) make install to install, or make test to build the test programs.'
+	@echo 'Run (sudo) make install to install, or make programs to build the test programs.'
 
 $(LIBRARY_NAME)_dbg.a : $(LIBRARY_MODULE_OBJECTS) $(LIBRARY_HEADER_FILES)
 	ar r $(LIBRARY_OBJECT) $(LIBRARY_MODULE_OBJECTS)
