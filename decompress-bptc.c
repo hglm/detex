@@ -602,3 +602,15 @@ uint32_t detexGetModeBPTC(const uint8_t *bitstring) {
 	return mode;
 }
 
+void detexSetModeBPTC(uint8_t *bitstring, uint32_t mode, uint32_t flags,
+uint32_t *colors) {
+	// Mode 0 starts with 1
+	// Mode 1 starts with 01
+	// ...
+	// Mode 7 starts with 00000001
+	int bit = 0x1 << mode;
+	bitstring[0] &= ~(bit - 1);
+	bitstring[0] |= bit;
+	return;
+}
+

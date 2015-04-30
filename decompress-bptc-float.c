@@ -657,3 +657,20 @@ uint32_t detexGetModeBPTC_SIGNED_FLOAT(const uint8_t *bitstring) {
 	return detexGetModeBPTC_FLOAT(bitstring);
 }
 
+static const uint8_t bptc_float_set_mode_table[14] = {
+	0, 1, 2, 6, 10, 14, 18, 22, 26, 30, 3, 7, 11, 15
+};
+
+void detexSetModeBPTC_FLOAT(uint8_t *bitstring, uint32_t mode, uint32_t flags,
+uint32_t *colors) {
+	if (mode <= 1) {
+		// Set mode 0 or 1.
+		bitstring[0] = (bitstring[0] & 0xFC) | mode;
+		return;
+	}
+	uint8_t byte0 = bitstring[0];
+	byte0 &= 0xE0;
+	byte0 |= bptc_float_set_mode_table[mode];
+	bitstring[0] = byte0;
+}
+
