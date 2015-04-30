@@ -17,6 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include "detex.h"
+#include "division-tables.h"
 
 // For each pixel, decode an 8-bit integer and store as follows:
 // If shift and offset are zero, store each value in consecutive 8 bit values in pixel_buffer.
@@ -36,21 +37,21 @@ int offset, uint8_t * DETEX_RESTRICT pixel_buffer) {
 			switch (control_code) {
 			case 0 : output = lum0; break;
 			case 1 : output = lum1; break;
-			case 2 : output = (6 * lum0 + lum1) / 7; break;
-			case 3 : output = (5 * lum0 + 2 * lum1) / 7; break;
-			case 4 : output = (4 * lum0 + 3 * lum1) / 7; break;
-			case 5 : output = (3 * lum0 + 4 * lum1) / 7; break;
-			case 6 : output = (2 * lum0 + 5 * lum1) / 7; break;
-			case 7 : output = (lum0 + 6 * lum1) / 7; break;
+			case 2 : output = detexDivide0To1791By7(6 * lum0 + lum1); break;
+			case 3 : output = detexDivide0To1791By7(5 * lum0 + 2 * lum1); break;
+			case 4 : output = detexDivide0To1791By7(4 * lum0 + 3 * lum1); break;
+			case 5 : output = detexDivide0To1791By7(3 * lum0 + 4 * lum1); break;
+			case 6 : output = detexDivide0To1791By7(2 * lum0 + 5 * lum1); break;
+			case 7 : output = detexDivide0To1791By7(lum0 + 6 * lum1); break;
 			}
 		else
 			switch (control_code) {
 			case 0 : output = lum0; break;
 			case 1 : output = lum1; break;
-			case 2 : output = (4 * lum0 + lum1) / 5; break;
-			case 3 : output = (3 * lum0 + 2 * lum1) / 5; break;
-			case 4 : output = (2 * lum0 + 3 * lum1) / 5; break;
-			case 5 : output = (lum0 + 4 * lum1) / 5; break;
+			case 2 : output = detexDivide0To1279By5(4 * lum0 + lum1); break;
+			case 3 : output = detexDivide0To1279By5(3 * lum0 + 2 * lum1); break;
+			case 4 : output = detexDivide0To1279By5(2 * lum0 + 3 * lum1); break;
+			case 5 : output = detexDivide0To1279By5(lum0 + 4 * lum1); break;
 			case 6 : output = 0; break;
 			case 7 : output = 0xFF; break;
 			}
@@ -103,21 +104,21 @@ int offset, uint8_t * DETEX_RESTRICT pixel_buffer) {
 			switch (control_code) {
 			case 0 : result = lum0; break;
 			case 1 : result = lum1; break;
-			case 2 : result = (6 * lum0 + lum1) / 7; break;
-			case 3 : result = (5 * lum0 + 2 * lum1) / 7; break;
-			case 4 : result = (4 * lum0 + 3 * lum1) / 7; break;
-			case 5 : result = (3 * lum0 + 4 * lum1) / 7; break;
-			case 6 : result = (2 * lum0 + 5 * lum1) / 7; break;
-			case 7 : result = (lum0 + 6 * lum1) / 7; break;
+			case 2 : result = detexDivideMinus895To895By7(6 * lum0 + lum1); break;
+			case 3 : result = detexDivideMinus895To895By7(5 * lum0 + 2 * lum1); break;
+			case 4 : result = detexDivideMinus895To895By7(4 * lum0 + 3 * lum1); break;
+			case 5 : result = detexDivideMinus895To895By7(3 * lum0 + 4 * lum1); break;
+			case 6 : result = detexDivideMinus895To895By7(2 * lum0 + 5 * lum1); break;
+			case 7 : result = detexDivideMinus895To895By7(lum0 + 6 * lum1); break;
 			}
 		else
 			switch (control_code) {
 			case 0 : result = lum0; break;
 			case 1 : result = lum1; break;
-			case 2 : result = (4 * lum0 + lum1) / 5; break;
-			case 3 : result = (3 * lum0 + 2 * lum1) / 5; break;
-			case 4 : result = (2 * lum0 + 3 * lum1) / 5; break;
-			case 5 : result = (lum0 + 4 * lum1) / 5; break;
+			case 2 : result = detexDivideMinus639To639By5(4 * lum0 + lum1); break;
+			case 3 : result = detexDivideMinus639To639By5(3 * lum0 + 2 * lum1); break;
+			case 4 : result = detexDivideMinus639To639By5(2 * lum0 + 3 * lum1); break;
+			case 5 : result = detexDivideMinus639To639By5(lum0 + 4 * lum1); break;
 			case 6 : result = - 127; break;
 			case 7 : result = 127; break;
 			}

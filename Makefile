@@ -44,8 +44,8 @@ CFLAGS_TEST += -DDETEX_VERSION=\"v$(VERSION)\"
 LIBRARY_LIBS = -lm
 
 LIBRARY_MODULE_OBJECTS = bptc-tables.o bits.o clamp.o convert.o dds.o decompress-bc.o decompress-bptc.o \
-	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o file-info.o \
-	half-float.o hdr.o ktx.o misc.o raw.o texture.o
+	decompress-bptc-float.o decompress-etc.o decompress-eac.o decompress-rgtc.o division-tables.o \
+	file-info.o half-float.o hdr.o ktx.o misc.o raw.o texture.o
 LIBRARY_HEADER_FILES = detex.h
 TEST_PROGRAMS = detex-validate detex-view detex-convert
 

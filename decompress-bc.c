@@ -17,6 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include "detex.h"
+#include "division-tables.h"
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC1 */
 /* format. */
@@ -38,12 +39,12 @@ uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	color_g[1] = (colors & 0x07E00000) >> (21 - 2);
 	color_r[1] = (colors & 0xF8000000) >> (27 - 3);
 	if ((colors & 0xFFFF) > ((colors & 0xFFFF0000) >> 16)) {
-		color_r[2] = (2 * color_r[0] + color_r[1]) / 3;
-		color_g[2] = (2 * color_g[0] + color_g[1]) / 3;
-		color_b[2] = (2 * color_b[0] + color_b[1]) / 3;
-		color_r[3] = (color_r[0] + 2 * color_r[1]) / 3;
-		color_g[3] = (color_g[0] + 2 * color_g[1]) / 3;
-		color_b[3] = (color_b[0] + 2 * color_b[1]) / 3;
+		color_r[2] = detexDivide0To767By3(2 * color_r[0] + color_r[1]);
+		color_g[2] = detexDivide0To767By3(2 * color_g[0] + color_g[1]);
+		color_b[2] = detexDivide0To767By3(2 * color_b[0] + color_b[1]);
+		color_r[3] = detexDivide0To767By3(color_r[0] + 2 * color_r[1]);
+		color_g[3] = detexDivide0To767By3(color_g[0] + 2 * color_g[1]);
+		color_b[3] = detexDivide0To767By3(color_b[0] + 2 * color_b[1]);
 	}
 	else {
 		color_r[2] = (color_r[0] + color_r[1]) / 2;
@@ -86,12 +87,12 @@ uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	color_r[1] = (colors & 0xF8000000) >> (27 - 3);
 	color_a[0] = color_a[1] = color_a[2] = color_a[3] = 0xFF;
 	if (opaque) {
-		color_r[2] = (2 * color_r[0] + color_r[1]) / 3;
-		color_g[2] = (2 * color_g[0] + color_g[1]) / 3;
-		color_b[2] = (2 * color_b[0] + color_b[1]) / 3;
-		color_r[3] = (color_r[0] + 2 * color_r[1]) / 3;
-		color_g[3] = (color_g[0] + 2 * color_g[1]) / 3;
-		color_b[3] = (color_b[0] + 2 * color_b[1]) / 3;
+		color_r[2] = detexDivide0To767By3(2 * color_r[0] + color_r[1]);
+		color_g[2] = detexDivide0To767By3(2 * color_g[0] + color_g[1]);
+		color_b[2] = detexDivide0To767By3(2 * color_b[0] + color_b[1]);
+		color_r[3] = detexDivide0To767By3(color_r[0] + 2 * color_r[1]);
+		color_g[3] = detexDivide0To767By3(color_g[0] + 2 * color_g[1]);
+		color_b[3] = detexDivide0To767By3(color_b[0] + 2 * color_b[1]);
 	}
 	else {
 		color_r[2] = (color_r[0] + color_r[1]) / 2;
@@ -131,12 +132,12 @@ uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	color_b[1] = (colors & 0x001F0000) >> (16 - 3);
 	color_g[1] = (colors & 0x07E00000) >> (21 - 2);
 	color_r[1] = (colors & 0xF8000000) >> (27 - 3);
-	color_r[2] = (2 * color_r[0] + color_r[1]) / 3;
-	color_g[2] = (2 * color_g[0] + color_g[1]) / 3;
-	color_b[2] = (2 * color_b[0] + color_b[1]) / 3;
-	color_r[3] = (color_r[0] + 2 * color_r[1]) / 3;
-	color_g[3] = (color_g[0] + 2 * color_g[1]) / 3;
-	color_b[3] = (color_b[0] + 2 * color_b[1]) / 3;
+	color_r[2] = detexDivide0To767By3(2 * color_r[0] + color_r[1]);
+	color_g[2] = detexDivide0To767By3(2 * color_g[0] + color_g[1]);
+	color_b[2] = detexDivide0To767By3(2 * color_b[0] + color_b[1]);
+	color_r[3] = detexDivide0To767By3(color_r[0] + 2 * color_r[1]);
+	color_g[3] = detexDivide0To767By3(color_g[0] + 2 * color_g[1]);
+	color_b[3] = detexDivide0To767By3(color_b[0] + 2 * color_b[1]);
 	uint32_t pixels = *(uint32_t *)&bitstring[12];
 	uint64_t alpha_pixels = *(uint64_t *)&bitstring[0];
 	for (int i = 0; i < 16; i++) {
@@ -168,18 +169,19 @@ uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 		// GeForce 6 and 7 series produce wrong result in this case.
 		return false;
 	int color_r[4], color_g[4], color_b[4];
+	// color_x[] has a value between 0 and 248 with the lower three bits zero.
 	color_b[0] = (colors & 0x0000001F) << 3;
 	color_g[0] = (colors & 0x000007E0) >> (5 - 2);
 	color_r[0] = (colors & 0x0000F800) >> (11 - 3);
 	color_b[1] = (colors & 0x001F0000) >> (16 - 3);
 	color_g[1] = (colors & 0x07E00000) >> (21 - 2);
 	color_r[1] = (colors & 0xF8000000) >> (27 - 3);
-	color_r[2] = (2 * color_r[0] + color_r[1]) / 3;
-	color_g[2] = (2 * color_g[0] + color_g[1]) / 3;
-	color_b[2] = (2 * color_b[0] + color_b[1]) / 3;
-	color_r[3] = (color_r[0] + 2 * color_r[1]) / 3;
-	color_g[3] = (color_g[0] + 2 * color_g[1]) / 3;
-	color_b[3] = (color_b[0] + 2 * color_b[1]) / 3;
+	color_r[2] = detexDivide0To767By3(2 * color_r[0] + color_r[1]);
+	color_g[2] = detexDivide0To767By3(2 * color_g[0] + color_g[1]);
+	color_b[2] = detexDivide0To767By3(2 * color_b[0] + color_b[1]);
+	color_r[3] = detexDivide0To767By3(color_r[0] + 2 * color_r[1]);
+	color_g[3] = detexDivide0To767By3(color_g[0] + 2 * color_g[1]);
+	color_b[3] = detexDivide0To767By3(color_b[0] + 2 * color_b[1]);
 	uint32_t pixels = *(uint32_t *)&bitstring[12];
 	uint64_t alpha_bits = (uint32_t)bitstring[2] |
 		((uint32_t)bitstring[3] << 8) |
@@ -192,21 +194,21 @@ uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 			switch (code) {
 			case 0 : alpha = alpha0; break;
 			case 1 : alpha = alpha1; break;
-			case 2 : alpha = (6 * alpha0 + 1 * alpha1) / 7; break;
-			case 3 : alpha = (5 * alpha0 + 2 * alpha1) / 7; break;
-			case 4 : alpha = (4 * alpha0 + 3 * alpha1) / 7; break;
-			case 5 : alpha = (3 * alpha0 + 4 * alpha1) / 7; break;
-			case 6 : alpha = (2 * alpha0 + 5 * alpha1) / 7; break;
-			case 7 : alpha = (1 * alpha0 + 2 * alpha1) / 7; break;
+			case 2 : alpha = detexDivide0To1791By7(6 * alpha0 + 1 * alpha1); break;
+			case 3 : alpha = detexDivide0To1791By7(5 * alpha0 + 2 * alpha1); break;
+			case 4 : alpha = detexDivide0To1791By7(4 * alpha0 + 3 * alpha1); break;
+			case 5 : alpha = detexDivide0To1791By7(3 * alpha0 + 4 * alpha1); break;
+			case 6 : alpha = detexDivide0To1791By7(2 * alpha0 + 5 * alpha1); break;
+			case 7 : alpha = detexDivide0To1791By7(1 * alpha0 + 2 * alpha1); break;
 			}
 		else
 			switch (code) {
 			case 0 : alpha = alpha0; break;
 			case 1 : alpha = alpha1; break;
-			case 2 : alpha = (4 * alpha0 + 1 * alpha1) / 5; break;
-			case 3 : alpha = (3 * alpha0 + 2 * alpha1) / 5; break;
-			case 4 : alpha = (2 * alpha0 + 3 * alpha1) / 5; break;
-			case 5 : alpha = (1 * alpha0 + 4 * alpha1) / 5; break;
+			case 2 : alpha = detexDivide0To1279By5(4 * alpha0 + 1 * alpha1); break;
+			case 3 : alpha = detexDivide0To1279By5(3 * alpha0 + 2 * alpha1); break;
+			case 4 : alpha = detexDivide0To1279By5(2 * alpha0 + 3 * alpha1); break;
+			case 5 : alpha = detexDivide0To1279By5(1 * alpha0 + 4 * alpha1); break;
 			case 6 : alpha = 0; break;
 			case 7 : alpha = 0xFF; break;
 			}
