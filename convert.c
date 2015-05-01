@@ -1008,13 +1008,18 @@ static void FreeTemporaryPixelBuffers(TempPixelBufferInfo *info) {
 // Convert pixels between different formats. Return true if successful.
 // If target_pixel_format is NULL, the conversion will be attempted in-place, without
 // allocating any temporary buffer.
-// In its current form, it may modify the source buffer.
 
 bool detexConvertPixels(uint8_t * DETEX_RESTRICT source_pixel_buffer, uint32_t nu_pixels,
 uint32_t source_pixel_format, uint8_t * DETEX_RESTRICT target_pixel_buffer,
 uint32_t target_pixel_format) {
 //	printf("Converting between %s and %s (0x%08X and 0x%08X).\n", detexGetTextureFormatText(source_pixel_format),
 //		detexGetTextureFormatText(target_pixel_format), source_pixel_format, target_pixel_format);
+	if (source_pixel_format == target_pixel_format) {
+		if (target_pixel_buffer != NULL)
+			memcpy(target_pixel_buffer, source_pixel_buffer, nu_pixels *
+				detexGetPixelSize(source_pixel_format));
+		return true;
+	}
 	uint32_t conversion[4];
 	int nu_conversions = detexMatchConversion(source_pixel_format, target_pixel_format, conversion);
 	if (nu_conversions < 0) {
