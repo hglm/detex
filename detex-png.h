@@ -16,10 +16,18 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Load texture from PNG file (first mip-map only). Returns true if successful. */
 /* The texture is allocated, free with free(). */
 bool detexLoadPNGFile(const char *filename, detexTexture **texture_out);
 
 /* Save texture to PNG file (single mip-map level). Returns true if succesful. */
 bool detexSavePNGFile(detexTexture *texture, const char *filename);
+
+#ifdef __cplusplus
+}
+#endif
 

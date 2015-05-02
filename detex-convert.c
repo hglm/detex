@@ -342,13 +342,14 @@ int main(int argc, char **argv) {
 		else
 			FatalError("Cannot write to RAW format with more than one mipmap level\n");
 		break;
-	case FILE_TYPE_PNG :
+	case FILE_TYPE_PNG : {
 		if (nu_levels > 1)
 			Message("Saving only first mipmap level of %d levels", nu_levels);
 		bool r = detexSavePNGFile(output_textures[0], output_file);
 		if (!r)
 			FatalError("");
 		break;
+		}
 	case FILE_TYPE_NONE :
 		FatalError("Do not recognize output file type\n");
 	}
