@@ -194,7 +194,8 @@ bool detexSaveDDSFileWithMipmaps(detexTexture **textures, int nu_levels, const c
 	uint8_t dx10_header[20];
 	memset(header, 0, 124);
 	memset(dx10_header, 0, 20);
-	*(uint32_t *)(header + 0) = 124;
+	uint32_t *header32 = (uint32_t *)header;
+	*(uint32_t *)header32 = 124;
 	uint32_t flags = 0x1007;
 	if (nu_levels > 1)
 		flags |= 0x20000;
@@ -212,7 +213,8 @@ bool detexSaveDDSFileWithMipmaps(detexTexture **textures, int nu_levels, const c
 	bool write_dx10_header = false;
 	if (strncmp(info->dx_four_cc, "DX10", 4) == 0) {
 		write_dx10_header = true;
-		*(uint32_t *)((uint8_t *)dx10_header) = info->dx10_format;
+		uint32_t *dx10_header32 = (uint32_t *)dx10_header;
+		*(uint32_t *)dx10_header32 = info->dx10_format;
 		*(uint32_t *)(dx10_header + 4) = 3;	// Resource dimensions = 2D.
 		*(uint32_t *)(dx10_header + 12) = 1;	// Array size.
 	}
