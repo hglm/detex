@@ -536,6 +536,7 @@ DETEX_API bool detexDecompressBlockBPTC_SIGNED_FLOAT(const uint8_t *bitstring,
  * there is no GetMode function.
  */
 
+DETEX_API uint32_t detexGetModeBC1(const uint8_t *bitstring);
 DETEX_API uint32_t detexGetModeETC1(const uint8_t *bitstring);
 DETEX_API uint32_t detexGetModeETC2(const uint8_t *bitstring);
 DETEX_API uint32_t detexGetModeETC2_PUNCHTHROUGH(const uint8_t *bitstring);
@@ -552,6 +553,8 @@ DETEX_API uint32_t detexGetModeBPTC_SIGNED_FLOAT(const uint8_t *bitstring);
  * that do not use a mode, there is no SetMode function.
  */
 
+DETEX_API void detexSetModeBC1(uint8_t *bitstring, uint32_t mode, uint32_t flags,
+	uint32_t *colors);
 DETEX_API void detexSetModeETC1(uint8_t *bitstring, uint32_t mode, uint32_t flags,
 	uint32_t *colors);
 DETEX_API void detexSetModeETC2(uint8_t *bitstring, uint32_t mode, uint32_t flags,

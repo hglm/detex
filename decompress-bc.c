@@ -61,6 +61,28 @@ uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 	return true;
 }
 
+uint32_t detexGetModeBC1(const uint8_t *bitstring) {
+	uint32_t colors = *(uint32_t *)bitstring;
+	if ((colors & 0xFFFF) > ((colors & 0xFFFF0000) >> 16))
+		return 0;
+	else
+		return 1;
+}
+
+void detexSetModeBC1(uint8_t *bitstring, uint32_t mode, uint32_t flags,
+uint32_t *colors) {
+	uint32_t colorbits = *(uint32_t *)bitstring;
+	uint32_t current_mode;
+	if ((colorbits & 0xFFFF) > ((colorbits & 0xFFFF0000) >> 16))
+		current_mode = 0;
+	else
+		current_mode = 1;
+	if (current_mode != mode) {
+		colorbits = ((colorbits & 0xFFFF) << 16) | (colorbits >> 16);
+		*(uint32_t *)bitstring = colorbits;
+	}
+}
+
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC1A */
 /* format. */
 bool detexDecompressBlockBC1A(const uint8_t * DETEX_RESTRICT bitstring, uint32_t mode_mask,
