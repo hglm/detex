@@ -68,6 +68,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 __BEGIN_DECLS
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -944,6 +945,40 @@ static DETEX_INLINE_ONLY float detexClamp0To1(float f) {
 		return 1.0f;
 	else
 		return f;
+}
+
+
+/* Integer division using look-up tables, used by BC1/2/3 and RGTC (BC4/5) */
+/* decompression. */
+
+DETEX_API extern const uint8_t detex_division_by_3_table[768];
+
+static DETEX_INLINE_ONLY uint32_t detexDivide0To767By3(uint32_t value) {
+	return detex_division_by_3_table[value];
+}
+
+DETEX_API extern const uint8_t detex_division_by_7_table[1792];
+
+static DETEX_INLINE_ONLY uint32_t detexDivide0To1791By7(uint32_t value) {
+	return detex_division_by_7_table[value];
+}
+
+static DETEX_INLINE_ONLY int8_t detexSignInt32(int v) {
+	return (int8_t)((v >> 31) | - (- v >> 31));
+}
+
+static DETEX_INLINE_ONLY int detexDivideMinus895To895By7(int value) {
+	return (int8_t)detex_division_by_7_table[abs(value)] * detexSignInt32(value);
+}
+
+DETEX_API extern const uint8_t detex_division_by_5_table[1280];
+
+static DETEX_INLINE_ONLY uint32_t detexDivide0To1279By5(uint32_t value) {
+	return detex_division_by_5_table[value];
+}
+
+static DETEX_INLINE_ONLY int detexDivideMinus639To639By5(int value) {
+	return (int8_t)detex_division_by_5_table[abs(value)] * detexSignInt32(value);
 }
 
 
