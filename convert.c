@@ -460,7 +460,7 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 		if (i + 64 > nu_pixels)
 			nu_stage_pixels = nu_pixels - i;
 		for (int j = 0; j < nu_stage_pixels; j++) {
-			int16_t red = *source_pixel16_buffer;
+			int red = *source_pixel16_buffer;
 			float redf = red * (1.0f / 65535.0f);
 			*target_pixelf_buffer = redf;
 			source_pixel16_buffer++;
@@ -483,8 +483,8 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 		if (i + 64 > nu_pixels)
 			nu_stage_pixels = nu_pixels - i;
 		for (int j = 0; j < nu_stage_pixels; j++) {
-			int16_t red = source_pixel16_buffer[0];
-			int16_t green = source_pixel16_buffer[1];
+			int red = source_pixel16_buffer[0];
+			int green = source_pixel16_buffer[1];
 			float redf = red * (1.0f / 65535.0f);
 			float greenf = green * (1.0f / 65535.0f);
 			target_pixelf_buffer[0] = redf;
@@ -495,6 +495,35 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 		ConvertPixel64FloatRG32ToPixel32FloatRG16((uint8_t *)float_buffer,
 			nu_stage_pixels, source_pixel_buffer);
 		source_pixel_buffer += nu_stage_pixels * 4;
+	}
+}
+
+static void ConvertPixel48RGB16ToPixel48FloatRGB16(uint8_t * DETEX_RESTRICT source_pixel_buffer,
+int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
+	float float_buffer[192];
+	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
+	// Split conversion into stages.
+	for (int i = 0; i < nu_pixels; i += 64) {
+		float *target_pixelf_buffer = (float *)float_buffer;
+		int nu_stage_pixels = 64;
+		if (i + 64 > nu_pixels)
+			nu_stage_pixels = nu_pixels - i;
+		for (int j = 0; j < nu_stage_pixels; j++) {
+			int red = source_pixel16_buffer[0];
+			int green = source_pixel16_buffer[1];
+			int blue = source_pixel16_buffer[2];
+			float redf = red * (1.0f / 65535.0f);
+			float greenf = green * (1.0f / 65535.0f);
+			float bluef = blue * (1.0f / 65535.0f);
+			target_pixelf_buffer[0] = redf;
+			target_pixelf_buffer[1] = greenf;
+			target_pixelf_buffer[2] = bluef;
+			source_pixel16_buffer += 3;
+			target_pixelf_buffer += 3;
+		}
+		ConvertPixel96FloatRGB32ToPixel48FloatRGB16((uint8_t *)float_buffer,
+			nu_stage_pixels, source_pixel_buffer);
+		source_pixel_buffer += nu_stage_pixels * 6;
 	}
 }
 
@@ -758,6 +787,7 @@ detexConversionType detex_conversion_table[] = {
 	// 32
 	{ DETEX_PIXEL_FORMAT_R16, DETEX_PIXEL_FORMAT_FLOAT_R16, ConvertPixel16R16ToPixel16FloatR16 },
 	{ DETEX_PIXEL_FORMAT_RG16, DETEX_PIXEL_FORMAT_FLOAT_RG16, ConvertPixel32RG16ToPixel32FloatRG16 },
+	{ DETEX_PIXEL_FORMAT_RGB16, DETEX_PIXEL_FORMAT_FLOAT_RGB16, ConvertPixel48RGB16ToPixel48FloatRGB16 },
 	{ DETEX_PIXEL_FORMAT_RGBX16, DETEX_PIXEL_FORMAT_FLOAT_RGBX16, ConvertPixel64RGBX16ToPixel64FloatRGBX16 },
 	// Half-float to integer conversion (in-place). Note: Integer format has higher precision.
 	{ DETEX_PIXEL_FORMAT_FLOAT_R16, DETEX_PIXEL_FORMAT_R16, ConvertPixel16FloatR16ToPixel16R16 },
@@ -770,7 +800,7 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG16_HDR, DETEX_PIXEL_FORMAT_RG16, ConvertPixel32FloatRG16HDRToPixel32RG16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16_HDR, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel64FloatRGBX16HDRToPixel64RGBX16 },
 	// Float to half-float conversion.
-	// 43
+	// 44
 	{ DETEX_PIXEL_FORMAT_FLOAT_R32, DETEX_PIXEL_FORMAT_FLOAT_R16, ConvertPixel32FloatR32ToPixel16FloatR16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG32, DETEX_PIXEL_FORMAT_FLOAT_RG16, ConvertPixel64FloatRG32ToPixel32FloatRG16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32, DETEX_PIXEL_FORMAT_FLOAT_RGB16, ConvertPixel96FloatRGB32ToPixel48FloatRGB16 },
@@ -792,7 +822,7 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32_HDR, DETEX_PIXEL_FORMAT_FLOAT_RGBX32,
 		ConvertPixel128FloatRGBX32HDRToPixel128FloatRGBX32 },
 	// Conversion between packed RGB8 and RGBX8.
-	// 59
+	// 60
 	{ DETEX_PIXEL_FORMAT_RGB8, DETEX_PIXEL_FORMAT_RGBX8, ConvertPixel24RGB8ToPixel32RGBX8 },
 	{ DETEX_PIXEL_FORMAT_RGBX8, DETEX_PIXEL_FORMAT_RGB8, ConvertPixel32RGBX8ToPixel24RGB8 },
 	// Conversion between packed half-float RGB16 and half-float RGBX16.
