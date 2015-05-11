@@ -808,7 +808,7 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_RGBX8, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel32RGBX8ToPixel64RGBX16 },
 	{ DETEX_PIXEL_FORMAT_RGBA8, DETEX_PIXEL_FORMAT_RGBA16, ConvertPixel32RGBA8ToPixel64RGBA16 },
 	// Integer to half-float conversion (in-place).
-	// 34
+	// 35
 	{ DETEX_PIXEL_FORMAT_R16, DETEX_PIXEL_FORMAT_FLOAT_R16, ConvertPixel16R16ToPixel16FloatR16 },
 	{ DETEX_PIXEL_FORMAT_RG16, DETEX_PIXEL_FORMAT_FLOAT_RG16, ConvertPixel32RG16ToPixel32FloatRG16 },
 	{ DETEX_PIXEL_FORMAT_RGB16, DETEX_PIXEL_FORMAT_FLOAT_RGB16, ConvertPixel48RGB16ToPixel48FloatRGB16 },
@@ -824,7 +824,7 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG16_HDR, DETEX_PIXEL_FORMAT_RG16, ConvertPixel32FloatRG16HDRToPixel32RG16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX16_HDR, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel64FloatRGBX16HDRToPixel64RGBX16 },
 	// Float to half-float conversion.
-	// 46
+	// 47
 	{ DETEX_PIXEL_FORMAT_FLOAT_R32, DETEX_PIXEL_FORMAT_FLOAT_R16, ConvertPixel32FloatR32ToPixel16FloatR16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG32, DETEX_PIXEL_FORMAT_FLOAT_RG16, ConvertPixel64FloatRG32ToPixel32FloatRG16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32, DETEX_PIXEL_FORMAT_FLOAT_RGB16, ConvertPixel96FloatRGB32ToPixel48FloatRGB16 },
@@ -835,6 +835,7 @@ detexConversionType detex_conversion_table[] = {
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB32, DETEX_PIXEL_FORMAT_RGB16, ConvertPixel96FloatRGB32ToPixel48RGB16 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGBX32, DETEX_PIXEL_FORMAT_RGBX16, ConvertPixel128FloatRGBX32ToPixel64RGBX16 },
 	// Half-float to float conversion.
+	// 55
 	{ DETEX_PIXEL_FORMAT_FLOAT_R16, DETEX_PIXEL_FORMAT_FLOAT_R32, ConvertPixel16FloatR16ToPixel32FloatR32 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RG16, DETEX_PIXEL_FORMAT_FLOAT_RG32, ConvertPixel32FloatRG16ToPixel64FloatRG32 },
 	{ DETEX_PIXEL_FORMAT_FLOAT_RGB16, DETEX_PIXEL_FORMAT_FLOAT_RGB32, ConvertPixel48FloatRGB16ToPixel96FloatRGB32 },
@@ -863,6 +864,8 @@ detexConversionType detex_conversion_table[] = {
 
 #define NU_CONVERSION_TYPES (sizeof(detex_conversion_table) / sizeof(detex_conversion_table[0]))
 
+// #define TRACE_MATCH_CONVERSION
+
 static __thread uint32_t cached_source_format = -1;
 static __thread uint32_t cached_target_format = -1;
 static __thread int cached_nu_conversions = - 1;
@@ -886,8 +889,10 @@ uint32_t *conversion) {
 	// Immediately return if the formats are identical.
 	if (source_pixel_format == target_pixel_format)
 		return 0;
-//	printf("Matching conversion between %s and %s.\n", detexGetTextureFormatText(source_pixel_format),
-//		detexGetTextureFormatText(target_pixel_format));
+#ifdef TRACE_MATCH_CONVERSION
+	printf("Matching conversion between %s and %s.\n", detexGetTextureFormatText(source_pixel_format),
+		detexGetTextureFormatText(target_pixel_format));
+#endif
 	// Check whether the conversion has been cached.
 	if (source_pixel_format == cached_source_format && target_pixel_format == cached_target_format) {
 		for (int i = 0; i < cached_nu_conversions; i++)
@@ -945,7 +950,9 @@ uint32_t *conversion) {
 			min_precision)
 				continue;
 			conversion[0] = i;
-//			printf("Trying conversion ( %d ? ? )\n", conversion[0]);
+#ifdef TRACE_MATCH_CONVERSION
+			printf("Trying conversion ( %d ? ? )\n", conversion[0]);
+#endif
 			// Match the third conversion with the target format.
 			for (int j = 0; j < NU_CONVERSION_TYPES; j++)
 				if (detex_conversion_table[j].target_format == target_pixel_format) {
@@ -958,7 +965,9 @@ uint32_t *conversion) {
 					min_precision)
 						continue;
 					conversion[2] = j;
-//					printf("Trying conversion ( %d ? %d )\n", conversion[0], conversion[2]);
+#ifdef TRACE_MATCH_CONVERSION
+					printf("Trying conversion ( %d ? %d )\n", conversion[0], conversion[2]);
+#endif
 					for (int k = 0; k < NU_CONVERSION_TYPES; k++)
 						if (detex_conversion_table[k].target_format ==
 						detex_conversion_table[j].source_format &&
@@ -984,7 +993,9 @@ uint32_t *conversion) {
 			min_precision)
 				continue;
 			conversion[0] = i;
-//			printf("Trying conversion ( %d ? ? ? )\n", conversion[0]);
+#ifdef TRACE_MATCH_CONVERSION
+			printf("Trying conversion ( %d ? ? ? )\n", conversion[0]);
+#endif
 			// Match the fourth conversion with the target format.
 			for (int j = 0; j < NU_CONVERSION_TYPES; j++)
 				if (detex_conversion_table[j].target_format == target_pixel_format) {
@@ -997,7 +1008,9 @@ uint32_t *conversion) {
 					min_precision)
 						continue;
 					conversion[3] = j;
-//					printf("Trying conversion ( %d ? ? %d )\n", conversion[0], conversion[3]);
+#ifdef TRACE_MATCH_CONVERSION
+					printf("Trying conversion ( %d ? ? %d )\n", conversion[0], conversion[3]);
+#endif
 					// Match the second conversion
 					for (int k = 0; k < NU_CONVERSION_TYPES; k++)
 						if (detex_conversion_table[k].source_format ==
@@ -1011,8 +1024,10 @@ uint32_t *conversion) {
 							detex_conversion_table[k].target_format) < min_precision)
 								continue;
 							conversion[1] = k;
-//							printf("Trying conversion ( %d %d ? %d )\n",
-//								conversion[0], conversion[1], conversion[3]);
+#ifdef TRACE_MATCH_CONVERSION
+							printf("Trying conversion ( %d %d ? %d )\n",
+								conversion[0], conversion[1], conversion[3]);
+#endif
 							// Match the third conversion.
 							for (int l = 0; l < NU_CONVERSION_TYPES; l++) {
 								if (detex_conversion_table[l].target_format ==
