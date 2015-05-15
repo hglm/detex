@@ -138,7 +138,7 @@ int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	for (int i = 0; i < nu_pixels; i++) {
 		int32_t red = *source_pixel16_buffer;
 		red -= 32768;
-		*(int16_t *)source_pixel_buffer = (int16_t)red;
+		*(int16_t *)source_pixel16_buffer = (int16_t)red;
 		source_pixel16_buffer++;
 	}
 }
@@ -159,7 +159,8 @@ static void ConvertPixel16SignedR16ToPixel16R16(uint8_t * DETEX_RESTRICT source_
 int nu_pixels, uint8_t * DETEX_RESTRICT target_pixel_buffer) {
 	uint16_t *source_pixel16_buffer = (uint16_t *)source_pixel_buffer;
 	for (int i = 0; i < nu_pixels; i++) {
-		int32_t red = *(int16_t *)source_pixel16_buffer + 32768;
+		int32_t red = *(int16_t *)source_pixel16_buffer;
+		red += 32768;
 		*source_pixel16_buffer = (uint16_t)red;
 		source_pixel16_buffer++;
 	}
