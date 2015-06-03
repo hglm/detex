@@ -291,7 +291,7 @@ uint8_t * DETEX_RESTRICT pixel_buffer) {
 	int GO = ((bitstring[0] & 0x1) << 6) | ((bitstring[1] & 0x7E) >> 1);
 	int BO = ((bitstring[1] & 0x1) << 5) | (bitstring[2] & 0x18) | ((bitstring[2] & 0x03) << 1) |
 		((bitstring[3] & 0x80) >> 7);
-	int RH = ((bitstring[3] & 0x7B) >> 1) | (bitstring[3] & 0x1);
+	int RH = ((bitstring[3] & 0x7C) >> 1) | (bitstring[3] & 0x1);
 	int GH = (bitstring[4] & 0xFE) >> 1;
 	int BH = ((bitstring[4] & 0x1) << 5) | ((bitstring[5] & 0xF8) >> 3);
 	int RV = ((bitstring[5] & 0x7) << 3) | ((bitstring[6] & 0xE0) >> 5);
@@ -489,7 +489,7 @@ int * DETEX_RESTRICT base_color_subblock, uint8_t * DETEX_RESTRICT pixel_buffer)
 	int pixel_index = ((pixel_index_word & (1 << i)) >> i)
 		| ((pixel_index_word & (0x10000 << i)) >> (16 + i - 1));
 	int r, g, b;
-	int modifier = modifier_table[table_codeword][pixel_index];
+	int modifier = punchthrough_modifier_table[table_codeword][pixel_index];
 	r = detexClamp0To255(base_color_subblock[0] + modifier);
 	g = detexClamp0To255(base_color_subblock[1] + modifier);
 	b = detexClamp0To255(base_color_subblock[2] + modifier);
