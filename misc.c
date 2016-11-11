@@ -20,10 +20,32 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#if !_MSC_VER
 #include <strings.h>
+#endif
 #include <stdarg.h>
 
 #include "detex.h"
+
+#if _MSC_VER
+// Implementations of the additional POSIX string functions from strings.h, which do not appear in MSVC.
+int vasprintf(char ** DETEX_RESTRICT ret, const char * DETEX_RESTRICT format, va_list ap) {
+	int len = _vsnprintf(NULL, 0, format, ap);
+	if (len < 0)
+		return -1;
+	*ret = (char*)malloc(len + 1);
+	if (!*ret)
+		return -1;
+	_vsnprintf(*ret, len + 1, format, ap);
+	(*ret)[len] = 0;
+	return len;
+}
+
+static DETEX_INLINE_ONLY int strncasecmp(const char *s1, const char *s2, size_t n)
+{
+	return _strnicmp(s1, s2, n);
+}
+#endif
 
 // Generate bit mask from bit0 to bit1 (inclusive).
 static DETEX_INLINE_ONLY uint64_t GenerateMask(int bit0, int bit1) {
