@@ -19,11 +19,20 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#if !_MSC_VER
 #include <strings.h>
+#endif
 
 #include "detex.h"
 #include "file-info.h"
 #include "misc.h"
+
+#if _MSC_VER
+static DETEX_INLINE_ONLY int strcasecmp(const char *s1, const char *s2)
+{
+	return _stricmp(s1, s2);
+}
+#endif
 
 /*
 	The TextureInfo structure has the following fields:
