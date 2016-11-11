@@ -16,6 +16,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 */
 
+#pragma once
+
 extern const uint8_t detex_bptc_table_P2[64 * 16];
 extern const uint8_t detex_bptc_table_P3[64 * 16];
 
