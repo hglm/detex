@@ -48,7 +48,7 @@ static void ValidateGammaCorrectedHalfFloatTable(float gamma) {
 	detex_corrected_half_float_table_gamma == gamma)
 		return;
 	if (detex_gamma_corrected_half_float_table == NULL)
-		detex_gamma_corrected_half_float_table = malloc(65536 * sizeof(float));
+		detex_gamma_corrected_half_float_table = (float *)malloc(65536 * sizeof(float));
 	float *float_table = detex_gamma_corrected_half_float_table;
 	detexValidateHalfFloatTable();
 	memcpy(float_table, detex_half_float_table, 65536 * sizeof(float));
