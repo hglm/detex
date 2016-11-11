@@ -18,6 +18,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 /* Data structure used to extract bits from 128-bit bitstring. */
 
+#pragma once
+
 typedef struct {
 	uint64_t data0;
 	uint64_t data1;
