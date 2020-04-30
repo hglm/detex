@@ -17,7 +17,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include "detex.h"
-#include "division-tables.h"
 
 /* Decompress a 64-bit 4x4 pixel texture block compressed using the BC1 */
 /* format. */
@@ -221,7 +220,7 @@ uint32_t flags, uint8_t * DETEX_RESTRICT pixel_buffer) {
 			case 4 : alpha = detexDivide0To1791By7(4 * alpha0 + 3 * alpha1); break;
 			case 5 : alpha = detexDivide0To1791By7(3 * alpha0 + 4 * alpha1); break;
 			case 6 : alpha = detexDivide0To1791By7(2 * alpha0 + 5 * alpha1); break;
-			case 7 : alpha = detexDivide0To1791By7(1 * alpha0 + 2 * alpha1); break;
+			case 7 : alpha = detexDivide0To1791By7(1 * alpha0 + 6 * alpha1); break;
 			}
 		else
 			switch (code) {

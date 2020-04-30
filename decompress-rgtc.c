@@ -17,7 +17,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include "detex.h"
-#include "division-tables.h"
 
 // For each pixel, decode an 8-bit integer and store as follows:
 // If shift and offset are zero, store each value in consecutive 8 bit values in pixel_buffer.

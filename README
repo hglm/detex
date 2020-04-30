@@ -23,8 +23,9 @@ texture files (test-texture*.*)
 ---- Installation ----
 
 The libary configuration (static or shared, and installation paths) can be set
-in the file Makefile.conf. Run make to compile the library, sudo make install
-to install. Compilation requires gcc.
+in the file Makefile.conf. Compilation as a static library is recommended. Run
+make to compile the library, sudo make install to install. Compilation requires
+gcc.
 
 Run make programs to compile the programs detex-validate, detex-view and
 detex-convert. Compilation of detex-convert requires the presence of libpng12
