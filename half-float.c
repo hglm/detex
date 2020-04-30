@@ -20,7 +20,12 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <math.h>
 #include <float.h>
 #include <fenv.h>
+#if _MSC_VER
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
 #include <pthread.h>
+#endif
 
 #include "detex.h"
 #include "half-float.h"
@@ -279,6 +284,22 @@ static void detexCalculateHalfFloatTable() {
 	free(hf_buffer);
 }
 
+#if _MSC_VER
+static HANDLE mutex_half_float_table = NULL;
+
+void detexValidateHalfFloatTable() {
+	if (mutex_half_float_table == NULL)
+	{
+		HANDLE mutex = CreateMutex(NULL, FALSE, NULL);
+		if (InterlockedCompareExchangePointer((PVOID*)mutex_half_float_table, (PVOID)mutex, NULL) != NULL)
+			CloseHandle(mutex);
+	}
+	WaitForSingleObject(mutex_half_float_table, INFINITE);
+	if (detex_half_float_table == NULL)
+		detexCalculateHalfFloatTable();
+	ReleaseMutex(mutex_half_float_table);
+}
+#else
 static pthread_mutex_t mutex_half_float_table = PTHREAD_MUTEX_INITIALIZER;
 
 void detexValidateHalfFloatTable() {
@@ -287,6 +308,7 @@ void detexValidateHalfFloatTable() {
 		detexCalculateHalfFloatTable();
 	pthread_mutex_unlock(&mutex_half_float_table);
 }
+#endif
 
 // Conversion functions.
 

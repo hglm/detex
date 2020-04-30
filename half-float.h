@@ -16,6 +16,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 */
 
+#pragma once
+
 void detexConvertHalfFloatToFloat(uint16_t *source_buffer, int n, float *target_buffer);
 
 void detexConvertFloatToHalfFloat(float *source_buffer, int n, uint16_t *target_buffer);

@@ -16,6 +16,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 */
 
+#pragma once
+
 typedef struct {
 	uint32_t texture_format;
 	int ktx_support;

@@ -19,11 +19,20 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#if !_MSC_VER
 #include <strings.h>
+#endif
 
 #include "detex.h"
 #include "file-info.h"
 #include "misc.h"
+
+#if _MSC_VER
+static DETEX_INLINE_ONLY int strcasecmp(const char *s1, const char *s2)
+{
+	return _stricmp(s1, s2);
+}
+#endif
 
 /*
 	The TextureInfo structure has the following fields:
@@ -84,7 +93,7 @@ static const detexTextureFileInfo texture_info[] = {
 	{ DETEX_TEXTURE_FORMAT_BPTC_FLOAT,	1, 1,	"BPTC_FLOAT", "BC6H_UF16",	4, 4,	0x8E8F, 0,	0,		"DX10", 95 },
 	{ DETEX_TEXTURE_FORMAT_BPTC_SIGNED_FLOAT, 1, 1,	"BPTC_SIGNED_FLOAT", "BC6H_SF16", 4, 4,	0x8E8E, 0,	0,		"DX10", 96 },
 	{ DETEX_TEXTURE_FORMAT_BPTC,		1, 1,	"BPTC", "BC7",			4, 4,	0x8E8C, 0,	0,		"DX10",	98 },
-	{ DETEX_TEXTURE_FORMAT_ETC1,		1, 0,	"ETC1", "",			4, 4,	0x8D64, 0,	0,		"", 0 },
+	{ DETEX_TEXTURE_FORMAT_ETC1,		1, 1,	"ETC1", "",			4, 4,	0x8D64, 0,	0,		"ETC1", 0 },
 	{ DETEX_TEXTURE_FORMAT_ETC2,		1, 0,	"ETC2", "ETC2_RGB8",		4, 4,	0x9274, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_ETC2_PUNCHTHROUGH, 1, 0,	"ETC2_PUNCHTHROUGH", "",	4, 4,	0x9275, 0,	0,		"", 0 },
 	{ DETEX_TEXTURE_FORMAT_ETC2_EAC,	1, 0,	"ETC2_EAC", "EAC",		4, 4,	0x9278, 0,	0,		"", 0 },
